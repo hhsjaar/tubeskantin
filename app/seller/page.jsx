@@ -16,6 +16,24 @@ const AddProduct = () => {
   const [category, setCategory] = useState('Earphone');
   const [price, setPrice] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
+  const [portionSize, setPortionSize] = useState('');
+  const [calories, setCalories] = useState('');
+  const [totalFat, setTotalFat] = useState('');
+  const [cholesterol, setCholesterol] = useState('');
+  const [sodium, setSodium] = useState('');
+  const [totalCarbohydrates, setTotalCarbohydrates] = useState('');
+  const [protein, setProtein] = useState('');
+  const [vitaminD, setVitaminD] = useState('');
+  const [calcium, setCalcium] = useState('');
+  const [iron, setIron] = useState('');
+  const [potassium, setPotassium] = useState('');
+  const [vitaminA, setVitaminA] = useState('');
+  const [vitaminC, setVitaminC] = useState('');
+  const [karbonMakanan, setKarbonMakanan] = useState('');
+  const [karbonPengolahan, setKarbonPengolahan] = useState('');
+  const [karbonTransportasiLimbah, setKarbonTransportasiLimbah] = useState('');
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +45,23 @@ const AddProduct = () => {
     formData.append('category',category)
     formData.append('price',price)
     formData.append('offerPrice',offerPrice)
+    formData.append('portionSize',portionSize)
+    formData.append('calories',calories)
+    formData.append('totalFat', totalFat)
+    formData.append('cholesterol', cholesterol)
+    formData.append('sodium', sodium)
+    formData.append('totalCarbohydrates', totalCarbohydrates)
+    formData.append('protein', protein)
+    formData.append('vitaminD', vitaminD)
+    formData.append('calcium', calcium)
+    formData.append('iron', iron)
+    formData.append('potassium', potassium)
+    formData.append('vitaminA', vitaminA)
+    formData.append('vitaminC', vitaminC)
+    formData.append('karbonMakanan', karbonMakanan);
+  formData.append('karbonPengolahan', karbonPengolahan);
+  formData.append('karbonTransportasiLimbah', karbonTransportasiLimbah);
+
 
     for (let i = 0; i < files.length; i++) {
       formData.append('images',files[i])
@@ -46,6 +81,19 @@ const AddProduct = () => {
         setCategory('Earphone');
         setPrice('');
         setOfferPrice('');
+        setPortionSize('');
+        setCalories('');
+        setTotalFat('');
+        setCholesterol('');
+        setSodium('');
+        setTotalCarbohydrates('');
+        setProtein('');
+        setVitaminD('');
+        setCalcium('');
+        setIron('');
+        setPotassium('');
+        setVitaminA('');
+        setVitaminC('');
       } else {
         toast.error(data.message);
       }
@@ -127,13 +175,11 @@ const AddProduct = () => {
               onChange={(e) => setCategory(e.target.value)}
               defaultValue={category}
             >
-              <option value="Earphone">Earphone</option>
-              <option value="Headphone">Headphone</option>
-              <option value="Watch">Watch</option>
-              <option value="Smartphone">Smartphone</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Camera">Camera</option>
-              <option value="Accessories">Accessories</option>
+              <option value="Makanan Berat">Makanan Berat</option>
+              <option value="Minuman">Minuman</option>
+              <option value="Gorengan">Gorengan</option>
+              <option value="Snack">Snack</option>
+             
             </select>
           </div>
           <div className="flex flex-col gap-1 w-32">
@@ -165,6 +211,244 @@ const AddProduct = () => {
             />
           </div>
         </div>
+        <div className="flex flex-col gap-1 max-w-md">
+          <label className="text-base font-medium" htmlFor="portion-size">
+            Portion Size
+          </label>
+          <input
+            id="portion-size"
+            type="text"
+            placeholder="Type here"
+            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+            onChange={(e) => setPortionSize(e.target.value)}
+            value={portionSize}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-1 max-w-md">
+          <label className="text-base font-medium" htmlFor="calories">
+            Calories
+          </label>
+          <input
+            id="calories"
+            type="text"
+            placeholder="Type here"
+            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+            onChange={(e) => setCalories(e.target.value)}
+            value={calories}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="total-fat">
+    Total Fat (g)
+  </label>
+  <input
+    id="total-fat"
+    type="number"
+    placeholder="e.g., 10"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setTotalFat(e.target.value)}
+    value={totalFat}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="cholesterol">
+    Cholesterol (mg)
+  </label>
+  <input
+    id="cholesterol"
+    type="number"
+    placeholder="e.g., 5"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setCholesterol(e.target.value)}
+    value={cholesterol}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="sodium">
+    Sodium (mg)
+  </label>
+  <input
+    id="sodium"
+    type="number"
+    placeholder="e.g., 5"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setSodium(e.target.value)}
+    value={sodium}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="total-carbohydrates">
+    Total Carbohydrates (g)
+  </label>
+  <input
+    id="total-carbohydrates"
+    type="number"
+    placeholder="e.g., 20"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setTotalCarbohydrates(e.target.value)}
+    value={totalCarbohydrates}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="protein">
+    Protein (g)
+  </label>
+  <input
+    id="protein"
+    type="number"
+    placeholder="e.g., 5"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setProtein(e.target.value)}
+    value={protein}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="vitaminD">
+    Vitamin D (IU or mg)
+  </label>
+  <input
+    id="vitaminD"
+    type="number"
+    placeholder="e.g., 10"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setVitaminD(e.target.value)}
+    value={vitaminD}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="calcium">
+    Calcium (mg)
+  </label>
+  <input
+    id="calcium"
+    type="number"
+    placeholder="e.g., 100"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setCalcium(e.target.value)}
+    value={calcium}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="iron">
+    Iron (mg)
+  </label>
+  <input
+    id="iron"
+    type="number"
+    placeholder="e.g., 2"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setIron(e.target.value)}
+    value={iron}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="potassium">
+    Potassium (mg)
+  </label>
+  <input
+    id="potassium"
+    type="number"
+    placeholder="e.g., 150"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setPotassium(e.target.value)}
+    value={potassium}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="vitaminA">
+    Vitamin A (IU or mcg)
+  </label>
+  <input
+    id="vitaminA"
+    type="number"
+    placeholder="e.g., 200"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setVitaminA(e.target.value)}
+    value={vitaminA}
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="vitaminC">
+    Vitamin C (mg)
+  </label>
+  <input
+    id="vitaminC"
+    type="number"
+    placeholder="e.g., 50"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setVitaminC(e.target.value)}
+    value={vitaminC}
+    required
+  />
+  <div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="karbonMakanan">
+    Karbon Makanan (kg CO₂e)
+  </label>
+  <input
+    id="karbonMakanan"
+    type="number"
+    placeholder="e.g., 0.5"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setKarbonMakanan(e.target.value)} // Update state
+    value={karbonMakanan} // Display value from state
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="karbonPengolahan">
+    Karbon Pengolahan (kg CO₂e)
+  </label>
+  <input
+    id="karbonPengolahan"
+    type="number"
+    placeholder="e.g., 0.2"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setKarbonPengolahan(e.target.value)} // Update state
+    value={karbonPengolahan} // Display value from state
+    required
+  />
+</div>
+
+<div className="flex flex-col gap-1 max-w-md">
+  <label className="text-base font-medium" htmlFor="karbonTransportasiLimbah">
+    Karbon Transportasi & Limbah (kg CO₂e)
+  </label>
+  <input
+    id="karbonTransportasiLimbah"
+    type="number"
+    placeholder="e.g., 0.1"
+    className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+    onChange={(e) => setKarbonTransportasiLimbah(e.target.value)} // Update state
+    value={karbonTransportasiLimbah} // Display value from state
+    required
+  />
+</div>
+
+</div>
+
         <button type="submit" className="px-8 py-2.5 bg-orange-600 text-white font-medium rounded">
           ADD
         </button>

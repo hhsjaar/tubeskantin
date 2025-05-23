@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
 
-
 // Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,71 +12,105 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-
 export async function POST(request) {
     try {
-        
-        const { userId } = getAuth(request)
+        const { userId } = getAuth(request);
 
-        const isSeller = await authSeller(userId)
+        const isSeller = await authSeller(userId);
 
         if (!isSeller) {
-            return NextResponse.json({ success: false, message: 'not authorized' })
+            return NextResponse.json({ success: false, message: 'not authorized' });
         }
 
-        const formData = await request.formData()
+        const formData = await request.formData();
 
         const name = formData.get('name');
         const description = formData.get('description');
         const category = formData.get('category');
         const price = formData.get('price');
         const offerPrice = formData.get('offerPrice');
+        const portionSize = formData.get('portionSize');
+        const calories = formData.get('calories');
+        const totalFat = formData.get('totalFat');
+        const cholesterol = formData.get('cholesterol');
+        const sodium = formData.get('sodium');
+        const totalCarbohydrates = formData.get('totalCarbohydrates');
+        const protein = formData.get('protein');
+        const vitaminD = formData.get('vitaminD');
+        const calcium = formData.get('calcium');
+        const iron = formData.get('iron');
+        const potassium = formData.get('potassium');
+        const vitaminA = formData.get('vitaminA');
+        const vitaminC = formData.get('vitaminC');
+
+        // Menambahkan karbon jejak
+        const karbonMakanan = formData.get('karbonMakanan');
+        const karbonPengolahan = formData.get('karbonPengolahan');
+        const karbonTransportasiLimbah = formData.get('karbonTransportasiLimbah');
 
         const files = formData.getAll('images');
 
         if (!files || files.length === 0) {
-            return NextResponse.json({ success: false, message: 'no files uploaded' })
+            return NextResponse.json({ success: false, message: 'no files uploaded' });
         }
 
         const result = await Promise.all(
             files.map(async (file) => {
-                const arrayBuffer = await file.arrayBuffer()
-                const buffer = Buffer.from(arrayBuffer)
+                const arrayBuffer = await file.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
 
-                return new Promise((resolve,reject)=>{
+                return new Promise((resolve, reject) => {
                     const stream = cloudinary.uploader.upload_stream(
-                        {resource_type: 'auto'},
-                        (error,result) => {
+                        { resource_type: 'auto' },
+                        (error, result) => {
                             if (error) {
-                                reject(error)
+                                reject(error);
                             } else {
-                                resolve(result)
+                                resolve(result);
                             }
                         }
-                    )
-                    stream.end(buffer)
-                })
+                    );
+                    stream.end(buffer);
+                });
             })
-        )
+        );
 
-        const image = result.map(result => result.secure_url)
+        const image = result.map(result => result.secure_url);
 
-        await connectDB()
+        await connectDB();
         const newProduct = await Product.create({
             userId,
             name,
             description,
             category,
-            price:Number(price),
-            offerPrice:Number(offerPrice),
+            price: Number(price),
+            offerPrice: Number(offerPrice),
+            portionSize: Number(portionSize),
+            calories: Number(calories),
+            totalFat: Number(totalFat),
+            cholesterol: Number(cholesterol),
+            sodium: Number(sodium),
+            totalCarbohydrates: Number(totalCarbohydrates),
+            protein: Number(protein),
+            vitaminD: Number(vitaminD),
+            calcium: Number(calcium),
+            iron: Number(iron),
+            potassium: Number(potassium),
+            vitaminA: Number(vitaminA),
+            vitaminC: Number(vitaminC),
             image,
-            date: Date.now()
-        })
+            // Menambahkan karbon jejak
+            karbonMakanan: Number(karbonMakanan),
+            karbonPengolahan: Number(karbonPengolahan),
+            karbonTransportasiLimbah: Number(karbonTransportasiLimbah),
+            date: Date.now(),
+        });
 
-        return NextResponse.json({ success: true, message: 'Upload successful', newProduct })
-
+        return NextResponse.json({ success: true, message: 'Upload successful', newProduct });
 
     } catch (error) {
-        NextResponse.json({ success: false, message: error.message })
+        // Ensure we return a response in case of an error
+        console.error(error); // Log error to the console
+        return NextResponse.json({ success: false, message: error.message }); // Return response with error message
     }
 }
