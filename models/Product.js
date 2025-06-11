@@ -10,6 +10,21 @@ const productSchema = new mongoose.Schema({
     category: { type: String, required: true },
     date: { type: Number, required: true },
     
+    // INFORMASI KANTIN
+    kantin: { 
+        type: String, 
+        required: true,
+        enum: [
+            "Kantin Teknik", 
+            "Kantin Kodok", 
+            "Kantin Telkom", 
+            "Kantin Sipil", 
+            "Kantin TN 1", 
+            "Kantin TN 2", 
+            "Kantin TN 3"
+        ]
+    },
+    
     // INFORMASI NILAI GIZI
     portionSize: { type: String, required: true }, // Ukuran porsi
     calories: { type: Number, required: true }, // Kalori

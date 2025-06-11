@@ -6,10 +6,11 @@ import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+
 const AddProduct = () => {
 
   const { getToken } = useAppContext()
-
+  
   const [files, setFiles] = useState([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

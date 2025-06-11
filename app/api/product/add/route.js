@@ -29,6 +29,10 @@ export async function POST(request) {
         const category = formData.get('category');
         const price = formData.get('price');
         const offerPrice = formData.get('offerPrice');
+        
+        // Menambahkan field kantin
+        const kantin = formData.get('kantin');
+        
         const portionSize = formData.get('portionSize');
         const calories = formData.get('calories');
         const totalFat = formData.get('totalFat');
@@ -47,6 +51,24 @@ export async function POST(request) {
         const karbonMakanan = formData.get('karbonMakanan');
         const karbonPengolahan = formData.get('karbonPengolahan');
         const karbonTransportasiLimbah = formData.get('karbonTransportasiLimbah');
+
+        // Validasi field kantin
+        const validKantins = [
+            "Kantin Teknik", 
+            "Kantin Kodok", 
+            "Kantin Telkom", 
+            "Kantin Sipil", 
+            "Kantin TN 1", 
+            "Kantin TN 2", 
+            "Kantin TN 3"
+        ];
+
+        if (!kantin || !validKantins.includes(kantin)) {
+            return NextResponse.json({ 
+                success: false, 
+                message: 'Kantin tidak valid. Pilih salah satu dari: ' + validKantins.join(', ')
+            });
+        }
 
         const files = formData.getAll('images');
 
@@ -85,7 +107,8 @@ export async function POST(request) {
             category,
             price: Number(price),
             offerPrice: Number(offerPrice),
-            portionSize: Number(portionSize),
+            kantin, // Menambahkan field kantin
+            portionSize,
             calories: Number(calories),
             totalFat: Number(totalFat),
             cholesterol: Number(cholesterol),

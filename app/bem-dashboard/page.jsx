@@ -1,65 +1,127 @@
-'use client'
-import React, { useEffect } from 'react';
-import { useAppContext } from "@/context/AppContext";
-import { useRouter } from "next/navigation";
-import { toast } from 'react-hot-toast';
+"use client";
 
-const BemDashboard = () => {
-  const { isBem, user } = useAppContext(); // Using isBem from context
-  const router = useRouter();
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+export default function BemPromoInput() {
+  const [bankSampahList, setBankSampahList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Input promo
+  const [selectedBankSampahId, setSelectedBankSampahId] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [promoValue, setPromoValue] = useState("");
+
+  const fetchBankSampah = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get("/api/bank-sampah");
+      if (data.success) {
+        setBankSampahList(data.bankSampah);
+      } else {
+        setError(data.message || "Gagal ambil data bank sampah");
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // If the user is not a "bem", redirect to home page
-    if (!isBem) {
-      toast.error("Access Denied! You must be a BEM member.");
-      router.push("/"); // Redirect to home page
+    fetchBankSampah();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedBankSampahId || !promoCode || !promoValue) {
+      alert("Mohon isi semua field promo.");
+      return;
     }
-  }, [isBem, router]);
+
+    // Cari userId dari bank sampah yang dipilih
+    const bankSampah = bankSampahList.find(bs => bs._id === selectedBankSampahId);
+    if (!bankSampah || !bankSampah.userId?._id) {
+      alert("Data user tidak ditemukan.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data } = await axios.post("/api/promo-codes", {
+        userId: bankSampah.userId._id,
+        code: promoCode,
+        value: Number(promoValue),
+      });
+
+      if (data.success) {
+        alert("Promo berhasil ditambahkan.");
+        setPromoCode("");
+        setPromoValue("");
+        setSelectedBankSampahId("");
+      } else {
+        alert(data.message || "Gagal menambahkan promo");
+      }
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
-      {isBem ? (
-        <>
-          <h1 className="text-3xl font-semibold mb-6">BEM Dashboard</h1>
-          <div className="space-y-6">
-            <div className="bg-white p-6 shadow-md rounded-lg">
-              <h2 className="text-xl font-medium mb-4">Welcome to the BEM Dashboard</h2>
-              <p>This is your control panel where you can manage your activities as a BEM member.</p>
-            </div>
+    <div className="container mx-auto p-4 max-w-xl">
+      <h1 className="text-2xl font-bold mb-4">Input Promo dari Bank Sampah</h1>
 
-            {/* Add more sections relevant to BEM members */}
-            <div className="bg-white p-6 shadow-md rounded-lg">
-              <h3 className="text-lg font-semibold mb-3">Manage Events</h3>
-              <p>Here you can view, add, or edit events hosted by BEM.</p>
-              <button
-                onClick={() => router.push('/bem-dashboard/events')}
-                className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
-              >
-                View Events
-              </button>
-            </div>
-
-            <div className="bg-white p-6 shadow-md rounded-lg">
-              <h3 className="text-lg font-semibold mb-3">BEM News</h3>
-              <p>Stay updated with the latest news from BEM and campus activities.</p>
-              <button
-                onClick={() => router.push('/bem-dashboard/news')}
-                className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
-              >
-                View News
-              </button>
-            </div>
-
-            {/* Additional sections could go here */}
-          </div>
-        </>
-      ) : (
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold">You are not authorized to view this page.</h2>
+      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+        <div>
+          <label className="block mb-1 font-semibold">Pilih Data Bank Sampah</label>
+          <select
+            value={selectedBankSampahId}
+            onChange={(e) => setSelectedBankSampahId(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="">-- Pilih --</option>
+            {bankSampahList.map((bs) => (
+              <option key={bs._id} value={bs._id}>
+                {bs.sampah} - {bs.userId?.name || "Unknown User"}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+
+        <div>
+          <label className="block mb-1 font-semibold">Kode Promo</label>
+          <input
+            type="text"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            required
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-semibold">Nominal Promo (Rp)</label>
+          <input
+            type="number"
+            value={promoValue}
+            onChange={(e) => setPromoValue(e.target.value)}
+            required
+            min={1}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        <button
+          disabled={loading}
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+        >
+          {loading ? "Mengirim..." : "Tambahkan Promo"}
+        </button>
+      </form>
     </div>
   );
-};
-
-export default BemDashboard;
+}

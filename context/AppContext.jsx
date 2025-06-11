@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useAuth, useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -8,157 +8,216 @@ import toast from "react-hot-toast";
 export const AppContext = createContext();
 
 export const useAppContext = () => {
-    return useContext(AppContext)
+  return useContext(AppContext);
 }
 
 export const AppContextProvider = (props) => {
+  const currency = process.env.NEXT_PUBLIC_CURRENCY;
+  const router = useRouter();
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY
-    const router = useRouter()
+  const { user } = useUser();
+  const { getToken } = useAuth();
 
-    const { user } = useUser()
-    const { getToken } = useAuth()
+  const [products, setProducts] = useState([]);
+  const [userData, setUserData] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isBem, setIsBem] = useState(false);  // New state for BEM role
+  const [isKantek, setIsKantek] = useState(false);
+const [isKandok, setIsKandok] = useState(false);
+const [isKantel, setIsKantel] = useState(false);
+const [isKansip, setIsKansip] = useState(false);
+const [isKantinTN1, setIsKantinTN1] = useState(false);
+const [isKantinTN2, setIsKantinTN2] = useState(false);
+const [isKantinTN3, setIsKantinTN3] = useState(false);
+  const [cartItems, setCartItems] = useState({});
+  const [bankSampahData, setBankSampahData] = useState([]);
 
-    const [products, setProducts] = useState([])
-    const [userData, setUserData] = useState(false)
-    const [isSeller, setIsSeller] = useState(false)
-    const [isBem, setIsBem] = useState(false) // New state for BEM role
-    const [cartItems, setCartItems] = useState({})
+  // Fetch Bank Sampah data
+  const fetchBankSampahData = async () => {
+    try {
+      const { data } = await axios.get('/api/bank-sampah/get');
+      if (data.success) {
+        setBankSampahData(data.bankSampah);
+      } else {
+        console.error(data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching Bank Sampah data', error);
+    }
+  };
 
-    const fetchProductData = async () => {
-        try {
-            const { data } = await axios.get('/api/product/list')
+  // Fetch Product Data
+  const fetchProductData = async () => {
+    try {
+      const { data } = await axios.get('/api/product/list');
+      if (data.success) {
+        setProducts(data.products);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
-            if (data.success) {
-                setProducts(data.products)
-            } else {
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
+  // Fetch User Data
+  const fetchUserData = async () => {
+  try {
+    if (user?.publicMetadata?.role === 'superadmin') {
+      setIsAdmin(true);
+    }
+    if (user?.publicMetadata?.role === 'bem') {
+      setIsBem(true);
+    }
+    if (user?.publicMetadata?.role === 'Kantin Teknik') {
+      setIsKantek(true);
+    }
+    if (user?.publicMetadata?.role === 'Kantin Kodok') {
+      setIsKandok(true);
+    }if (user?.publicMetadata?.role === 'Kantin Telkom') {
+      setIsKantel(true);
+    }
+    if (user?.publicMetadata?.role === 'Kantin Sipil') {
+      setIsKansip(true);
+    }
+    if (user?.publicMetadata?.role === 'Kantin TN 1') {
+      setIsKantinTN1(true);
+    }
+    if (user?.publicMetadata?.role === 'Kantin TN 2') {
+      setIsKantinTN2(true);
+    }
+    if (user?.publicMetadata?.role === 'Kantin TN 3') {
+      setIsKantinTN3(true);
     }
 
-    const fetchUserData = async () => {
-        try {
 
-            // Check for the user's role and set the appropriate state
-            if (user.publicMetadata.role === 'seller') {
-                setIsSeller(true)
-            }
-            if (user.publicMetadata.role === 'bem') {  // Checking if role is "bem"
-                setIsBem(true)
-            }
+    const token = await getToken();
 
-            const token = await getToken()
+    const { data } = await axios.get('/api/user/data', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-            const { data } = await axios.get('/api/user/data', { headers: { Authorization: `Bearer ${token}` } })
+    if (data.success) {
+      setUserData(data.user);
+      setCartItems(data.user?.cartItems ?? {}); // <--- pake safe access dan fallback
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
-            if (data.success) {
-                setUserData(data.user)
-                setCartItems(data.user.cartItems)
-            } else {
-                toast.error(data.message)
-            }
 
-        } catch (error) {
-            toast.error(error.message)
-        }
+  // Add item to cart
+  const addToCart = async (itemId) => {
+    if (!user) {
+      return toast('Please login', {
+        icon: '⚠️',
+      });
     }
 
-    const addToCart = async (itemId) => {
-
-        if (!user) {
-            return toast('Please login', {
-                icon: '⚠️',
-            })
-        }
-
-        let cartData = structuredClone(cartItems);
-        if (cartData[itemId]) {
-            cartData[itemId] += 1;
-        }
-        else {
-            cartData[itemId] = 1;
-        }
-        setCartItems(cartData);
-        if (user) {
-            try {
-                const token = await getToken()
-                await axios.post('/api/cart/update', { cartData }, { headers: { Authorization: `Bearer ${token}` } })
-                toast.success('Item added to cart')
-            } catch (error) {
-                toast.error(error.message)
-            }
-        }
+    let cartData = structuredClone(cartItems);
+    if (cartData[itemId]) {
+      cartData[itemId] += 1;
+    } else {
+      cartData[itemId] = 1;
     }
-
-    const updateCartQuantity = async (itemId, quantity) => {
-
-        let cartData = structuredClone(cartItems);
-        if (quantity === 0) {
-            delete cartData[itemId];
-        } else {
-            cartData[itemId] = quantity;
-        }
-        setCartItems(cartData)
-        if (user) {
-            try {
-                const token = await getToken()
-                await axios.post('/api/cart/update', { cartData }, { headers: { Authorization: `Bearer ${token}` } })
-                toast.success('Cart Updated')
-            } catch (error) {
-                toast.error(error.message)
-            }
-        }
+    setCartItems(cartData);
+    if (user) {
+      try {
+        const token = await getToken();
+        await axios.post('/api/cart/update', { cartData }, { headers: { Authorization: `Bearer ${token}` } });
+        toast.success('Item added to cart');
+      } catch (error) {
+        toast.error(error.message);
+      }
     }
+  };
 
-    const getCartCount = () => {
-        let totalCount = 0;
-        for (const items in cartItems) {
-            if (cartItems[items] > 0) {
-                totalCount += cartItems[items];
-            }
-        }
-        return totalCount;
+  // Update cart quantity
+  const updateCartQuantity = async (itemId, quantity) => {
+    let cartData = structuredClone(cartItems);
+    if (quantity === 0) {
+      delete cartData[itemId];
+    } else {
+      cartData[itemId] = quantity;
     }
-
-    const getCartAmount = () => {
-        let totalAmount = 0;
-        for (const items in cartItems) {
-            let itemInfo = products.find((product) => product._id === items);
-            if (cartItems[items] > 0) {
-                totalAmount += itemInfo.offerPrice * cartItems[items];
-            }
-        }
-        return Math.floor(totalAmount * 100) / 100;
+    setCartItems(cartData);
+    if (user) {
+      try {
+        const token = await getToken();
+        await axios.post('/api/cart/update', { cartData }, { headers: { Authorization: `Bearer ${token}` } });
+        toast.success('Cart Updated');
+      } catch (error) {
+        toast.error(error.message);
+      }
     }
+  };
 
-    useEffect(() => {
-        fetchProductData()
-    }, [])
-
-    useEffect(() => {
-        if (user) {
-            fetchUserData()
-        }
-    }, [user])
-
-    const value = {
-        user, getToken,
-        currency, router,
-        isSeller, setIsSeller,
-        isBem, setIsBem, // Expose isBem in context
-        userData, fetchUserData,
-        products, fetchProductData,
-        cartItems, setCartItems,
-        addToCart, updateCartQuantity,
-        getCartCount, getCartAmount
+  // Get total cart item count
+  const getCartCount = () => {
+    let totalCount = 0;
+    for (const items in cartItems) {
+      if (cartItems[items] > 0) {
+        totalCount += cartItems[items];
+      }
     }
+    return totalCount;
+  };
 
-    return (
-        <AppContext.Provider value={value}>
-            {props.children}
-        </AppContext.Provider>
-    )
-}
+  // Get total cart amount
+  const getCartAmount = () => {
+    let totalAmount = 0;
+    for (const items in cartItems) {
+      let itemInfo = products.find((product) => product._id === items);
+
+      // Check if itemInfo is found before accessing offerPrice
+      if (itemInfo && itemInfo.offerPrice) {
+        totalAmount += itemInfo.offerPrice * cartItems[items];
+      } else {
+        console.warn(`Product not found or missing offerPrice for item: ${items}`);
+      }
+    }
+    return Math.floor(totalAmount * 100) / 100;
+  };
+
+  // Fetch necessary data on component mount
+  useEffect(() => {
+    fetchProductData();
+    fetchBankSampahData();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+
+  const value = {
+    user, getToken, currency, router,
+  isAdmin, setIsAdmin,
+  isBem, setIsBem,
+
+  isKantek, setIsKantek,
+  isKandok, setIsKandok,
+  isKantel, setIsKantel,
+  isKansip, setIsKansip,
+  isKantinTN1, setIsKantinTN1,
+  isKantinTN2, setIsKantinTN2,
+  isKantinTN3, setIsKantinTN3,
+
+  userData, fetchUserData,
+  products, fetchProductData,
+  cartItems, setCartItems,
+  addToCart, updateCartQuantity,
+  getCartCount, getCartAmount,
+  bankSampahData, fetchBankSampahData
+  };
+
+  return (
+    <AppContext.Provider value={value}>
+      {props.children}
+    </AppContext.Provider>
+  );
+};

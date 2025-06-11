@@ -7,18 +7,35 @@ import Image from "next/image";
 import { useClerk, UserButton } from "@clerk/nextjs";
 
 const Navbar = () => {
-  const { isSeller, isBem, router, user } = useAppContext();
+  const {
+    isAdmin,
+    isBem,
+    router,
+    user,
+    isKantek,
+    isKandok,
+    isKantel,
+    isKansip,
+    isKantinTN1,
+    isKantinTN2,
+    isKantinTN3
+  } = useAppContext();
+
   const { openSignIn } = useClerk();
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e) => {
-  e.preventDefault();
-  if (searchQuery.trim()) {
-    router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-    setSearchQuery("");
-  }
-};
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
+
+  const isAnyKantin = isKantek || isKandok || isKantel || isKansip || isKantinTN1 || isKantinTN2 || isKantinTN3;
+
+  const getKantinDashboardRoute = () => "/kantin";
 
 
   return (
@@ -36,15 +53,21 @@ const Navbar = () => {
         <Link href="/my-orders" className="hover:text-gray-900 transition">Pesanan</Link>
         <Link href="/bank-sampah" className="hover:text-gray-900 transition">Bank Sampah</Link>
 
-        {isSeller && (
+        {isAdmin && (
           <button onClick={() => router.push("/seller")} className="text-xs border px-4 py-1.5 rounded-full">
-            Seller Dashboard
+            Admin Dashboard
           </button>
         )}
 
         {isBem && (
           <button onClick={() => router.push("/bem-dashboard")} className="text-xs border px-4 py-1.5 rounded-full">
             BEM Dashboard
+          </button>
+        )}
+
+        {isAnyKantin && (
+          <button onClick={() => router.push(getKantinDashboardRoute())} className="text-xs border px-4 py-1.5 rounded-full">
+            Kantin Dashboard
           </button>
         )}
       </div>
@@ -76,6 +99,11 @@ const Navbar = () => {
                 <UserButton.Action label="BEM Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/bem-dashboard")} />
               </UserButton.MenuItems>
             )}
+            {isAnyKantin && (
+              <UserButton.MenuItems>
+                <UserButton.Action label="Kantin Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push(getKantinDashboardRoute())} />
+              </UserButton.MenuItems>
+            )}
           </UserButton>
         ) : (
           <button onClick={openSignIn} className="flex items-center gap-2 hover:text-gray-900 transition">
@@ -87,14 +115,19 @@ const Navbar = () => {
 
       {/* Mobile */}
       <div className="flex items-center md:hidden gap-3">
-        {isSeller && (
+        {isAdmin && (
           <button onClick={() => router.push("/seller")} className="text-xs border px-4 py-1.5 rounded-full">
-            Seller Dashboard
+            Admin Dashboard
           </button>
         )}
         {isBem && (
           <button onClick={() => router.push("/bem-dashboard")} className="text-xs border px-4 py-1.5 rounded-full">
             BEM Dashboard
+          </button>
+        )}
+        {isAnyKantin && (
+          <button onClick={() => router.push(getKantinDashboardRoute())} className="text-xs border px-4 py-1.5 rounded-full">
+            Kantin Dashboard
           </button>
         )}
         {user ? (
@@ -106,6 +139,9 @@ const Navbar = () => {
               <UserButton.Action label="My Orders" labelIcon={<BagIcon />} onClick={() => router.push("/my-orders")} />
               {isBem && (
                 <UserButton.Action label="BEM Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/bem-dashboard")} />
+              )}
+              {isAnyKantin && (
+                <UserButton.Action label="Kantin Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push(getKantinDashboardRoute())} />
               )}
             </UserButton.MenuItems>
           </UserButton>
