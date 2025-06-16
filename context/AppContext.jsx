@@ -20,7 +20,7 @@ export const AppContextProvider = (props) => {
 
   const [products, setProducts] = useState([]);
   const [userData, setUserData] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSeller, setIsSeller] = useState(false);
   const [isBem, setIsBem] = useState(false);  // New state for BEM role
   const [isKantek, setIsKantek] = useState(false);
 const [isKandok, setIsKandok] = useState(false);
@@ -63,8 +63,8 @@ const [isKantinTN3, setIsKantinTN3] = useState(false);
   // Fetch User Data
   const fetchUserData = async () => {
   try {
-    if (user?.publicMetadata?.role === 'superadmin') {
-      setIsAdmin(true);
+    if (user?.publicMetadata?.role === 'seller') {
+      setIsSeller(true);
     }
     if (user?.publicMetadata?.role === 'bem') {
       setIsBem(true);
@@ -196,7 +196,7 @@ const [isKantinTN3, setIsKantinTN3] = useState(false);
 
   const value = {
     user, getToken, currency, router,
-  isAdmin, setIsAdmin,
+  isSeller, setIsSeller,
   isBem, setIsBem,
 
   isKantek, setIsKantek,

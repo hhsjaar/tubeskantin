@@ -8,7 +8,7 @@ import { useClerk, UserButton } from "@clerk/nextjs";
 
 const Navbar = () => {
   const {
-    isAdmin,
+    isSeller,
     isBem,
     router,
     user,
@@ -53,7 +53,7 @@ const Navbar = () => {
         <Link href="/my-orders" className="hover:text-gray-900 transition">Pesanan</Link>
         <Link href="/bank-sampah" className="hover:text-gray-900 transition">Bank Sampah</Link>
 
-        {isAdmin && (
+        {isSeller && (
           <button onClick={() => router.push("/seller")} className="text-xs border px-4 py-1.5 rounded-full">
             Admin Dashboard
           </button>
@@ -115,7 +115,7 @@ const Navbar = () => {
 
       {/* Mobile */}
       <div className="flex items-center md:hidden gap-3">
-        {isAdmin && (
+        {isSeller && (
           <button onClick={() => router.push("/seller")} className="text-xs border px-4 py-1.5 rounded-full">
             Admin Dashboard
           </button>

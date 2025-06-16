@@ -1,5 +1,6 @@
 import logo from "./logo.png";
 import search_icon from "./search_icon.svg";
+import banksampah from "./banksampah.png";
 import user_icon from "./user_icon.svg";
 import cart_icon from "./cart_icon.svg";
 import add_icon from "./add_icon.svg";
@@ -73,6 +74,7 @@ export const assets = {
   header_headphone_image,
   header_playstation_image,
   header_macbook_image,
+  banksampah,
   macbook_image,
   bose_headphone_image,
   apple_earphone_image,

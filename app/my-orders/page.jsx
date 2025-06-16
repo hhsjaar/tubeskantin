@@ -43,11 +43,11 @@ const MyOrders = () => {
       <Navbar />
       <div className="flex flex-col justify-between px-6 md:px-16 lg:px-32 py-6 min-h-screen">
         <div className="space-y-5">
-          <h2 className="text-lg font-medium mt-6">My Orders</h2>
+          <h2 className="text-lg font-medium mt-6">Pesanan Saya</h2>
           {loading ? (
             <Loading />
           ) : orders.length === 0 ? (
-            <p className="text-center mt-6">You have no orders yet.</p>
+            <p className="text-center mt-6">Anda belum memiliki pesanan.</p>
           ) : (
             <div className="max-w-5xl border-t border-gray-300 text-sm">
               {orders.map((order, index) => (
@@ -58,65 +58,77 @@ const MyOrders = () => {
                   {/* Info Produk */}
                   <div className="flex-1 flex gap-5 max-w-80">
                     <Image
-                      src={assets.box_icon}
-                      alt="box_icon"
+                      src={order.items[0]?.product?.image[0] || assets.box_icon}  // Menampilkan gambar produk atau fallback ke ikon kotak
+                      alt={order.items[0]?.product?.name || "Produk"}
                       width={64}
                       height={64}
                       className="max-w-16 max-h-16 object-cover"
                     />
                     <div className="flex flex-col gap-1">
                       <span className="font-medium text-base">
-                        {/* Tampilkan nama produk + qty, jika produk tidak tersedia tulis "Unknown Product" */}
+                        {/* Menampilkan nama produk + qty, jika produk tidak tersedia tulis "Produk Tidak Dikenal" */}
                         {order.items
                           .map(
                             (item) =>
-                              `${item.product?.name ?? "Unknown Product"} x ${
+                              `${item.product?.name ?? "Produk Tidak Dikenal"} x ${
                                 item.quantity ?? 0
                               }`
                           )
                           .join(", ")}
                       </span>
-                      <span>Items: {order.items.length}</span>
+                      <span>Jumlah Produk: {order.items.length}</span>
                     </div>
                   </div>
 
-                  {/* Ringkasan Harga */}
-                  <div className="my-auto text-right">
-                    <p>
-                      <strong>Amount:</strong> {currency}
-                      {order.amount?.toLocaleString() ?? "0"}
-                      <br />
-                      <strong>Tax:</strong> {currency}
-                      {order.tax?.toLocaleString() ?? "0"}
-                      <br />
-                      <strong>Discount:</strong> {currency}
-                      {order.discount?.toLocaleString() ?? "0"}
-                      <br />
-                      <strong>Total:</strong> {currency}
-                      {order.total?.toLocaleString() ?? "0"}
-                      {order.promoCode && (
-                        <>
-                          <br />
-                          <em className="text-green-600">
-                            Promo code applied: {order.promoCode}
-                          </em>
-                        </>
-                      )}
-                    </p>
+                  {/* Tabel Ringkasan Harga */}
+                  <div className="my-auto w-full md:w-1/3">
+                    <table className="w-full">
+                      <tbody>
+                        <tr>
+                          <td><strong>Jumlah:</strong></td>
+                          <td>{currency}{order.amount?.toLocaleString() ?? "0"}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Pajak:</strong></td>
+                          <td>{currency}{order.tax?.toLocaleString() ?? "0"}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Diskon:</strong></td>
+                          <td>{currency}{order.discount?.toLocaleString() ?? "0"}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Total:</strong></td>
+                          <td>{currency}{order.total?.toLocaleString() ?? "0"}</td>
+                        </tr>
+                        {order.promoCode && (
+                          <tr>
+                            <td colSpan="2" className="text-green-600">
+                              Kode promo diterapkan: {order.promoCode}
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
 
                   {/* Info Pembayaran dan Tanggal */}
-                  <div className="my-auto text-right">
-                    <p className="flex flex-col">
-                      <span>Method: COD</span>
-                      <span>
-                        Date:{" "}
-                        {order.date
-                          ? new Date(order.date).toLocaleDateString()
-                          : "Unknown"}
-                      </span>
-                      <span>Payment: Pending</span>
-                    </p>
+                  <div className="my-auto w-full md:w-1/3">
+                    <table className="w-full">
+                      <tbody>
+                        <tr>
+                          <td><strong>Metode Pembayaran:</strong></td>
+                          <td>COD</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Tanggal:</strong></td>
+                          <td>{order.date ? new Date(order.date).toLocaleDateString() : "Tidak Diketahui"}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Status Pembayaran:</strong></td>
+                          <td>Menunggu</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               ))}

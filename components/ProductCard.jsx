@@ -1,14 +1,31 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { assets } from '@/assets/assets'
 import Image from 'next/image';
 import { useAppContext } from '@/context/AppContext';
 import { FaLeaf } from "react-icons/fa";
 
-
-
 const ProductCard = ({ product }) => {
 
-    const { currency, router } = useAppContext()
+    const { currency, router } = useAppContext();
+    
+    // State untuk menyimpan emisi karbon
+    const [carbonEmission, setCarbonEmission] = useState(null);
+
+    // Fungsi untuk menghitung emisi karbon rata-rata
+    const calculateCarbonEmission = (karbonMakanan, karbonPengolahan, karbonTransportasiLimbah) => {
+        const totalCarbon = karbonMakanan + karbonPengolahan + karbonTransportasiLimbah;
+        return (totalCarbon / 3).toFixed(2);  // Menghitung rata-rata dan membulatkan hasil ke dua angka desimal
+    };
+
+    // Mengambil data karbon emisi produk
+    useEffect(() => {
+        // Misalkan data produk memiliki properti yang berisi emisi karbon
+        const { karbonMakanan, karbonPengolahan, karbonTransportasiLimbah } = product;
+
+        // Menghitung emisi karbon rata-rata
+        const carbon = calculateCarbonEmission(karbonMakanan, karbonPengolahan, karbonTransportasiLimbah);
+        setCarbonEmission(carbon); // Menyimpan emisi karbon yang dihitung ke state
+    }, [product]);
 
     return (
         <div
@@ -23,22 +40,15 @@ const ProductCard = ({ product }) => {
                     width={800}
                     height={800}
                 />
-                <button className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md">
-                    <Image
-                        className="h-3 w-3"
-                        src={assets.heart_icon}
-                        alt="heart_icon"
-                    />
-                </button>
+                
             </div>
 
             <p className="md:text-base font-medium pt-2 w-full truncate">{product.name}</p>
             
-
             {/* Emisi Karbon & Logo Daun */}
             <div className="flex items-center gap-2">
                 <FaLeaf className="text-green-400 h-4 w-4" />
-                <p className="text-xs text-green-400">~1.1 kg CO₂e /porsi</p>
+                <p className="text-xs text-green-400">{carbonEmission ? `~${carbonEmission} kg CO₂e /porsi` : 'Memuat data emisi...'}</p>
             </div>
 
             <div className="flex items-end justify-between w-full mt-1">
@@ -51,4 +61,4 @@ const ProductCard = ({ product }) => {
     )
 }
 
-export default ProductCard
+export default ProductCard;

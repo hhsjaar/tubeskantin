@@ -2,6 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Image from "next/image"; // Import Image from next/image
+import { assets } from "@/assets/assets";
 
 export default function BankSampahPage() {
   const [bankSampahData, setBankSampahData] = useState([]);
@@ -9,48 +13,33 @@ export default function BankSampahPage() {
   const [error, setError] = useState(null);
 
   // Form state
-  const [sampah, setSampah] = useState("");
-  const [jumlahSampah, setJumlahSampah] = useState("");
+  const [sampahList, setSampahList] = useState([{ sampah: "", jumlahSampah: 1 }]);
   const [lokasi, setLokasi] = useState("");
   const [catatan, setCatatan] = useState("");
-  const [fotoSampah, setFotoSampah] = useState(null);
+  const [fotoSampah, setFotoSampah] = useState([]);
 
   // Ambil data Bank Sampah
-  const fetchBankSampahData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { data } = await axios.get("/api/bank-sampah");
-      if (data.success) {
-        setBankSampahData(data.bankSampah);
-      } else {
-        setError(data.message || "Gagal mengambil data");
-      }
-    } catch (err) {
-      setError(err.message);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchBankSampahData();
-  }, []);
-
+  
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!sampah || !jumlahSampah || !lokasi || !fotoSampah) {
+    if (!lokasi || !fotoSampah.length) {
       alert("Mohon isi semua field yang diperlukan.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("sampah", sampah);
-    formData.append("jumlahSampah", jumlahSampah);
+    sampahList.forEach((item) => {
+      formData.append("sampah", item.sampah);
+      formData.append("jumlahSampah", item.jumlahSampah);
+    });
     formData.append("lokasi", lokasi);
     formData.append("catatan", catatan);
-    formData.append("fotoSampah", fotoSampah);
+
+    fotoSampah.forEach((file) => {
+      formData.append("fotoSampah", file);
+    });
 
     try {
       setLoading(true);
@@ -63,13 +52,10 @@ export default function BankSampahPage() {
       if (data.success) {
         alert("Data berhasil ditambahkan!");
         // Reset form
-        setSampah("");
-        setJumlahSampah("");
+        setSampahList([{ sampah: "", jumlahSampah: 1 }]);
         setLokasi("");
         setCatatan("");
-        setFotoSampah(null);
-        // Refresh data
-        fetchBankSampahData();
+        setFotoSampah([]);
       } else {
         alert(data.message || "Gagal mengirim data");
       }
@@ -80,118 +66,185 @@ export default function BankSampahPage() {
     }
   };
 
+  // Handle foto upload
+  const handleFotoChange = (e) => {
+    setFotoSampah([...e.target.files]);
+  };
+
+  // Handle Sampah and jumlahSampah
+  const handleSampahChange = (index, field, value) => {
+    const updatedSampahList = [...sampahList];
+    updatedSampahList[index][field] = value;
+    setSampahList(updatedSampahList);
+  };
+
+  // Add new Sampah entry
+  const addSampah = () => {
+    setSampahList([...sampahList, { sampah: "", jumlahSampah: 1 }]);
+  };
+
+  // Remove Sampah entry
+  const removeSampah = (index) => {
+    const updatedSampahList = sampahList.filter((_, i) => i !== index);
+    setSampahList(updatedSampahList);
+  };
+
+  const imageSrc = assets.banksampah || null;
+
   return (
-    <div className="container mx-auto p-4 max-w-xl">
-      <h1 className="text-2xl font-bold mb-4">Bank Sampah</h1>
-
-      {/* Form Input */}
-      <form onSubmit={handleSubmit} className="mb-8 space-y-4">
-        <div>
-          <label className="block font-semibold mb-1">Jenis Sampah</label>
-          <input
-            type="text"
-            value={sampah}
-            onChange={(e) => setSampah(e.target.value)}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Jumlah Sampah (kg)</label>
-          <input
-            type="number"
-            value={jumlahSampah}
-            onChange={(e) => setJumlahSampah(e.target.value)}
-            required
-            min={0}
-            step="0.01"
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Lokasi</label>
-          <input
-            type="text"
-            value={lokasi}
-            onChange={(e) => setLokasi(e.target.value)}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Catatan (opsional)</label>
-          <textarea
-            value={catatan}
-            onChange={(e) => setCatatan(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-            rows={3}
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Foto Sampah</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFotoSampah(e.target.files[0])}
-            required
-            className="w-full"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? "Mengirim..." : "Kirim Data"}
-        </button>
-      </form>
-
-      {/* Display List */}
-      <h2 className="text-xl font-semibold mb-4">Data Bank Sampah Terbaru</h2>
-
-      {loading && !bankSampahData.length && <p>Loading data...</p>}
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-
-      {!loading && bankSampahData.length === 0 && <p>Belum ada data.</p>}
-
-      <ul className="space-y-4">
-        {bankSampahData.map((item) => (
-          <li key={item._id} className="border rounded p-4 flex gap-4 items-center">
-            <img
-              src={item.fotoSampah}
-              alt="Foto Sampah"
-              className="w-24 h-24 object-cover rounded"
+    <>
+      <Navbar />
+      <div className="flex min-h-screen justify-between p-10">
+        {/* Left Side: Image */}
+        <div className="flex-1 flex justify-center items-center">
+          {assets.banksampah ? (
+            <Image
+              className="max-w-full h-auto rounded-md shadow-lg"
+              src={assets.banksampah}
+              alt="Bank Sampah"
+              width={500}
+              height={300}
             />
-            <div className="flex flex-col gap-1">
-              <p><strong>Jenis Sampah:</strong> {item.sampah}</p>
-              <p><strong>Jumlah:</strong> {item.jumlahSampah} kg</p>
-              <p><strong>Lokasi:</strong> {item.lokasi}</p>
-              {item.catatan && <p><strong>Catatan:</strong> {item.catatan}</p>}
+          ) : (
+            <p>Image not available</p> // Optional placeholder
+          )}
+        </div>
 
-              {/* Tampilkan info user yang submit (populate) */}
-              {item.userId && (
-                <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                  <img
-                    src={item.userId.imageUrl}
-                    alt={item.userId.name}
-                    className="w-6 h-6 rounded-full object-cover"
+        {/* Right Side: Form */}
+        <div className="flex-1 bg-white p-6 rounded-md shadow-lg">
+          <h1 className="text-2xl font-bold mb-4">Bank Sampah</h1>
+
+          {/* Form Input */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Sampah List with Dynamic Input */}
+            {sampahList.map((item, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <div className="flex-1">
+                  <p className="text-base font-medium">Jenis Sampah</p>
+                  <input
+                    type="text"
+                    value={item.sampah}
+                    onChange={(e) => handleSampahChange(index, "sampah", e.target.value)}
+                    required
+                    className="outline-none py-2 px-3 rounded border border-gray-500/40 w-full"
+                    placeholder="Jenis Sampah"
                   />
-                  <span>Dikirim oleh: {item.userId.name}</span>
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleSampahChange(index, "jumlahSampah", item.jumlahSampah - 1)}
+                    className="px-3 py-1 bg-gray-300 rounded"
+                    disabled={item.jumlahSampah <= 1}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    value={item.jumlahSampah}
+                    onChange={(e) => handleSampahChange(index, "jumlahSampah", Math.max(1, e.target.value))}
+                    className="outline-none py-2 px-3 rounded border border-gray-500/40 w-16"
+                    min={1}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleSampahChange(index, "jumlahSampah", item.jumlahSampah + 1)}
+                    className="px-3 py-1 bg-gray-300 rounded"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeSampah(index)}
+                  className="text-red-500"
+                >
+                  Hapus
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSampah}
+              className="px-4 py-2 bg-green-500 text-white rounded"
+            >
+              Tambah Jenis Sampah
+            </button>
 
-              <p className="text-xs text-gray-400">
-                Dikirim: {new Date(item.createdAt).toLocaleString()}
-              </p>
+            {/* Lokasi */}
+            <div>
+              <p className="text-base font-medium">Lokasi</p>
+              <select
+                value={lokasi}
+                onChange={(e) => setLokasi(e.target.value)}
+                required
+                className="outline-none py-2 px-3 rounded border border-gray-500/40 w-full"
+                
+              >
+                <option value="Kantin Teknik">Kantin Teknik</option>
+                <option value="Kantin Kodok">Kantin Kodok</option>
+                <option value="Kantin Telkom">Kantin Telkom</option>
+                <option value="Kantin Sipil">Kantin Sipil</option>
+                <option value="Kantin TN 1">Kantin TN 1</option>
+                <option value="Kantin TN 2">Kantin TN 2</option>
+                <option value="Kantin TN 3">Kantin TN 3</option>
+              </select>
             </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+
+            {/* Catatan */}
+            <div>
+              <p className="text-base font-medium">Catatan (opsional)</p>
+              <textarea
+                value={catatan}
+                onChange={(e) => setCatatan(e.target.value)}
+                className="outline-none py-2 px-3 rounded border border-gray-500/40 w-full resize-none"
+                rows={3}
+              />
+            </div>
+
+            {/* Foto Sampah */}
+            <div>
+              <p className="text-base font-medium">Foto Sampah</p>
+              <div className="flex flex-wrap items-center gap-3 mt-2">
+                <label htmlFor="fotoSampah" className="cursor-pointer">
+                  <input
+                    type="file"
+                    id="fotoSampah"
+                    accept="image/*"
+                    onChange={handleFotoChange}
+                    multiple
+                    required
+                    hidden
+                  />
+                  <div className="max-w-24 w-24 h-24 border-2 border-dashed border-gray-300 rounded flex justify-center items-center">
+                    {fotoSampah.length > 0 ? (
+                      fotoSampah.map((file, index) => (
+                        <img
+                          key={index}
+                          src={URL.createObjectURL(file)}
+                          alt="Preview Foto Sampah"
+                          className="w-full h-full object-cover rounded"
+                        />
+                      ))
+                    ) : (
+                      <p className="text-gray-500">Upload</p>
+                    )}
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-8 py-2.5 bg-blue-600 text-white font-medium rounded"
+            >
+              {loading ? "Mengirim..." : "Kirim Data"}
+            </button>
+          </form>
+        </div>
+      </div>
+      <Footer />
+    </>
   );
 }
