@@ -10,7 +10,7 @@ export async function GET(request) {
     await connectDB();
 
     // Pastikan populate items.product
-    const orders = await Order.find({ userId }).populate("items.product");
+const orders = await Order.find({ userId }).populate("items.product");
 
     return NextResponse.json({ success: true, orders });
   } catch (error) {

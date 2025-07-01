@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
 import { useClerk, UserButton } from "@clerk/nextjs";
+import NotificationBell from "./NotificationBeli";
 
 const Navbar = () => {
   const {
@@ -33,10 +34,6 @@ const Navbar = () => {
     }
   };
 
-  const isAnyKantin = isKantek || isKandok || isKantel || isKansip || isKantinTN1 || isKantinTN2 || isKantinTN3;
-
-  const getKantinDashboardRoute = () => "/kantin";
-
 
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700">
@@ -51,7 +48,7 @@ const Navbar = () => {
         <Link href="/" className="hover:text-gray-900 transition">Beranda</Link>
         <Link href="/menu" className="hover:text-gray-900 transition">Menu</Link>
         <Link href="/my-orders" className="hover:text-gray-900 transition">Pesanan</Link>
-        <Link href="/bank-sampah" className="hover:text-gray-900 transition">Bank Sampah</Link>
+        <Link href="/trashback" className="hover:text-gray-900 transition">TrashBack</Link>
 
         {isSeller && (
           <button onClick={() => router.push("/seller")} className="text-xs border px-4 py-1.5 rounded-full">
@@ -65,14 +62,16 @@ const Navbar = () => {
           </button>
         )}
 
-        {isAnyKantin && (
-          <button onClick={() => router.push(getKantinDashboardRoute())} className="text-xs border px-4 py-1.5 rounded-full">
-            Kantin Dashboard
+        {isKandok && (
+          <button onClick={() => router.push("/kandok")} className="text-xs border px-4 py-1.5 rounded-full">
+            Kandok Dashboard
           </button>
         )}
       </div>
 
       <ul className="hidden md:flex items-center gap-4">
+                  <NotificationBell />
+
         <form onSubmit={handleSearch} className="flex items-center border rounded px-2 py-1 gap-2">
           <input
             type="text"
@@ -99,16 +98,16 @@ const Navbar = () => {
                 <UserButton.Action label="BEM Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/bem-dashboard")} />
               </UserButton.MenuItems>
             )}
-            {isAnyKantin && (
+            {isKandok && (
               <UserButton.MenuItems>
-                <UserButton.Action label="Kantin Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push(getKantinDashboardRoute())} />
+                <UserButton.Action label="Kandok Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/kandok")} />
               </UserButton.MenuItems>
             )}
           </UserButton>
         ) : (
           <button onClick={openSignIn} className="flex items-center gap-2 hover:text-gray-900 transition">
             <Image src={assets.user_icon} alt="user icon" />
-            Account
+            
           </button>
         )}
       </ul>
@@ -125,9 +124,9 @@ const Navbar = () => {
             BEM Dashboard
           </button>
         )}
-        {isAnyKantin && (
-          <button onClick={() => router.push(getKantinDashboardRoute())} className="text-xs border px-4 py-1.5 rounded-full">
-            Kantin Dashboard
+        {isKandok && (
+          <button onClick={() => router.push("/kandok")} className="text-xs border px-4 py-1.5 rounded-full">
+            Kandok Dashboard
           </button>
         )}
         {user ? (
@@ -140,15 +139,14 @@ const Navbar = () => {
               {isBem && (
                 <UserButton.Action label="BEM Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/bem-dashboard")} />
               )}
-              {isAnyKantin && (
-                <UserButton.Action label="Kantin Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push(getKantinDashboardRoute())} />
+              {isKandok && (
+                <UserButton.Action label="Kandok Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/kandok")} />
               )}
             </UserButton.MenuItems>
           </UserButton>
         ) : (
           <button onClick={openSignIn} className="flex items-center gap-2 hover:text-gray-900 transition">
             <Image src={assets.user_icon} alt="user icon" />
-            Account
           </button>
         )}
       </div>

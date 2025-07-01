@@ -1,5 +1,6 @@
 import connectDB from "@/config/db";
 import PromoCode from "@/models/PromoCode";
+import Notification from "@/models/Notification";
 import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(request) {
@@ -62,6 +63,11 @@ export async function POST(request) {
     });
 
     console.log("Promo created:", promo);
+    await Notification.create({
+  userId,
+  title: "🎁 Kode Promo Baru!",
+  message: `Kamu mendapatkan kode promo ${code} senilai Rp${value.toLocaleString()}. Gunakan segera ya sebelum kadaluarsa!`,
+});
 
     return new Response(
       JSON.stringify({ success: true, promo }),

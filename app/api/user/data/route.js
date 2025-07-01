@@ -12,7 +12,7 @@ export async function GET(request) {
 
     // Mengambil semua pengguna kecuali yang memiliki role 'seller' dan 'bem'
     const users = await User.find({
-      role: { $nin: ['seller', 'bem'] }
+      role: { $nin: ['seller', 'bem','kandok', 'kantek', 'kantel', 'kansip','kantintn1', 'kantintn2','seller'] }
     });
 
     if (!users || users.length === 0) {

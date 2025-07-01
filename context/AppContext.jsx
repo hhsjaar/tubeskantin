@@ -69,24 +69,24 @@ const [isKantinTN3, setIsKantinTN3] = useState(false);
     if (user?.publicMetadata?.role === 'bem') {
       setIsBem(true);
     }
-    if (user?.publicMetadata?.role === 'Kantin Teknik') {
+    if (user?.publicMetadata?.role === 'kantek') {
       setIsKantek(true);
     }
-    if (user?.publicMetadata?.role === 'Kantin Kodok') {
+    if (user?.publicMetadata?.role === 'kandok') {
       setIsKandok(true);
-    }if (user?.publicMetadata?.role === 'Kantin Telkom') {
+    }if (user?.publicMetadata?.role === 'kantel') {
       setIsKantel(true);
     }
-    if (user?.publicMetadata?.role === 'Kantin Sipil') {
+    if (user?.publicMetadata?.role === 'kansip') {
       setIsKansip(true);
     }
-    if (user?.publicMetadata?.role === 'Kantin TN 1') {
+    if (user?.publicMetadata?.role === 'kantintn1') {
       setIsKantinTN1(true);
     }
-    if (user?.publicMetadata?.role === 'Kantin TN 2') {
+    if (user?.publicMetadata?.role === 'kantintn2') {
       setIsKantinTN2(true);
     }
-    if (user?.publicMetadata?.role === 'Kantin TN 3') {
+    if (user?.publicMetadata?.role === 'kantintn3') {
       setIsKantinTN3(true);
     }
 

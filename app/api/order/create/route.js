@@ -1,7 +1,7 @@
 import { inngest } from "@/config/inngest";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-
+import Notification from '@/models/Notification';
 import Product from "@/models/Product";
 import PromoCode from "@/models/PromoCode";
 import Order from "@/models/Order";
@@ -79,23 +79,33 @@ export async function POST(request) {
     const total = amount + tax - discount;
 
     // Simpan order
-    const newOrder = new Order({
-      userId,
-      items,
-      amount,
-      tax,
-      discount,
-      total,
-      promoCode: promoCode || null,
-      date: new Date(),
-    });
-    await newOrder.save();
+const newOrder = new Order({
+  userId,
+  items,
+  amount,
+  tax,
+  discount,
+  total,
+  promoCode: promoCode || null,
+  date: new Date(),
+});
+await newOrder.save();
+
+// ✅ Tambahkan Notifikasi
+await Notification.create({
+  userId,
+  title: "Pesanan Berhasil",
+  message: `Pesanan kamu dengan total Rp${total.toLocaleString()} sedang diproses.`,
+});
+
 
     // Tandai promo sudah digunakan
     if (promo) {
       promo.used = true;
       await promo.save();
+      
     }
+    
 
     // Kirim event Inngest
     await inngest.send({

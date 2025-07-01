@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import { getAuth } from '@clerk/nextjs/server'
 import authSeller from "@/lib/authSeller";
+import authKandok from "@/lib/authkandok";
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
@@ -17,10 +18,16 @@ export async function POST(request) {
         const { userId } = getAuth(request);
 
         const isSeller = await authSeller(userId);
+        const isKandok = await authKandok (userId);
 
         if (!isSeller) {
-            return NextResponse.json({ success: false, message: 'not authorized' });
-        }
+    const isKandok = await authKandok(userId); // Fungsi untuk cek apakah user adalah Kandok
+    if (!isKandok) {
+        return NextResponse.json({ success: false, message: 'not authorized' });
+    }
+    // Kalau isKandok = true, lanjutkan logic sebagai user Kandok
+}
+
 
         const formData = await request.formData();
 
@@ -52,23 +59,7 @@ export async function POST(request) {
         const karbonPengolahan = formData.get('karbonPengolahan');
         const karbonTransportasiLimbah = formData.get('karbonTransportasiLimbah');
 
-        // Validasi field kantin
-        const validKantins = [
-            "Kantin Teknik", 
-            "Kantin Kodok", 
-            "Kantin Telkom", 
-            "Kantin Sipil", 
-            "Kantin TN 1", 
-            "Kantin TN 2", 
-            "Kantin TN 3"
-        ];
-
-        if (!kantin || !validKantins.includes(kantin)) {
-            return NextResponse.json({ 
-                success: false, 
-                message: 'Kantin tidak valid. Pilih salah satu dari: ' + validKantins.join(', ')
-            });
-        }
+        
 
         const files = formData.getAll('images');
 

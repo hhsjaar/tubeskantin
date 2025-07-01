@@ -13,13 +13,15 @@ export default function BankSampahPage() {
   const [error, setError] = useState(null);
 
   // Form state
-  const [sampahList, setSampahList] = useState([{ sampah: "", jumlahSampah: 1 }]);
+  const [sampahList, setSampahList] = useState([
+    { sampah: "", jumlahSampah: 1 },
+  ]);
   const [lokasi, setLokasi] = useState("");
   const [catatan, setCatatan] = useState("");
   const [fotoSampah, setFotoSampah] = useState([]);
 
   // Ambil data Bank Sampah
-  
+
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,7 +114,7 @@ export default function BankSampahPage() {
 
         {/* Right Side: Form */}
         <div className="flex-1 bg-white p-6 rounded-md shadow-lg">
-          <h1 className="text-2xl font-bold mb-4">Bank Sampah</h1>
+          <h1 className="text-2xl font-bold mb-4">TrashBack</h1>
 
           {/* Form Input */}
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -124,7 +126,9 @@ export default function BankSampahPage() {
                   <input
                     type="text"
                     value={item.sampah}
-                    onChange={(e) => handleSampahChange(index, "sampah", e.target.value)}
+                    onChange={(e) =>
+                      handleSampahChange(index, "sampah", e.target.value)
+                    }
                     required
                     className="outline-none py-2 px-3 rounded border border-gray-500/40 w-full"
                     placeholder="Jenis Sampah"
@@ -133,7 +137,13 @@ export default function BankSampahPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => handleSampahChange(index, "jumlahSampah", item.jumlahSampah - 1)}
+                    onClick={() =>
+                      handleSampahChange(
+                        index,
+                        "jumlahSampah",
+                        item.jumlahSampah - 1
+                      )
+                    }
                     className="px-3 py-1 bg-gray-300 rounded"
                     disabled={item.jumlahSampah <= 1}
                   >
@@ -142,13 +152,25 @@ export default function BankSampahPage() {
                   <input
                     type="number"
                     value={item.jumlahSampah}
-                    onChange={(e) => handleSampahChange(index, "jumlahSampah", Math.max(1, e.target.value))}
+                    onChange={(e) =>
+                      handleSampahChange(
+                        index,
+                        "jumlahSampah",
+                        Math.max(1, e.target.value)
+                      )
+                    }
                     className="outline-none py-2 px-3 rounded border border-gray-500/40 w-16"
                     min={1}
                   />
                   <button
                     type="button"
-                    onClick={() => handleSampahChange(index, "jumlahSampah", item.jumlahSampah + 1)}
+                    onClick={() =>
+                      handleSampahChange(
+                        index,
+                        "jumlahSampah",
+                        item.jumlahSampah + 1
+                      )
+                    }
                     className="px-3 py-1 bg-gray-300 rounded"
                   >
                     +
@@ -179,7 +201,6 @@ export default function BankSampahPage() {
                 onChange={(e) => setLokasi(e.target.value)}
                 required
                 className="outline-none py-2 px-3 rounded border border-gray-500/40 w-full"
-                
               >
                 <option value="Kantin Teknik">Kantin Teknik</option>
                 <option value="Kantin Kodok">Kantin Kodok</option>
@@ -205,33 +226,36 @@ export default function BankSampahPage() {
             {/* Foto Sampah */}
             <div>
               <p className="text-base font-medium">Foto Sampah</p>
-              <div className="flex flex-wrap items-center gap-3 mt-2">
-                <label htmlFor="fotoSampah" className="cursor-pointer">
-                  <input
-                    type="file"
-                    id="fotoSampah"
-                    accept="image/*"
-                    onChange={handleFotoChange}
-                    multiple
-                    required
-                    hidden
-                  />
-                  <div className="max-w-24 w-24 h-24 border-2 border-dashed border-gray-300 rounded flex justify-center items-center">
-                    {fotoSampah.length > 0 ? (
-                      fotoSampah.map((file, index) => (
-                        <img
-                          key={index}
-                          src={URL.createObjectURL(file)}
-                          alt="Preview Foto Sampah"
-                          className="w-full h-full object-cover rounded"
-                        />
-                      ))
-                    ) : (
-                      <p className="text-gray-500">Upload</p>
-                    )}
-                  </div>
-                </label>
-              </div>
+              <div className="mt-2 flex items-start gap-4 flex-wrap">
+  {/* Upload Box */}
+  <label htmlFor="fotoSampah" className="cursor-pointer">
+    <input
+      type="file"
+      id="fotoSampah"
+      accept="image/*"
+      onChange={handleFotoChange}
+      multiple
+      required
+      hidden
+    />
+    <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded flex justify-center items-center">
+      <p className="text-gray-500 text-sm">Upload</p>
+    </div>
+  </label>
+
+  {/* Preview Images */}
+  <div className="flex flex-wrap gap-3">
+    {fotoSampah.map((file, index) => (
+      <div key={index} className="w-24 h-24 relative">
+        <img
+          src={URL.createObjectURL(file)}
+          alt={`Preview ${index}`}
+          className="w-full h-full object-cover rounded"
+        />
+      </div>
+    ))}
+  </div>
+</div>
             </div>
 
             <button
