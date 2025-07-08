@@ -96,10 +96,13 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile Right (Notification + Hamburger) */}
+        <div className="flex items-center gap-3 md:hidden">
+          <NotificationBell />
+          <button onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

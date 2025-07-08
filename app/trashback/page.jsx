@@ -174,9 +174,9 @@ export default function BankSampahPage() {
                 <option value="Kantin Kodok">Kantin Kodok</option>
                 <option value="Kantin Telkom">Kantin Telkom</option>
                 <option value="Kantin Sipil">Kantin Sipil</option>
-                <option value="Kantin TN 1">Kantin TN 1</option>
-                <option value="Kantin TN 2">Kantin TN 2</option>
-                <option value="Kantin TN 3">Kantin TN 3</option>
+                <option value="Kantin TN 1">Kantin Berkah</option>
+                <option value="Kantin TN 2">Kantin Tata Niaga</option>
+                <option value="Kantin TN 3">Kantin Tania Mart</option>
               </select>
             </div>
 
