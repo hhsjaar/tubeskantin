@@ -1,155 +1,157 @@
-"use client";
-import React, { useState } from "react";
-import { assets, BagIcon, BoxIcon, CartIcon, HomeIcon } from "@/assets/assets";
-import Link from "next/link";
-import { useAppContext } from "@/context/AppContext";
-import Image from "next/image";
-import { useClerk, UserButton } from "@clerk/nextjs";
-import NotificationBell from "./NotificationBeli";
+'use client';
+import React, { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useAppContext } from '@/context/AppContext';
+import { useClerk, UserButton } from '@clerk/nextjs';
+import NotificationBell from './NotificationBeli';
+import { Menu, X } from 'lucide-react';
+import {
+  assets,
+  BagIcon,
+  BoxIcon,
+  CartIcon,
+  HomeIcon,
+} from '@/assets/assets';
 
 const Navbar = () => {
   const {
     isSeller,
     isBem,
-    router,
-    user,
-    isKantek,
     isKandok,
-    isKantel,
-    isKansip,
-    isKantinTN1,
-    isKantinTN2,
-    isKantinTN3
+    router,
+    user
   } = useAppContext();
 
   const { openSignIn } = useClerk();
-
-  const [searchQuery, setSearchQuery] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery("");
+      setSearchQuery('');
+      setMobileOpen(false);
     }
   };
 
-
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700">
-      <Image
-        className="cursor-pointer w-28 md:w-32"
-        onClick={() => router.push("/")}
-        src={assets.logo}
-        alt="logo"
-      />
-
-      <div className="flex items-center gap-4 lg:gap-8 max-md:hidden">
-        <Link href="/" className="hover:text-gray-900 transition">Beranda</Link>
-        <Link href="/menu" className="hover:text-gray-900 transition">Menu</Link>
-        <Link href="/my-orders" className="hover:text-gray-900 transition">Pesanan</Link>
-        <Link href="/trashback" className="hover:text-gray-900 transition">TrashBack</Link>
-
-        {isSeller && (
-          <button onClick={() => router.push("/seller")} className="text-xs border px-4 py-1.5 rounded-full">
-            Admin Dashboard
-          </button>
-        )}
-
-        {isBem && (
-          <button onClick={() => router.push("/bem-dashboard")} className="text-xs border px-4 py-1.5 rounded-full">
-            BEM Dashboard
-          </button>
-        )}
-
-        {isKandok && (
-          <button onClick={() => router.push("/kandok")} className="text-xs border px-4 py-1.5 rounded-full">
-            Kandok Dashboard
-          </button>
-        )}
-      </div>
-
-      <ul className="hidden md:flex items-center gap-4">
-                  <NotificationBell />
-
-        <form onSubmit={handleSearch} className="flex items-center border rounded px-2 py-1 gap-2">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search..."
-            className="outline-none text-sm"
+    <nav className="bg-white border-b shadow-sm sticky top-0 z-50">
+      <div className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-4">
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          <Image
+            onClick={() => router.push('/')}
+            src={assets.logo}
+            alt="logo"
+            className="w-28 md:w-32 cursor-pointer"
           />
-          <button type="submit">
-            <Image className="w-4 h-4" src={assets.search_icon} alt="search icon" />
-          </button>
-        </form>
+        </div>
 
-        {user ? (
-          <UserButton>
-            <UserButton.MenuItems>
-              <UserButton.Action label="Cart" labelIcon={<CartIcon />} onClick={() => router.push("/cart")} />
-            </UserButton.MenuItems>
-            <UserButton.MenuItems>
-              <UserButton.Action label="My Orders" labelIcon={<BagIcon />} onClick={() => router.push("/my-orders")} />
-            </UserButton.MenuItems>
-            {isBem && (
-              <UserButton.MenuItems>
-                <UserButton.Action label="BEM Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/bem-dashboard")} />
-              </UserButton.MenuItems>
-            )}
-            {isKandok && (
-              <UserButton.MenuItems>
-                <UserButton.Action label="Kandok Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/kandok")} />
-              </UserButton.MenuItems>
-            )}
-          </UserButton>
-        ) : (
-          <button onClick={openSignIn} className="flex items-center gap-2 hover:text-gray-900 transition">
-            <Image src={assets.user_icon} alt="user icon" />
-            
-          </button>
-        )}
-      </ul>
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <Link href="/">Beranda</Link>
+          <Link href="/menu">Menu</Link>
+          <Link href="/my-orders">Pesanan</Link>
+          <Link href="/trashback">TrashBack</Link>
 
-      {/* Mobile */}
-      <div className="flex items-center md:hidden gap-3">
-        {isSeller && (
-          <button onClick={() => router.push("/seller")} className="text-xs border px-4 py-1.5 rounded-full">
-            Admin Dashboard
-          </button>
-        )}
-        {isBem && (
-          <button onClick={() => router.push("/bem-dashboard")} className="text-xs border px-4 py-1.5 rounded-full">
-            BEM Dashboard
-          </button>
-        )}
-        {isKandok && (
-          <button onClick={() => router.push("/kandok")} className="text-xs border px-4 py-1.5 rounded-full">
-            Kandok Dashboard
-          </button>
-        )}
-        {user ? (
-          <UserButton>
-            <UserButton.MenuItems>
-              <UserButton.Action label="Home" labelIcon={<HomeIcon />} onClick={() => router.push("/")} />
-              <UserButton.Action label="Products" labelIcon={<BoxIcon />} onClick={() => router.push("/all-products")} />
-              <UserButton.Action label="Cart" labelIcon={<CartIcon />} onClick={() => router.push("/cart")} />
-              <UserButton.Action label="My Orders" labelIcon={<BagIcon />} onClick={() => router.push("/my-orders")} />
-              {isBem && (
-                <UserButton.Action label="BEM Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/bem-dashboard")} />
-              )}
-              {isKandok && (
-                <UserButton.Action label="Kandok Dashboard" labelIcon={<HomeIcon />} onClick={() => router.push("/kandok")} />
-              )}
-            </UserButton.MenuItems>
-          </UserButton>
-        ) : (
-          <button onClick={openSignIn} className="flex items-center gap-2 hover:text-gray-900 transition">
-            <Image src={assets.user_icon} alt="user icon" />
-          </button>
-        )}
+          {isSeller && (
+            <button onClick={() => router.push('/seller')} className="border text-xs px-3 py-1 rounded-full">
+              Admin
+            </button>
+          )}
+          {isBem && (
+            <button onClick={() => router.push('/bem-dashboard')} className="border text-xs px-3 py-1 rounded-full">
+              BEM
+            </button>
+          )}
+          {isKandok && (
+            <button onClick={() => router.push('/kandok')} className="border text-xs px-3 py-1 rounded-full">
+              Kandok
+            </button>
+          )}
+        </div>
+
+        {/* Desktop Right */}
+        <div className="hidden md:flex items-center gap-4">
+          <NotificationBell />
+          <form onSubmit={handleSearch} className="flex border rounded px-2 py-1 items-center">
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="text-sm outline-none w-32"
+            />
+            <button type="submit">
+              <Image src={assets.search_icon} alt="search" className="w-4 h-4" />
+            </button>
+          </form>
+          {user ? (
+            <UserButton />
+          ) : (
+            <button onClick={openSignIn}>
+              <Image src={assets.user_icon} alt="user icon" />
+            </button>
+          )}
+        </div>
+
+        {/* Mobile Toggle */}
+        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileOpen && (
+        <div className="md:hidden px-6 pb-6 space-y-3 text-sm font-medium border-t bg-white">
+          <Link href="/" onClick={() => setMobileOpen(false)} className="block py-2 border-b">Beranda</Link>
+          <Link href="/menu" onClick={() => setMobileOpen(false)} className="block py-2 border-b">Menu</Link>
+          <Link href="/my-orders" onClick={() => setMobileOpen(false)} className="block py-2 border-b">Pesanan</Link>
+          <Link href="/trashback" onClick={() => setMobileOpen(false)} className="block py-2 border-b">TrashBack</Link>
+
+          {(isSeller || isBem || isKandok) && <hr className="my-3" />}
+
+          {isSeller && (
+            <button onClick={() => { router.push('/seller'); setMobileOpen(false); }} className="block text-left w-full py-2 border-b">
+              Admin Dashboard
+            </button>
+          )}
+          {isBem && (
+            <button onClick={() => { router.push('/bem-dashboard'); setMobileOpen(false); }} className="block text-left w-full py-2 border-b">
+              BEM Dashboard
+            </button>
+          )}
+          {isKandok && (
+            <button onClick={() => { router.push('/kandok'); setMobileOpen(false); }} className="block text-left w-full py-2 border-b">
+              Kandok Dashboard
+            </button>
+          )}
+
+          <form onSubmit={handleSearch} className="flex border rounded px-2 py-1 items-center mt-2">
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="text-sm outline-none w-full"
+            />
+            <button type="submit">
+              <Image src={assets.search_icon} alt="search" className="w-4 h-4" />
+            </button>
+          </form>
+
+          <div className="mt-4">
+            {user ? (
+              <UserButton />
+            ) : (
+              <button onClick={openSignIn} className="flex items-center gap-2">
+                <Image src={assets.user_icon} alt="user icon" />
+                <span>Login</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
