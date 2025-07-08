@@ -1,10 +1,11 @@
+import { kantinNameToIdMap } from "@/lib/kantinMap";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 const OrderSummary = () => {
-  const { currency, router, getCartCount, getCartAmount, getToken, user, cartItems, setCartItems } = useAppContext();
+  const { currency, router, getCartCount, getCartAmount, getToken, user, cartItems, setCartItems, products} = useAppContext();
 
   const [promoCode, setPromoCode] = useState("");
   const [discountValue, setDiscountValue] = useState(0);
@@ -14,6 +15,8 @@ const OrderSummary = () => {
   const tax = Math.floor(subtotal * 0.02);
   const totalBeforeDiscount = subtotal + tax;
   const totalAfterDiscount = Math.max(0, totalBeforeDiscount - discountValue);
+  const [snapOpened, setSnapOpened] = useState(false);
+
 
   const applyPromoCode = async () => {
     if (!promoCode.trim()) {
@@ -46,48 +49,103 @@ const OrderSummary = () => {
   };
 
   const createOrder = async () => {
+    if (!user) return toast("Please login to place order", { icon: "⚠️" });
+
+    // Ambil array produk dalam cart
+    const cartItemsArray = Object.keys(cartItems)
+      .map((id) => {
+        const product = products.find((p) => p._id === id);
+        if (!product) return null;
+        return {
+          ...product,
+          quantity: cartItems[id],
+          subtotal: product.offerPrice * cartItems[id],
+        };
+      })
+      .filter(Boolean);
+
+    if (cartItemsArray.length === 0) {
+      return toast.error("Cart is empty");
+    }
+
+    // Validasi: semua item dari kantin yang sama
+    const firstKantin = cartItemsArray[0].kantin;
+    const isSameKantin = cartItemsArray.every((item) => item.kantin === firstKantin);
+
+    if (!isSameKantin) {
+      return toast.error("Semua produk dalam keranjang harus dari kantin yang sama");
+    }
+
+    const kantinId = kantinNameToIdMap[firstKantin];
+
     try {
-      if (!user) {
-        return toast("Please login to place order", {
-          icon: "⚠️",
-        });
-      }
+      const { data } = await axios.post("/api/checkout", {
+        kantinId,
+        customerName: user.name || user.email,
+        total: totalAfterDiscount,
+      });
 
-      let cartItemsArray = Object.keys(cartItems).map((key) => ({
-        product: key,
-        quantity: cartItems[key],
-      }));
-      cartItemsArray = cartItemsArray.filter((item) => item.quantity > 0);
+      if (data.snapToken && data.clientKey) {
+        const script = document.createElement("script");
+        script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+        script.setAttribute("data-client-key", data.clientKey);
+        document.body.appendChild(script);
 
-      if (cartItemsArray.length === 0) {
-        return toast.error("Cart is empty");
-      }
+        script.onload = () => {
+  setSnapOpened(true); // ⬅️ aktifkan tombol
+  window.snap.pay(data.snapToken, {
+  onPending: () => {
+    handleFakeSuccess(); // <-- ini akan simpan order ke DB
+  },
+});
 
-      const token = await getToken();
+};
 
-      const { data } = await axios.post(
-        "/api/order/create",
-        {
-          // Tidak ada address
-          items: cartItemsArray,
-          promoCode: isPromoApplied ? promoCode.trim() : null, // Kirim promo code jika ada
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (data.success) {
-        toast.success(data.message);
-        setCartItems({});
-        router.push("/order-placed");
       } else {
-        toast.error(data.message);
+        toast.error("Gagal membuat token pembayaran");
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error(error);
+      toast.error("Terjadi kesalahan saat checkout");
     }
   };
+  const handleFakeSuccess = async () => {
+  try {
+    if (!user) {
+      toast("Please login to place order", { icon: "⚠️" });
+      return;
+    }
+
+    let cartItemsArray = Object.keys(cartItems).map((key) => ({
+      product: key,
+      quantity: cartItems[key],
+    }));
+
+    const token = await getToken();
+
+    const { data } = await axios.post(
+      "/api/order/create",
+      {
+        items: cartItemsArray,
+        promoCode: isPromoApplied ? promoCode.trim() : null,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (data.success) {
+      toast.success("Pembayaran sukses");
+      setCartItems({});
+      router.push("/order-placed");
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+
 
   return (
     <div className="w-full md:w-96 bg-gray-500/5 p-5">
@@ -152,10 +210,27 @@ const OrderSummary = () => {
         onClick={createOrder}
         className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700"
       >
-        Place Order
+        Bayar Sekarang
       </button>
-    </div>
-  );
+      {/* ⬇️ Ini bagian yang kamu maksud: Tambahkan di sini */}
+    {snapOpened && (
+  <div className="fixed bottom-8 right-8 z-50">
+    <button
+      className="bg-green-600 text-white px-4 py-3 rounded shadow-lg hover:bg-green-700 transition-all"
+      onClick={() => {
+        toast.success("Pembayaran disimulasikan berhasil");
+        setCartItems({});
+        setSnapOpened(false);
+        router.push("/order-placed");
+      }}
+    >
+      Sudah Bayar
+    </button>
+  </div>
+)}
+
+  </div>
+);
 };
 
 export default OrderSummary;

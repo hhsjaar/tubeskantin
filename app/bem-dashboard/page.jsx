@@ -8,7 +8,6 @@ export default function BemDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Input promo
   const [selectedBankSampahId, setSelectedBankSampahId] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [promoValue, setPromoValue] = useState("");
@@ -20,7 +19,7 @@ export default function BemDashboard() {
       if (data.success) {
         setBankSampahList(data.bankSampah);
       } else {
-        setError(data.message || "Gagal ambil data bank sampah");
+        setError(data.message || "Gagal ambil data TrashBack");
       }
     } catch (e) {
       setError(e.message);
@@ -40,7 +39,7 @@ export default function BemDashboard() {
       return;
     }
 
-    const bankSampah = bankSampahList.find(bs => bs._id === selectedBankSampahId);
+    const bankSampah = bankSampahList.find((bs) => bs._id === selectedBankSampahId);
     if (!bankSampah || !bankSampah.userId?._id) {
       alert("Data user tidak ditemukan.");
       return;
@@ -70,54 +69,66 @@ export default function BemDashboard() {
   };
 
   return (
-    <div className="container mx-auto p-8 max-w-6xl bg-white rounded-lg shadow-xl">
-      <h1 className="text-3xl font-bold text-center text-green-600 mb-8">BEM Dashboard</h1>
+    <div className="container mx-auto p-4 sm:p-8 max-w-6xl bg-white rounded-lg shadow-xl">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center text-green-600 mb-6">
+        BEM Dashboard
+      </h1>
 
-      {/* Error Handling */}
       {error && <div className="mb-4 text-red-500">{error}</div>}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column - Bank Sampah List with Images */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">Data Bank Sampah Terbaru</h2>
+      {/* Layout Grid: 1 kolom di mobile, 2 kolom di desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Data TrashBack */}
+        <div className="bg-gray-100 p-4 sm:p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+            Data TrashBack Terbaru
+          </h2>
 
-          {loading && !bankSampahList.length && <p>Loading data...</p>}
-          {!loading && bankSampahList.length === 0 && <p>Belum ada data.</p>}
+          {loading && !bankSampahList.length && (
+            <p className="text-gray-500">Memuat data...</p>
+          )}
+          {!loading && bankSampahList.length === 0 && (
+            <p className="text-gray-500">Belum ada data.</p>
+          )}
 
-          <ul className="space-y-6">
+          <ul className="space-y-4 overflow-x-auto max-h-[70vh] pr-2">
             {bankSampahList.map((item) => (
-              <li key={item._id} className="border rounded-lg p-6 flex gap-6 items-center bg-white shadow-md hover:shadow-lg transition duration-300">
-                {/* Image of Bank Sampah */}
+              <li
+                key={item._id}
+                className="border rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row gap-4 bg-white shadow-sm hover:shadow-md transition"
+              >
                 <img
                   src={item.fotoSampah || "/default-image.jpg"}
                   alt="Foto Sampah"
-                  className="w-24 h-24 object-cover rounded-md border-2 border-gray-300"
+                  className="w-24 h-24 object-cover rounded-md border border-gray-300"
                 />
-                <div className="flex-1">
-                  <p className="text-lg font-semibold text-gray-800">
-                    <strong>Jenis Sampah:</strong> {item.sampah}
+                <div className="flex-1 text-sm sm:text-base text-gray-700">
+                  <p>
+                    <strong>Jenis Sampah:</strong>{" "}
+                    {Array.isArray(item.sampah) ? item.sampah.join(", ") : item.sampah}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p>
                     <strong>Jumlah:</strong> {item.jumlahSampah} kg
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p>
                     <strong>Lokasi:</strong> {item.lokasi}
                   </p>
                   {item.catatan && (
-                    <p className="text-sm text-gray-600">
+                    <p className="break-words">
                       <strong>Catatan:</strong> {item.catatan}
                     </p>
                   )}
 
-                  {/* User Info */}
                   {item.userId && (
-                    <div className="mt-4 flex items-center gap-3 text-sm text-gray-600">
+                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
                       <img
-                        src={item.userId.imageUrl || "/default-user.png"} // Default image if no user image
+                        src={item.userId.imageUrl || "/default-user.png"}
                         alt={item.userId.name}
                         className="w-8 h-8 rounded-full object-cover"
                       />
-                      <span>Dikirim oleh: {item.userId.name}</span>
+                      <span className="truncate">
+                        Dikirim oleh: {item.userId.name}
+                      </span>
                     </div>
                   )}
 
@@ -130,22 +141,26 @@ export default function BemDashboard() {
           </ul>
         </div>
 
-        {/* Right Column - Promo Input Form */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">Input Promo dari Bank Sampah</h2>
+        {/* Right Column - Form Promo */}
+        <div className="bg-gray-100 p-4 sm:p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+            Input Promo dari TrashBack
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-gray-600 font-medium">Pilih Bank Sampah</label>
+              <label className="block text-gray-600 font-medium">
+                Pilih TrashBack
+              </label>
               <select
                 value={selectedBankSampahId}
                 onChange={(e) => setSelectedBankSampahId(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 mt-2"
+                className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
               >
                 <option value="">-- Pilih --</option>
                 {bankSampahList.map((bs) => (
                   <option key={bs._id} value={bs._id}>
-                    {bs.sampah} - {bs.userId?.name || "Unknown User"}
+                    {bs.sampah} - {bs.userId?.name || "Unknown"}
                   </option>
                 ))}
               </select>
@@ -158,28 +173,30 @@ export default function BemDashboard() {
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded px-3 py-2 mt-2"
+                className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
                 placeholder="Masukkan Kode Promo"
               />
             </div>
 
             <div>
-              <label className="block text-gray-600 font-medium">Nominal Promo (Rp)</label>
+              <label className="block text-gray-600 font-medium">
+                Nominal Promo (Rp)
+              </label>
               <input
                 type="number"
                 value={promoValue}
                 onChange={(e) => setPromoValue(e.target.value)}
                 required
                 min={1}
-                className="w-full border border-gray-300 rounded px-3 py-2 mt-2"
+                className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
                 placeholder="Masukkan Nominal Promo"
               />
             </div>
 
             <button
-              disabled={loading}
               type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded mt-4 hover:bg-green-700 disabled:opacity-50"
+              disabled={loading}
+              className="w-full bg-green-600 text-white py-2.5 rounded mt-2 hover:bg-green-700 transition disabled:opacity-50"
             >
               {loading ? "Mengirim..." : "Tambahkan Promo"}
             </button>

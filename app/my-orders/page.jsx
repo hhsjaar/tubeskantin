@@ -41,92 +41,74 @@ const MyOrders = () => {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col justify-between px-6 md:px-16 lg:px-32 py-6 min-h-screen">
+      <div className="flex flex-col px-6 md:px-16 lg:px-32 py-6 min-h-screen bg-gray-50">
         <div className="space-y-5">
-          <h2 className="text-lg font-medium mt-6">Pesanan Saya</h2>
+          <h2 className="text-xl font-semibold mt-6 text-gray-800">🧾 Pesanan Saya</h2>
           {loading ? (
             <Loading />
           ) : orders.length === 0 ? (
-            <p className="text-center mt-6">Anda belum memiliki pesanan.</p>
+            <p className="text-center mt-6 text-gray-500">Anda belum memiliki pesanan.</p>
           ) : (
-            <div className="max-w-5xl border-t border-gray-300 text-sm">
+            <div className="space-y-6">
               {orders.map((order, index) => (
                 <div
                   key={index}
-                  className="flex flex-col md:flex-row gap-5 justify-between p-5 border-b border-gray-300"
+                  className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 flex flex-col md:flex-row gap-6"
                 >
                   {/* Info Produk */}
-                  <div className="flex-1 flex gap-5 max-w-80">
+                  <div className="flex-1 flex gap-5">
                     <Image
-                      src={order.items[0]?.product?.image[0] || assets.box_icon}  // Menampilkan gambar produk atau fallback ke ikon kotak
+                      src={order.items[0]?.product?.image[0] || assets.box_icon}
                       alt={order.items[0]?.product?.name || "Produk"}
-                      width={64}
-                      height={64}
-                      className="max-w-16 max-h-16 object-cover"
+                      width={72}
+                      height={72}
+                      className="rounded-xl object-cover border"
                     />
-                    <div className="flex flex-col gap-1">
-                      <span className="font-medium text-base">
-                        {/* Menampilkan nama produk + qty, jika produk tidak tersedia tulis "Produk Tidak Dikenal" */}
+                    <div className="flex flex-col justify-center gap-1">
+                      <span className="font-medium text-base text-gray-800">
                         {order.items
                           .map(
                             (item) =>
-                              `${item.product?.name ?? "Produk Tidak Dikenal"} x ${
-                                item.quantity ?? 0
-                              }`
+                              `${item.product?.name ?? "Produk Tidak Dikenal"} x ${item.quantity ?? 0}`
                           )
                           .join(", ")}
                       </span>
-                      <span>Jumlah Produk: {order.items.length}</span>
+                      <span className="text-sm text-gray-500">
+                        Total Produk: {order.items.length}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {order.date ? new Date(order.date).toLocaleDateString() : "Tanggal tidak diketahui"}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Tabel Ringkasan Harga */}
-                  <div className="my-auto w-full md:w-1/3">
-                    <table className="w-full">
+                  {/* Info Harga */}
+                  <div className="my-auto w-full md:w-1/2">
+                    <table className="w-full text-sm text-gray-700">
                       <tbody>
                         <tr>
-                          <td><strong>Jumlah:</strong></td>
-                          <td>{currency}{order.amount?.toLocaleString() ?? "0"}</td>
+                          <td className="py-1">Subtotal</td>
+                          <td className="py-1 text-right font-medium">{currency}{order.amount?.toLocaleString() ?? "0"}</td>
                         </tr>
                         <tr>
-                          <td><strong>Pajak:</strong></td>
-                          <td>{currency}{order.tax?.toLocaleString() ?? "0"}</td>
+                          <td className="py-1">Pajak (2%)</td>
+                          <td className="py-1 text-right font-medium">{currency}{order.tax?.toLocaleString() ?? "0"}</td>
                         </tr>
                         <tr>
-                          <td><strong>Diskon:</strong></td>
-                          <td>{currency}{order.discount?.toLocaleString() ?? "0"}</td>
+                          <td className="py-1">Diskon</td>
+                          <td className="py-1 text-right text-orange-600 font-medium">- {currency}{order.discount?.toLocaleString() ?? "0"}</td>
                         </tr>
-                        <tr>
-                          <td><strong>Total:</strong></td>
-                          <td>{currency}{order.total?.toLocaleString() ?? "0"}</td>
+                        <tr className="border-t pt-2">
+                          <td className="py-2 font-semibold">Total</td>
+                          <td className="py-2 text-right font-bold text-green-600">{currency}{order.total?.toLocaleString() ?? "0"}</td>
                         </tr>
                         {order.promoCode && (
                           <tr>
-                            <td colSpan="2" className="text-green-600">
-                              Kode promo diterapkan: {order.promoCode}
+                            <td colSpan="2" className="text-xs text-green-700 text-right">
+                              Kode promo digunakan: {order.promoCode}
                             </td>
                           </tr>
                         )}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Info Pembayaran dan Tanggal */}
-                  <div className="my-auto w-full md:w-1/3">
-                    <table className="w-full">
-                      <tbody>
-                        <tr>
-                          <td><strong>Metode Pembayaran:</strong></td>
-                          <td>COD</td>
-                        </tr>
-                        <tr>
-                          <td><strong>Tanggal:</strong></td>
-                          <td>{order.date ? new Date(order.date).toLocaleDateString() : "Tidak Diketahui"}</td>
-                        </tr>
-                        <tr>
-                          <td><strong>Status Pembayaran:</strong></td>
-                          <td>Menunggu</td>
-                        </tr>
                       </tbody>
                     </table>
                   </div>

@@ -1,50 +1,83 @@
-'use client';
-import { useState, useEffect } from 'react';
+'use client'
+import React, { useState } from 'react';
+
+const kantins = [
+  { id: 'kandok', name: 'Kantin Kodok' },
+  { id: 'kantek', name: 'Kantin Teknik' },
+  // ...
+];
 
 export default function CheckoutPage() {
-  const [invoiceUrl, setInvoiceUrl] = useState(null);
-  const [invoiceId, setInvoiceId] = useState(null);
-  const [paid, setPaid] = useState(false);
+  const [form, setForm] = useState({ kantinId: '', customerName: '', total: 0 });
 
-  const createInvoice = async () => {
-    const res = await fetch('/api/xendit-create-invoice', {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: 2499000, kantin_id: 'kantin-a' }),
+      body: JSON.stringify(form),
     });
+
     const data = await res.json();
-    setInvoiceUrl(data.invoice_url);
-    setInvoiceId(data.id); // ← kita harus kembalikan id invoice juga
+    if (data.snapToken && data.clientKey) {
+      // Load Snap.js from Midtrans
+      const script = document.createElement('script');
+      script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+      script.setAttribute('data-client-key', data.clientKey);
+      document.body.appendChild(script);
+
+      script.onload = () => {
+        window.snap.pay(data.snapToken, {
+          onSuccess: () => alert("Pembayaran sukses"),
+          onPending: () => alert("Menunggu pembayaran"),
+          onError: () => alert("Pembayaran gagal"),
+          onClose: () => alert("Anda menutup popup"),
+        });
+      };
+    } else {
+      alert("Gagal membuat token.");
+    }
   };
 
-  // Polling status invoice tiap 5 detik
-  useEffect(() => {
-    if (!invoiceId) return;
-
-    const interval = setInterval(async () => {
-      const res = await fetch(`/api/xendit-check-invoice?id=${invoiceId}`);
-      const data = await res.json();
-      if (data.status === 'PAID') {
-        clearInterval(interval);
-        setPaid(true);
-        // Trigger disburse manual
-        await fetch('/api/xendit-disburse', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kantin_id: 'kantin-a', amount: data.amount })
-        });
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [invoiceId]);
-
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Pembayaran Kantin</h1>
-      <button onClick={createInvoice}>Bayar Sekarang</button>
-      {invoiceUrl && <iframe src={invoiceUrl} width="400" height="600" />}
-      {paid && <p>✅ Pembayaran berhasil & dana dikirim ke kantin!</p>}
+    <div className="max-w-xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Checkout</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <select
+          className="border p-2 w-full"
+          value={form.kantinId}
+          onChange={e => setForm({ ...form, kantinId: e.target.value })}
+          required
+        >
+          <option value="">Pilih Kantin</option>
+          {kantins.map(k => (
+            <option key={k.id} value={k.id}>{k.name}</option>
+          ))}
+        </select>
+
+        <input
+          className="border p-2 w-full"
+          type="text"
+          placeholder="Nama Pemesan"
+          value={form.customerName}
+          onChange={e => setForm({ ...form, customerName: e.target.value })}
+          required
+        />
+
+        <input
+          className="border p-2 w-full"
+          type="number"
+          placeholder="Total Harga"
+          value={form.total}
+          onChange={e => setForm({ ...form, total: parseInt(e.target.value) })}
+          required
+        />
+
+        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded">
+          Bayar Sekarang
+        </button>
+      </form>
     </div>
   );
 }

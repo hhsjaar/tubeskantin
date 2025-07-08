@@ -7,6 +7,8 @@ import PromoCode from "@/models/PromoCode";
 import Order from "@/models/Order";
 import User from "@/models/User";
 import connectDB from "@/config/db";
+import mongoose from "mongoose";
+
 
 export async function POST(request) {
   await connectDB();
@@ -79,9 +81,19 @@ export async function POST(request) {
     const total = amount + tax - discount;
 
     // Simpan order
+const formattedItems = items.map((item) => {
+  if (!mongoose.Types.ObjectId.isValid(item.product)) {
+    throw new Error(`Invalid product ID: ${item.product}`);
+  }
+  return {
+    product: new mongoose.Types.ObjectId(item.product),
+    quantity: item.quantity,
+  };
+});
+
 const newOrder = new Order({
   userId,
-  items,
+  items: formattedItems,
   amount,
   tax,
   discount,
@@ -89,7 +101,10 @@ const newOrder = new Order({
   promoCode: promoCode || null,
   date: new Date(),
 });
-await newOrder.save();
+
+await newOrder.save(); // <--- Simpan order ke database
+console.log("Order saved:", newOrder._id);
+
 
 // ✅ Tambahkan Notifikasi
 await Notification.create({

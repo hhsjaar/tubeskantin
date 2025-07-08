@@ -1,25 +1,49 @@
+// app/api/checkout/route.js
+import { kantins } from "@/lib/kantins";
+import { NextResponse } from "next/server";
+import midtransClient from "midtrans-client";
+
 export async function POST(req) {
   const body = await req.json();
+  const { kantinId, customerName, total } = body;
 
-  const xenditApiKey = process.env.XENDIT_SECRET_KEY;
+  const kantin = kantins.find((k) => k.id === kantinId);
+  if (!kantin) {
+    return NextResponse.json(
+      { error: "Kantin tidak ditemukan." },
+      { status: 400 }
+    );
+  }
 
-  const payload = {
-    external_id: `kantin-${body.kantinId}-${Date.now()}`,
-    amount: body.amount || 20000,
-    payment_method: 'QRIS',
-    ...(body.merchant_id && { for_user_id: body.merchant_id }), // sub-account Xendit
-  };
-
-  const res = await fetch('https://api.xendit.co/qr_codes', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${Buffer.from(xenditApiKey + ':').toString('base64')}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
+  const snap = new midtransClient.Snap({
+    isProduction: false,
+    serverKey: kantin.serverKey,
   });
 
-  const data = await res.json();
+  const parameter = {
+    transaction_details: {
+      order_id: `ORDER-${kantinId}-${Date.now()}`,
+      gross_amount: total,
+    },
+    customer_details: {
+      first_name: customerName,
+    },
+    credit_card: {
+      secure: true,
+    },
+  };
 
-  return Response.json(data);
+  try {
+    const transaction = await snap.createTransaction(parameter);
+    return NextResponse.json({
+      snapToken: transaction.token,
+      clientKey: kantin.clientKey,
+    });
+  } catch (error) {
+    console.error("Midtrans Error:", error);
+    return NextResponse.json(
+      { error: "Gagal membuat transaksi." },
+      { status: 500 }
+    );
+  }
 }
