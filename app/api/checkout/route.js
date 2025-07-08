@@ -16,7 +16,7 @@ export async function POST(req) {
   }
 
   const snap = new midtransClient.Snap({
-    isProduction: false,
+    isProduction: kantin.isProduction,
     serverKey: kantin.serverKey,
   });
 
@@ -42,7 +42,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Midtrans Error:", error);
     return NextResponse.json(
-      { error: "Gagal membuat transaksi." },
+      { error: "Gagal membuat transaksi.", detail: error.message },
       { status: 500 }
     );
   }

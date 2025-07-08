@@ -92,53 +92,57 @@ export default function BemDashboard() {
           )}
 
           <ul className="space-y-4 overflow-x-auto max-h-[70vh] pr-2">
-            {bankSampahList.map((item) => (
-              <li
-                key={item._id}
-                className="border rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row gap-4 bg-white shadow-sm hover:shadow-md transition"
-              >
-                <img
-                  src={item.fotoSampah || "/default-image.jpg"}
-                  alt="Foto Sampah"
-                  className="w-24 h-24 object-cover rounded-md border border-gray-300"
-                />
-                <div className="flex-1 text-sm sm:text-base text-gray-700">
-                  <p>
-                    <strong>Jenis Sampah:</strong>{" "}
-                    {Array.isArray(item.sampah) ? item.sampah.join(", ") : item.sampah}
-                  </p>
-                  <p>
-                    <strong>Jumlah:</strong> {item.jumlahSampah} kg
-                  </p>
-                  <p>
-                    <strong>Lokasi:</strong> {item.lokasi}
-                  </p>
-                  {item.catatan && (
-                    <p className="break-words">
-                      <strong>Catatan:</strong> {item.catatan}
-                    </p>
-                  )}
+  {bankSampahList.map((item) => {
+    const isSelected = selectedBankSampahId === item._id;
+    return (
+      <li
+        key={item._id}
+        onClick={() => setSelectedBankSampahId(item._id)}
+        className={`cursor-pointer border rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row gap-4 transition
+          ${isSelected ? "bg-green-50 border-green-500 shadow-md" : "bg-white hover:shadow-md"}`}
+      >
+        <img
+          src={item.fotoSampah || "/default-image.jpg"}
+          alt="Foto Sampah"
+          className="w-24 h-24 object-cover rounded-md border border-gray-300"
+        />
+        <div className="flex-1 text-sm sm:text-base text-gray-700">
+          <p>
+            <strong>Jenis Sampah:</strong>{" "}
+            {Array.isArray(item.sampah) ? item.sampah.join(", ") : item.sampah}
+          </p>
+          <p>
+            <strong>Jumlah:</strong> {item.jumlahSampah} kg
+          </p>
+          <p>
+            <strong>Lokasi:</strong> {item.lokasi}
+          </p>
+          {item.catatan && (
+            <p className="break-words">
+              <strong>Catatan:</strong> {item.catatan}
+            </p>
+          )}
+          {item.userId && (
+            <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
+              <img
+                src={item.userId.imageUrl || "/default-user.png"}
+                alt={item.userId.name}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+              <span className="truncate">
+                Dikirim oleh: {item.userId.name}
+              </span>
+            </div>
+          )}
+          <p className="text-xs text-gray-400 mt-2">
+            Dikirim: {new Date(item.createdAt).toLocaleString()}
+          </p>
+        </div>
+      </li>
+    );
+  })}
+</ul>
 
-                  {item.userId && (
-                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
-                      <img
-                        src={item.userId.imageUrl || "/default-user.png"}
-                        alt={item.userId.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <span className="truncate">
-                        Dikirim oleh: {item.userId.name}
-                      </span>
-                    </div>
-                  )}
-
-                  <p className="text-xs text-gray-400 mt-2">
-                    Dikirim: {new Date(item.createdAt).toLocaleString()}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
 
         {/* Right Column - Form Promo */}

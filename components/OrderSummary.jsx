@@ -5,18 +5,17 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 const OrderSummary = () => {
-  const { currency, router, getCartCount, getCartAmount, getToken, user, cartItems, setCartItems, products} = useAppContext();
+  const { currency, router, getCartCount, getCartAmount, getToken, user, cartItems, setCartItems, products } = useAppContext();
 
   const [promoCode, setPromoCode] = useState("");
   const [discountValue, setDiscountValue] = useState(0);
   const [isPromoApplied, setIsPromoApplied] = useState(false);
+  const [snapScriptLoaded, setSnapScriptLoaded] = useState(false);
 
   const subtotal = getCartAmount();
   const tax = Math.floor(subtotal * 0.02);
   const totalBeforeDiscount = subtotal + tax;
   const totalAfterDiscount = Math.max(0, totalBeforeDiscount - discountValue);
-  const [snapOpened, setSnapOpened] = useState(false);
-
 
   const applyPromoCode = async () => {
     if (!promoCode.trim()) {
@@ -26,13 +25,12 @@ const OrderSummary = () => {
     try {
       const token = await getToken();
       const { data } = await axios.post(
-        "/api/promo-codes/validate", // sesuaikan endpoint validasi promo
+        "/api/promo-codes/validate",
         { code: promoCode.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (data.success) {
-        // Asumsi promo.value sudah dalam bentuk angka diskon langsung
         setDiscountValue(data.promo.value);
         setIsPromoApplied(true);
         toast.success(`Promo code applied! You saved ${currency}${data.promo.value}`);
@@ -51,7 +49,6 @@ const OrderSummary = () => {
   const createOrder = async () => {
     if (!user) return toast("Please login to place order", { icon: "⚠️" });
 
-    // Ambil array produk dalam cart
     const cartItemsArray = Object.keys(cartItems)
       .map((id) => {
         const product = products.find((p) => p._id === id);
@@ -68,7 +65,6 @@ const OrderSummary = () => {
       return toast.error("Cart is empty");
     }
 
-    // Validasi: semua item dari kantin yang sama
     const firstKantin = cartItemsArray[0].kantin;
     const isSameKantin = cartItemsArray.every((item) => item.kantin === firstKantin);
 
@@ -79,28 +75,34 @@ const OrderSummary = () => {
     const kantinId = kantinNameToIdMap[firstKantin];
 
     try {
-      const { data } = await axios.post("/api/checkout", {
-        kantinId,
-        customerName: user.name || user.email,
-        total: totalAfterDiscount,
-      });
+      const token = await getToken();
+
+      const { data } = await axios.post(
+        "/api/checkout",
+        {
+          kantinId,
+          customerName: user.name || user.email,
+          total: totalAfterDiscount,
+          items: cartItemsArray,
+          promoCode: isPromoApplied ? promoCode.trim() : null,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       if (data.snapToken && data.clientKey) {
-        const script = document.createElement("script");
-        script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-        script.setAttribute("data-client-key", data.clientKey);
-        document.body.appendChild(script);
-
-        script.onload = () => {
-  setSnapOpened(true); // ⬅️ aktifkan tombol
-  window.snap.pay(data.snapToken, {
-  onPending: () => {
-    handleFakeSuccess(); // <-- ini akan simpan order ke DB
-  },
-});
-
-};
-
+        // Load Snap.js production
+        if (!snapScriptLoaded) {
+          const script = document.createElement("script");
+          script.src = "https://app.midtrans.com/snap/snap.js"; // PRODUCTION!
+          script.setAttribute("data-client-key", data.clientKey);
+          document.body.appendChild(script);
+          script.onload = () => {
+            setSnapScriptLoaded(true);
+            triggerPayment(data.snapToken);
+          };
+        } else {
+          triggerPayment(data.snapToken);
+        }
       } else {
         toast.error("Gagal membuat token pembayaran");
       }
@@ -109,43 +111,26 @@ const OrderSummary = () => {
       toast.error("Terjadi kesalahan saat checkout");
     }
   };
-  const handleFakeSuccess = async () => {
-  try {
-    if (!user) {
-      toast("Please login to place order", { icon: "⚠️" });
-      return;
-    }
 
-    let cartItemsArray = Object.keys(cartItems).map((key) => ({
-      product: key,
-      quantity: cartItems[key],
-    }));
-
-    const token = await getToken();
-
-    const { data } = await axios.post(
-      "/api/order/create",
-      {
-        items: cartItemsArray,
-        promoCode: isPromoApplied ? promoCode.trim() : null,
+  const triggerPayment = (snapToken) => {
+    window.snap.pay(snapToken, {
+      onSuccess: function (result) {
+        toast.success("Pembayaran berhasil!");
+        setCartItems({});
+        router.push("/order-placed");
       },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    if (data.success) {
-      toast.success("Pembayaran sukses");
-      setCartItems({});
-      router.push("/order-placed");
-    } else {
-      toast.error(data.message);
-    }
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
-
+      onPending: function (result) {
+        toast("Menunggu pembayaran...", { icon: "⏳" });
+      },
+      onError: function (result) {
+        toast.error("Pembayaran gagal.");
+        console.error(result);
+      },
+      onClose: function () {
+        toast("Transaksi dibatalkan.");
+      },
+    });
+  };
 
   return (
     <div className="w-full md:w-96 bg-gray-500/5 p-5">
@@ -171,10 +156,7 @@ const OrderSummary = () => {
         <div className="space-y-4">
           <div className="flex justify-between text-base font-medium">
             <p className="uppercase text-gray-600">Items {getCartCount()}</p>
-            <p className="text-gray-800">
-              {currency}
-              {subtotal}
-            </p>
+            <p className="text-gray-800">{currency}{subtotal}</p>
           </div>
           <div className="flex justify-between">
             <p className="text-gray-600">Shipping Fee</p>
@@ -182,26 +164,17 @@ const OrderSummary = () => {
           </div>
           <div className="flex justify-between">
             <p className="text-gray-600">Tax (2%)</p>
-            <p className="font-medium text-gray-800">
-              {currency}
-              {tax}
-            </p>
+            <p className="font-medium text-gray-800">{currency}{tax}</p>
           </div>
           {isPromoApplied && (
             <div className="flex justify-between text-green-600 font-medium">
               <p>Discount</p>
-              <p>
-                -{currency}
-                {discountValue}
-              </p>
+              <p>-{currency}{discountValue}</p>
             </div>
           )}
           <div className="flex justify-between text-lg md:text-xl font-medium border-t pt-3">
             <p>Total</p>
-            <p>
-              {currency}
-              {totalAfterDiscount}
-            </p>
+            <p>{currency}{totalAfterDiscount}</p>
           </div>
         </div>
       </div>
@@ -212,25 +185,8 @@ const OrderSummary = () => {
       >
         Bayar Sekarang
       </button>
-      {/* ⬇️ Ini bagian yang kamu maksud: Tambahkan di sini */}
-    {snapOpened && (
-  <div className="fixed bottom-8 right-8 z-50">
-    <button
-      className="bg-green-600 text-white px-4 py-3 rounded shadow-lg hover:bg-green-700 transition-all"
-      onClick={() => {
-        toast.success("Pembayaran disimulasikan berhasil");
-        setCartItems({});
-        setSnapOpened(false);
-        router.push("/order-placed");
-      }}
-    >
-      Sudah Bayar
-    </button>
-  </div>
-)}
-
-  </div>
-);
+    </div>
+  );
 };
 
 export default OrderSummary;
