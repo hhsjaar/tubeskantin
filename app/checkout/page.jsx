@@ -23,7 +23,7 @@ export default function CheckoutPage() {
     if (data.snapToken && data.clientKey) {
       // Load Snap.js from Midtrans
       const script = document.createElement('script');
-script.src = 'https://app.midtrans.com/snap/snap.js'; // ✅ Production Snap
+      script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
       script.setAttribute('data-client-key', data.clientKey);
       document.body.appendChild(script);
 
