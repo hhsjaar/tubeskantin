@@ -1,11 +1,16 @@
 import mongoose from "mongoose";
-import Product from "./Product"; // ⬅️ WAJIB agar model 'Product' terdaftar sebelum digunakan
+import Product from "./Product"; // ⬅️ WAJIB: daftarkan model Product dulu
 
 const OrderSchema = new mongoose.Schema({
+  orderId: { type: String, unique: true },
   userId: { type: String, required: true },
   items: [
     {
-      product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true }, // ✅ perbaikan di sini
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product", // ✅ Harus cocok dengan model name: "Product"
+        required: true,
+      },
       quantity: { type: Number, required: true },
     },
   ],
@@ -17,6 +22,6 @@ const OrderSchema = new mongoose.Schema({
   date: Date,
 });
 
-const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema); // Gunakan huruf besar juga di model name
-
+// ✅ Gunakan huruf besar di model name
+const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
 export default Order;

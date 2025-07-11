@@ -21,6 +21,7 @@ export async function POST(request) {
         { status: 401 }
       );
     }
+    
 
     const body = await request.json();
     const { items, promoCode } = body;
@@ -91,7 +92,18 @@ const formattedItems = items.map((item) => {
   };
 });
 
+const orderId = `ORDER-${userId}-${Date.now()}`;
+const existingOrder = await Order.findOne({ orderId });
+if (existingOrder) {
+  return NextResponse.json(
+    { success: false, message: "Duplicate order detected" },
+    { status: 409 }
+  );
+}
+
+
 const newOrder = new Order({
+  orderId, // ✅ tambahkan ini
   userId,
   items: formattedItems,
   amount,
@@ -101,6 +113,7 @@ const newOrder = new Order({
   promoCode: promoCode || null,
   date: new Date(),
 });
+
 
 await newOrder.save(); // <--- Simpan order ke database
 console.log("Order saved:", newOrder._id);
