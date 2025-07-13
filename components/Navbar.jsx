@@ -6,6 +6,7 @@ import { useAppContext } from '@/context/AppContext';
 import { useClerk, UserButton } from '@clerk/nextjs';
 import NotificationBell from './NotificationBeli';
 import { Menu, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import {
   assets,
   BagIcon,
@@ -26,6 +27,7 @@ const Navbar = () => {
   const { openSignIn } = useClerk();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const pathname = usePathname();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -34,6 +36,40 @@ const Navbar = () => {
       setSearchQuery('');
       setMobileOpen(false);
     }
+  };
+
+  // Function to check if a menu item is active
+  const isActiveMenu = (path) => {
+    if (path === '/' && pathname === '/') return true;
+    if (path !== '/' && pathname.startsWith(path)) return true;
+    return false;
+  };
+
+  // Function to get menu item classes
+  const getMenuClasses = (path) => {
+    const baseClasses = "transition-colors duration-200 relative group";
+    const activeClasses = "text-[#479c26] font-semibold";
+    const inactiveClasses = "text-gray-700 hover:text-[#479c26]";
+    
+    return `${baseClasses} ${isActiveMenu(path) ? activeClasses : inactiveClasses}`;
+  };
+
+  // Function to get underline classes
+  const getUnderlineClasses = (path) => {
+    const baseClasses = "absolute -bottom-1 left-0 h-0.5 bg-[#479c26] transition-all duration-300";
+    const activeClasses = "w-full";
+    const inactiveClasses = "w-0 group-hover:w-full";
+    
+    return `${baseClasses} ${isActiveMenu(path) ? activeClasses : inactiveClasses}`;
+  };
+
+  // Function to get mobile menu classes
+  const getMobileMenuClasses = (path) => {
+    const baseClasses = "block py-3 border-b border-gray-100 transition-colors duration-300";
+    const activeClasses = "text-[#479c26] font-semibold bg-[#479c26]/5";
+    const inactiveClasses = "text-gray-700 hover:text-[#479c26]";
+    
+    return `${baseClasses} ${isActiveMenu(path) ? activeClasses : inactiveClasses}`;
   };
 
   return (
@@ -51,27 +87,31 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/" className="text-gray-700 hover:text-[#479c26] transition-colors duration-200 relative group">
+          <Link href="/" className={getMenuClasses('/')}>
             <span>Beranda</span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#479c26] transition-all duration-300 group-hover:w-full"></span>
+            <span className={getUnderlineClasses('/')}></span>
           </Link>
-          <Link href="/menu" className="text-gray-700 hover:text-[#479c26] transition-colors duration-200 relative group">
+          <Link href="/menu" className={getMenuClasses('/menu')}>
             <span>Menu</span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#479c26] transition-all duration-300 group-hover:w-full"></span>
+            <span className={getUnderlineClasses('/menu')}></span>
           </Link>
-          <Link href="/my-orders" className="text-gray-700 hover:text-[#479c26] transition-colors duration-200 relative group">
+          <Link href="/my-orders" className={getMenuClasses('/my-orders')}>
             <span>Pesanan</span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#479c26] transition-all duration-300 group-hover:w-full"></span>
+            <span className={getUnderlineClasses('/my-orders')}></span>
           </Link>
-          <Link href="/trashback" className="text-gray-700 hover:text-[#479c26] transition-colors duration-200 relative group">
+          <Link href="/trashback" className={getMenuClasses('/trashback')}>
             <span>TrashBack</span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#479c26] transition-all duration-300 group-hover:w-full"></span>
+            <span className={getUnderlineClasses('/trashback')}></span>
           </Link>
 
           {isSeller && (
             <button 
               onClick={() => router.push('/seller')} 
-              className="bg-white text-[#479c26] border border-[#479c26] hover:bg-[#479c26]/10 transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md"
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/seller') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
             >
               Admin
             </button>
@@ -79,7 +119,11 @@ const Navbar = () => {
           {isBem && (
             <button 
               onClick={() => router.push('/bem-dashboard')} 
-              className="bg-white text-[#479c26] border border-[#479c26] hover:bg-[#479c26]/10 transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md"
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/bem-dashboard') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
             >
               BEM
             </button>
@@ -87,7 +131,11 @@ const Navbar = () => {
           {isKandok && (
             <button 
               onClick={() => router.push('/kandok')} 
-              className="bg-white text-[#479c26] border border-[#479c26] hover:bg-[#479c26]/10 transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md"
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kandok') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
             >
               Kandok
             </button>
@@ -138,28 +186,28 @@ const Navbar = () => {
           <Link 
             href="/" 
             onClick={() => setMobileOpen(false)} 
-            className="block py-3 border-b border-gray-100 text-gray-700 hover:text-[#479c26] transition-colors duration-300"
+            className={getMobileMenuClasses('/')}
           >
             Beranda
           </Link>
           <Link 
             href="/menu" 
             onClick={() => setMobileOpen(false)} 
-            className="block py-3 border-b border-gray-100 text-gray-700 hover:text-[#479c26] transition-colors duration-300"
+            className={getMobileMenuClasses('/menu')}
           >
             Menu
           </Link>
           <Link 
             href="/my-orders" 
             onClick={() => setMobileOpen(false)} 
-            className="block py-3 border-b border-gray-100 text-gray-700 hover:text-[#479c26] transition-colors duration-300"
+            className={getMobileMenuClasses('/my-orders')}
           >
             Pesanan
           </Link>
           <Link 
             href="/trashback" 
             onClick={() => setMobileOpen(false)} 
-            className="block py-3 border-b border-gray-100 text-gray-700 hover:text-[#479c26] transition-colors duration-300"
+            className={getMobileMenuClasses('/trashback')}
           >
             TrashBack
           </Link>
@@ -169,7 +217,7 @@ const Navbar = () => {
           {isSeller && (
             <button 
               onClick={() => { router.push('/seller'); setMobileOpen(false); }} 
-              className="block text-left w-full py-3 border-b border-gray-100 text-gray-700 hover:text-[#479c26] transition-colors duration-300"
+              className={getMobileMenuClasses('/seller')}
             >
               Admin Dashboard
             </button>
@@ -177,7 +225,7 @@ const Navbar = () => {
           {isBem && (
             <button 
               onClick={() => { router.push('/bem-dashboard'); setMobileOpen(false); }} 
-              className="block text-left w-full py-3 border-b border-gray-100 text-gray-700 hover:text-[#479c26] transition-colors duration-300"
+              className={getMobileMenuClasses('/bem-dashboard')}
             >
               BEM Dashboard
             </button>
@@ -185,7 +233,7 @@ const Navbar = () => {
           {isKandok && (
             <button 
               onClick={() => { router.push('/kandok'); setMobileOpen(false); }} 
-              className="block text-left w-full py-3 border-b border-gray-100 text-gray-700 hover:text-[#479c26] transition-colors duration-300"
+              className={getMobileMenuClasses('/kandok')}
             >
               Kandok Dashboard
             </button>
