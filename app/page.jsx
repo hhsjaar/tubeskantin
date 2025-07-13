@@ -8,7 +8,10 @@ import axios from 'axios';
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
-import { BubbleChat } from "flowise-embed-react";
+import dynamic from 'next/dynamic';
+// Remove this line:
+// import { BubbleChat } from "flowise-embed-react";
+const BubbleChat = dynamic(() => import("flowise-embed-react").then(mod => mod.BubbleChat), { ssr: false });
 
 
 const kantinList = [
