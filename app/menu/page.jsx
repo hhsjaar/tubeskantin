@@ -1,13 +1,22 @@
 'use client'
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAppContext } from "@/context/AppContext";
+import { useSearchParams } from 'next/navigation';
 
 const AllProducts = () => {
     const { products } = useAppContext();
     const [selectedKantin, setSelectedKantin] = useState("All");
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const kantinParam = searchParams.get('kantin');
+        if (kantinParam) {
+            setSelectedKantin(decodeURIComponent(kantinParam));
+        }
+    }, [searchParams]);
 
     // Daftar kantin berdasarkan model schema
     const kantinList = [

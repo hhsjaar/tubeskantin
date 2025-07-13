@@ -1,5 +1,7 @@
 import logo from "./logo.png";
 import search_icon from "./search_icon.svg";
+import kandok from "./kandok.png";
+import ai from "./ai.svg";
 import banksampah from "./banksampah.png";
 import user_icon from "./user_icon.svg";
 import cart_icon from "./cart_icon.svg";
@@ -50,6 +52,7 @@ import product_details_page_apple_earphone_image5 from "./product_details_page_a
 
 export const assets = {
   logo,
+  ai,
   search_icon,
   user_icon,
   cart_icon,
@@ -64,6 +67,7 @@ export const assets = {
   arrow_icon,
   increase_arrow,
   decrease_arrow,
+  kandok,
   arrow_right_icon_colored,
   my_location_image,
   arrow_icon_white,

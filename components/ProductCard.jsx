@@ -49,6 +49,11 @@ const ProductCard = ({ product }) => {
             <div className="flex items-center gap-2">
                 <FaLeaf className="text-green-400 h-4 w-4" />
                 <p className="text-xs text-green-400">{carbonEmission ? `~${carbonEmission} kg CO₂e /porsi` : 'Memuat data emisi...'}</p>
+                {/* {typeof product.orderCount === 'number' && (
+                  <span className="ml-2 text-xs text-yellow-600 font-semibold bg-yellow-100 rounded-full px-2 py-0.5">
+                    {product.orderCount} terjual
+                  </span>
+                )} */}
             </div>
 
             <div className="flex items-end justify-between w-full mt-1">

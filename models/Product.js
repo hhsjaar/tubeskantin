@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
-  userId: { type: String, required: true, ref: "User" }, // Sesuaikan ref user juga
+  userId: { type: String, required: true, ref: "User" },
   name: { type: String, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true },
@@ -9,6 +9,8 @@ const productSchema = new mongoose.Schema({
   image: { type: Array, required: true },
   category: { type: String, required: true },
   date: { type: Number, required: true },
+  orderCount: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
 
   // INFORMASI KANTIN
   kantin: { 
@@ -44,6 +46,8 @@ const productSchema = new mongoose.Schema({
   karbonMakanan: { type: Number, required: true },
   karbonPengolahan: { type: Number, required: true },
   karbonTransportasiLimbah: { type: Number, required: true },
+  }, {
+  timestamps: true // ✅ Tambahkan ini
 });
 
 // ✅ Gunakan nama model huruf besar konsisten

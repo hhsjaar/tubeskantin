@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const HeaderSlider = () => {
+  const router = useRouter();
+  
   const sliderData = [
     {
       id: 1,
@@ -11,6 +14,8 @@ const HeaderSlider = () => {
       buttonText1: "Pesan Sekarang",
       buttonText2: "Lihat Menu Ramah Lingkungan",
       imgSrc: assets.header_headphone_image,
+      button1Link: "/menu",
+      button2Link: "/#fitur",
     },
     {
       id: 2,
@@ -19,6 +24,8 @@ const HeaderSlider = () => {
       buttonText1: "Mulai Pilih Makanan",
       buttonText2: "Pelajari Lebih Lanjut",
       imgSrc: assets.header_playstation_image,
+      button1Link: "/menu",
+      button2Link: "/trashback",
     },
     {
       id: 3,
@@ -27,6 +34,8 @@ const HeaderSlider = () => {
       buttonText1: "Cek Menu Ramah Lingkungan",
       buttonText2: "Bergabung dengan Gerakan Hijau",
       imgSrc: assets.header_macbook_image,
+      button1Link: "/menu",
+      button2Link: "/trashback",
     },
   ];
 
@@ -62,10 +71,16 @@ const HeaderSlider = () => {
                 {slide.title}
               </h1>
               <div className="flex items-center mt-4 md:mt-6 ">
-                <button className="md:px-10 px-7 md:py-2.5 py-2 bg-[#479C25] rounded-full text-white font-medium">
+                <button 
+                  onClick={() => router.push(slide.button1Link)}
+                  className="md:px-10 px-7 md:py-2.5 py-2 bg-[#479C25] rounded-full text-white font-medium hover:bg-[#3a7d1f] transition-colors cursor-pointer"
+                >
                   {slide.buttonText1}
                 </button>
-                <button className="group flex items-center gap-2 px-6 py-2.5 font-medium">
+                <button 
+                  onClick={() => router.push(slide.button2Link)}
+                  className="group flex items-center gap-2 px-6 py-2.5 font-medium hover:text-[#479C25] transition-colors cursor-pointer"
+                >
                   {slide.buttonText2}
                   <Image className="group-hover:translate-x-1 transition" src={assets.arrow_icon} alt="arrow_icon" />
                 </button>

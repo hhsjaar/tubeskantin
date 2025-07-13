@@ -3,7 +3,8 @@ import "./globals.css";
 import { AppContextProvider } from "@/context/AppContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
-import AuthWatcher from "@/components/AuthWatcher"; // ✅ Tambahkan ini
+import AuthWatcher from "@/components/AuthWatcher";
+import FloatingCart from "@/components/FloatingCart";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500"] });
 
@@ -19,8 +20,9 @@ export default function RootLayout({ children }) {
         <body className={`${outfit.className} antialiased text-gray-700`}>
           <Toaster />
           <AppContextProvider>
-            <AuthWatcher /> {/* ✅ Tambahkan ini */}
+            <AuthWatcher />
             {children}
+            <FloatingCart />
           </AppContextProvider>
         </body>
       </html>

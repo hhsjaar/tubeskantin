@@ -25,7 +25,7 @@ const NotificationBell = () => {
 
   const handleNotificationClick = async (notifId) => {
     try {
-await axios.patch(`/api/notification/read/${notifId}`);
+      await axios.patch(`/api/notification/read/${notifId}`);
       setNotifications(prev =>
         prev.map(n =>
           n._id === notifId ? { ...n, isRead: true } : n
@@ -34,6 +34,20 @@ await axios.patch(`/api/notification/read/${notifId}`);
     } catch (err) {
       console.error("Gagal menandai notifikasi sebagai dibaca:", err);
     }
+  };
+
+  // Fungsi untuk memilih emoji berdasarkan judul notifikasi
+  const getEmojiByTitle = (title) => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes('pesanan')) return '🛒';
+    if (lowerTitle.includes('pembayaran')) return '💰';
+    if (lowerTitle.includes('promo') || lowerTitle.includes('diskon')) return '🏷️';
+    if (lowerTitle.includes('pengiriman')) return '🚚';
+    if (lowerTitle.includes('selamat') || lowerTitle.includes('berhasil')) return '🎉';
+    if (lowerTitle.includes('gagal') || lowerTitle.includes('batal')) return '❌';
+    if (lowerTitle.includes('info')) return 'ℹ️';
+    if (lowerTitle.includes('peringatan') || lowerTitle.includes('warning')) return '⚠️';
+    return '🔔'; // Default emoji
   };
 
   return (
@@ -48,20 +62,43 @@ await axios.patch(`/api/notification/read/${notifId}`);
       </button>
 
       {open && (
-        <div className="absolute right-0 top-9 w-80 bg-white border rounded shadow-lg z-50">
+        <div className="absolute right-0 top-9 w-80 bg-white border rounded-2xl shadow-lg z-50 max-h-96 overflow-y-auto">
           {notifications.length === 0 ? (
             <p className="p-4 text-sm text-gray-500">Tidak ada notifikasi.</p>
           ) : (
-            notifications.map((notif) => (
-              <div
-                key={notif._id}
-                onClick={() => handleNotificationClick(notif._id)}
-                className={`cursor-pointer p-3 border-b ${notif.isRead ? 'bg-white' : 'bg-orange-100'} hover:bg-gray-100`}
-              >
-                <p className="font-medium text-sm">{notif.title}</p>
-                <p className="text-xs text-gray-600">{notif.message}</p>
-              </div>
-            ))
+            notifications.map((notif) => {
+              // Format date and time
+              const dateObj = notif.createdAt ? new Date(notif.createdAt) : null;
+              const dateStr = dateObj ? dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+              const timeStr = dateObj ? dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '';
+              // Emoji berdasarkan judul notifikasi
+              const emoji = getEmojiByTitle(notif.title);
+              return (
+                <div
+                  key={notif._id}
+                  onClick={() => handleNotificationClick(notif._id)}
+                  className={`flex items-start gap-2 cursor-pointer p-3 border-b ${notif.isRead ? 'bg-white' : 'bg-orange-100'} hover:bg-gray-100`}
+                >
+                  {/* Favicon dengan ukuran lebih besar */}
+                  <img src="/favicon.ico" alt="favicon" className="w-10 h-10 mt-0.5 mr-1" />
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1">
+                      <span className="font-semibold text-sm">{notif.title}</span>
+                      {/* Emoji dipindahkan ke kanan judul dan ukuran diperkecil */}
+                      <span className="text-sm">{emoji}</span>
+                    </div>
+                    {/* Ukuran teks deskripsi diperkecil */}
+                    <p className="text-[11px] text-gray-600 mt-1">{notif.message}</p>
+                  </div>
+                  {/* Date & Time */}
+                  <div className="flex flex-col items-end ml-2 min-w-[70px]">
+                    <span className="text-xs text-gray-400">{dateStr}</span>
+                    <span className="text-[10px] text-gray-300">{timeStr}</span>
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
       )}

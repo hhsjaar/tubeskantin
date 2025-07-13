@@ -115,11 +115,19 @@ const newOrder = new Order({
 });
 
 
-await newOrder.save(); // <--- Simpan order ke database
-console.log("Order saved:", newOrder._id);
+    // Simpan order dan update orderCount
+    await newOrder.save();
+    console.log("Order saved:", newOrder._id);
 
+    // Update orderCount untuk setiap produk yang dibeli
+    for (const item of items) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { orderCount: item.quantity } }
+      );
+    }
 
-// ✅ Tambahkan Notifikasi
+    // ✅ Tambahkan Notifikasi
 await Notification.create({
   userId,
   title: "Pesanan Berhasil",
