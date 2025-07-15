@@ -35,9 +35,9 @@ const MenuContent = () => {
         "Kantin Kodok", 
         "Kantin Telkom", 
         "Kantin Sipil", 
-        "Kantin TN 1", 
-        "Kantin TN 2", 
-        "Kantin TN 3"
+        "Kantin Berkah", 
+        "Kantin Tata Niaga", 
+        "Tania Mart"
     ];
 
     // Daftar kategori makanan
