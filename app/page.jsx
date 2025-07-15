@@ -87,6 +87,16 @@ const Home = () => {
     return products.filter(product => product.kantin === kantinId).length;
   };
 
+  // Gunakan useEffect untuk kode yang membutuhkan window
+  useEffect(() => {
+    // Kode yang mengakses window aman di sini
+    // karena useEffect hanya berjalan di browser
+  }, []);
+  
+  // Atau gunakan pengecekan langsung
+  const isBrowser = typeof window !== 'undefined';
+  // Gunakan isBrowser untuk kondisional rendering atau logika
+  
   return (
     <>
       <Navbar />
