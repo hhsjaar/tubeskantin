@@ -9,10 +9,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import dynamic from 'next/dynamic';
-// Remove this line:
-// import { BubbleChat } from "flowise-embed-react";
-const BubbleChat = dynamic(() => import("flowise-embed-react").then(mod => mod.BubbleChat), { ssr: false });
-
+import { BubbleChat } from "flowise-embed-react";
 
 const kantinList = [
   {
@@ -225,7 +222,14 @@ const Home = () => {
               >
                 <div className="relative h-52 overflow-hidden">
                   <Image
-                    src={assets.kandok}
+                    src={kantin.id === "kantek" ? assets.kantek :
+                         kantin.id === "kandok" ? assets.kandok :
+                         kantin.id === "kantel" ? assets.kantel :
+                         kantin.id === "kansip" ? assets.kansip :
+                         kantin.id === "kantintn1" ? assets.kantinberkah :
+                         kantin.id === "kantintn2" ? assets.kantintn :
+                         kantin.id === "kantintn3" ? assets.taniamart :
+                         assets.kandok}
                     alt={kantin.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     width={800}

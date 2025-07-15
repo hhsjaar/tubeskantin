@@ -7,13 +7,13 @@ import { usePathname } from 'next/navigation';
 const SideBar = () => {
     const pathname = usePathname()
     const menuItems = [
-        { name: 'Add Product', path: '/kandok', icon: assets.add_icon },
-        { name: 'Product List', path: '/kandok/product-list', icon: assets.product_list_icon },
-        { name: 'Orders', path: '/kandok/orders', icon: assets.order_icon },
+        { name: 'Tambah Produk', path: '/kandok', icon: assets.add_icon },
+        { name: 'Daftar Produk', path: '/kandok/product-list', icon: assets.product_list_icon },
+        { name: 'Pesanan', path: '/kandok/orders', icon: assets.order_icon },
     ];
 
     return (
-        <div className='md:w-64 w-16 border-r min-h-screen text-base border-gray-300 py-2 flex flex-col'>
+        <div className='md:w-64 w-16 border-r min-h-screen text-base border-gray-300 py-2 flex flex-col sticky top-0 h-screen'>
             {menuItems.map((item) => {
 
                 const isActive = pathname === item.path;
@@ -23,7 +23,7 @@ const SideBar = () => {
                         <div
                             className={
                                 `flex items-center py-3 px-4 gap-3 ${isActive
-                                    ? "border-r-4 md:border-r-[6px] bg-orange-600/10 border-orange-500/90"
+                                    ? "border-r-4 md:border-r-[6px] bg-green-600/10 border-[#479c26]"
                                     : "hover:bg-gray-100/90 border-white"
                                 }`
                             }

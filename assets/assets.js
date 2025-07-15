@@ -1,6 +1,12 @@
 import logo from "./logo.png";
 import search_icon from "./search_icon.svg";
 import kandok from "./kandok.png";
+import kansip from "./kansip.jpg";
+import kantek from "./kantek.jpg";
+import kantel from "./kantel.jpg";
+import kantinberkah from "./kantinberkah.jpg";
+import kantintn from "./kantintn.jpg";
+import taniamart from "./taniamart.jpg";
 import ai from "./ai.svg";
 import banksampah from "./banksampah.png";
 import user_icon from "./user_icon.svg";
@@ -68,6 +74,13 @@ export const assets = {
   increase_arrow,
   decrease_arrow,
   kandok,
+  kantek,
+  kantel,
+  kansip,
+  kantinberkah,
+  kantintn,
+  taniamart,
+  arrow_right_icon_colored,
   arrow_right_icon_colored,
   my_location_image,
   arrow_icon_white,
@@ -85,6 +98,7 @@ export const assets = {
   samsung_s23phone_image,
   venu_watch_image,
   upload_area,
+  kansip,
   cannon_camera_image,
   sony_airbuds_image,
   asus_laptop_image,

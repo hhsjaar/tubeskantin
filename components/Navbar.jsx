@@ -1,12 +1,13 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAppContext } from '@/context/AppContext';
 import { useClerk, UserButton } from '@clerk/nextjs';
 import NotificationBell from './NotificationBeli';
 import { Menu, X } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter as useNextRouter } from 'next/navigation';
+import { useDebounce } from 'use-debounce';
 import {
   assets,
   BagIcon,
@@ -21,21 +22,62 @@ const Navbar = () => {
     isBem,
     isKandok,
     router,
-    user
+    user,
+    products
   } = useAppContext();
 
+  const nextRouter = useNextRouter();
   const { openSignIn } = useClerk();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
   const pathname = usePathname();
+
+  // Pencarian real-time
+  useEffect(() => {
+    if (debouncedSearchQuery.trim()) {
+      const results = products.filter(product => 
+        product.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        (product.description && product.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
+      ).slice(0, 5); // Batasi hasil pencarian
+      
+      setSearchResults(results);
+      setShowResults(true);
+    } else {
+      setSearchResults([]);
+      setShowResults(false);
+    }
+  }, [debouncedSearchQuery, products]);
+
+  // Tutup hasil pencarian saat klik di luar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.search-container')) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/menu?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+      setShowResults(false);
       setMobileOpen(false);
     }
+  };
+
+  const handleProductClick = (productName) => {
+    router.push(`/menu?search=${encodeURIComponent(productName)}`);
+    setSearchQuery('');
+    setShowResults(false);
+    setMobileOpen(false);
   };
 
   // Function to check if a menu item is active
@@ -145,17 +187,48 @@ const Navbar = () => {
         {/* Desktop Right */}
         <div className="hidden md:flex items-center gap-4">
           <NotificationBell />
-          <form onSubmit={handleSearch} className="flex border border-gray-200 hover:border-[#479c26] rounded-full px-4 py-2 items-center transition-colors duration-300 group">
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="text-sm outline-none w-32 text-gray-600 placeholder-gray-400"
-            />
-            <button type="submit" className="group-hover:scale-110 transition-transform duration-200">
-              <Image src={assets.search_icon} alt="search" className="w-4 h-4" />
-            </button>
-          </form>
+          <div className="relative search-container">
+            <form onSubmit={handleSearch} className="flex border border-gray-200 hover:border-[#479c26] rounded-full px-4 py-2 items-center transition-colors duration-300 group">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchResults.length > 0 && setShowResults(true)}
+                placeholder="Cari..."
+                className="text-sm outline-none w-40 text-gray-600 placeholder-gray-400"
+              />
+              <button type="submit" className="group-hover:scale-110 transition-transform duration-200">
+                <Image src={assets.search_icon} alt="search" className="w-4 h-4" />
+              </button>
+            </form>
+
+            {/* Hasil pencarian real-time */}
+            {showResults && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-100">
+                <ul>
+                  {searchResults.map((product, index) => (
+                    <li 
+                      key={index} 
+                      className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 border-b border-gray-100 last:border-b-0"
+                      onClick={() => handleProductClick(product.name)}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {product.image && product.image[0] ? (
+                          <Image src={product.image[0]} alt={product.name} width={32} height={32} className="object-cover" />
+                        ) : (
+                          <span className="text-xs text-gray-400">No img</span>
+                        )}
+                      </div>
+                      <div className="flex-1 truncate">
+                        <p className="text-sm font-medium">{product.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{product.kantin}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          
           {user ? (
             <UserButton />
           ) : (
@@ -239,17 +312,47 @@ const Navbar = () => {
             </button>
           )}
 
-          <form onSubmit={handleSearch} className="flex border border-gray-200 hover:border-[#479c26] rounded-full px-4 py-2 items-center mt-4 transition-colors duration-300 group">
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="text-sm outline-none w-full text-gray-600 placeholder-gray-400"
-            />
-            <button type="submit" className="group-hover:scale-110 transition-transform duration-200">
-              <Image src={assets.search_icon} alt="search" className="w-4 h-4" />
-            </button>
-          </form>
+          <div className="relative search-container">
+            <form onSubmit={handleSearch} className="flex border border-gray-200 hover:border-[#479c26] rounded-full px-4 py-2 items-center mt-4 transition-colors duration-300 group">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchResults.length > 0 && setShowResults(true)}
+                placeholder="Cari makanan..."
+                className="text-sm outline-none w-full text-gray-600 placeholder-gray-400"
+              />
+              <button type="submit" className="group-hover:scale-110 transition-transform duration-200">
+                <Image src={assets.search_icon} alt="search" className="w-4 h-4" />
+              </button>
+            </form>
+
+            {/* Hasil pencarian real-time mobile */}
+            {showResults && searchResults.length > 0 && (
+              <div className="absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-100">
+                <ul>
+                  {searchResults.map((product, index) => (
+                    <li 
+                      key={index} 
+                      className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 border-b border-gray-100 last:border-b-0"
+                      onClick={() => handleProductClick(product.name)}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {product.images && product.images[0] ? (
+                          <Image src={product.images[0]} alt={product.name} width={32} height={32} className="object-cover" />
+                        ) : (
+                          <span className="text-xs text-gray-400">No img</span>
+                        )}
+                      </div>
+                      <div className="flex-1 truncate">
+                        <p className="text-sm font-medium">{product.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{product.kantin}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
           <div className="mt-4">
             {user ? (

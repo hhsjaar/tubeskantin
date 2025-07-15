@@ -112,6 +112,8 @@ const newOrder = new Order({
   total,
   promoCode: promoCode || null,
   date: new Date(),
+  status: "Menunggu Konfirmasi",
+  statusUpdatedAt: new Date()
 });
 
 

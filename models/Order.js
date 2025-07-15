@@ -20,6 +20,12 @@ const OrderSchema = new mongoose.Schema({
   total: Number,
   promoCode: String,
   date: Date,
+  status: { 
+    type: String, 
+    enum: ["Menunggu Konfirmasi", "Sedang Disiapkan", "Sudah Siap", "Selesai", "Dibatalkan"], 
+    default: "Menunggu Konfirmasi" 
+  },
+  statusUpdatedAt: { type: Date, default: Date.now },
 });
 
 // ✅ Gunakan huruf besar di model name

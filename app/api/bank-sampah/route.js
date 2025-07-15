@@ -73,43 +73,47 @@ export async function POST(request) {
     }
 
     const formData = await request.formData();
-    const sampah = formData.get("sampah");
-    const jumlahSampah = formData.get("jumlahSampah");
+    const sampahArray = formData.getAll("sampah");
+    const jumlahSampahArray = formData.getAll("jumlahSampah").map(Number);
     const lokasi = formData.get("lokasi");
     const catatan = formData.get("catatan") || "";
-    const file = formData.get("fotoSampah");
+    const files = formData.getAll("fotoSampah");
 
-    if (!sampah || !jumlahSampah || !lokasi || !file) {
+    if (sampahArray.length === 0 || jumlahSampahArray.length === 0 || !lokasi || files.length === 0) {
       return NextResponse.json({
         success: false,
         message: "Data tidak lengkap",
       });
     }
 
-    // Upload gambar ke Cloudinary
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    // Upload semua gambar ke Cloudinary
+    const uploadPromises = files.map(async (file) => {
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { resource_type: "auto", folder: "bank-sampah" },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(buffer);
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { resource_type: "auto", folder: "bank-sampah" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        stream.end(buffer);
+      });
     });
+
+    const uploadedImageUrls = await Promise.all(uploadPromises);
 
     await connectDB();
 
     const newBankSampah = await BankSampah.create({
       userId,
-      sampah,
-      jumlahSampah: Number(jumlahSampah),
+      sampah: sampahArray,
+      jumlahSampah: jumlahSampahArray,
       lokasi,
       catatan,
-      fotoSampah: uploadResult.secure_url,
+      fotoSampah: uploadedImageUrls,
       // promoCode dan promoValue hanya akan diisi oleh BEM melalui PATCH
     });
 
@@ -124,5 +128,5 @@ export async function POST(request) {
       success: false,
       message: error.message,
     });
-  }
+  } 
 }

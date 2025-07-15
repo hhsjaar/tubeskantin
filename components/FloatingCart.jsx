@@ -1,13 +1,20 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAppContext } from '@/context/AppContext';
 import { assets } from '@/assets/assets';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const FloatingCart = () => {
   const { getCartCount, getCartAmount, cartItems, products, updateCartQuantity, addToCart } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  
+  // Jika berada di halaman cart, jangan tampilkan floating cart
+  if (pathname === '/cart') {
+    return null;
+  }
 
   const cartCount = getCartCount();
   const totalAmount = getCartAmount();
