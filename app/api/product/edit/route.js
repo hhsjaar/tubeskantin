@@ -1,6 +1,12 @@
 import connectDB from '@/config/db';
 import Product from '@/models/Product';
-import authkandok from '@/lib/authkandok';
+import authKandok from '@/lib/authkandok';
+import authKantek from '@/lib/authkantek';
+import authKansip from '@/lib/authkansip';
+import authKantel from '@/lib/authkantel';
+import authBerkah from '@/lib/authberkah';
+import authKantintn from '@/lib/authkantintn';
+import authTaniamart from '@/lib/authtaniamart';
 import { getAuth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
@@ -10,9 +16,17 @@ import { v4 as uuidv4 } from 'uuid';
 export async function PUT(request) {
   try {
     const { userId } = getAuth(request);
-    const isAuthorized = authkandok(userId);
+    
+    // Verifikasi apakah pengguna adalah dari salah satu kantin
+    const isKandok = await authKandok(userId);
+    const isKantek = await authKantek(userId);
+    const isKansip = await authKansip(userId);
+    const isKantel = await authKantel(userId);
+    const isBerkah = await authBerkah(userId);
+    const isKantintn = await authKantintn(userId);
+    const isTaniamart = await authTaniamart(userId);
 
-    if (!isAuthorized) {
+    if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
       return NextResponse.json({ success: false, message: 'Not authorized' }, { status: 401 });
     }
 

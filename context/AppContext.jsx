@@ -23,12 +23,12 @@ export const AppContextProvider = (props) => {
   const [isSeller, setIsSeller] = useState(false);
   const [isBem, setIsBem] = useState(false);  // New state for BEM role
   const [isKantek, setIsKantek] = useState(false);
-const [isKandok, setIsKandok] = useState(false);
-const [isKantel, setIsKantel] = useState(false);
-const [isKansip, setIsKansip] = useState(false);
-const [isKantinTN1, setIsKantinTN1] = useState(false);
-const [isKantinTN2, setIsKantinTN2] = useState(false);
-const [isKantinTN3, setIsKantinTN3] = useState(false);
+  const [isKandok, setIsKandok] = useState(false);
+  const [isKantel, setIsKantel] = useState(false);
+  const [isKansip, setIsKansip] = useState(false);
+  const [isBerkah, setIsBerkah] = useState(false);
+  const [isKantintn, setIsKantintn] = useState(false);
+  const [isTaniamart, setIsTaniamart] = useState(false);
   const [cartItems, setCartItems] = useState({});
   const [bankSampahData, setBankSampahData] = useState([]);
 
@@ -62,51 +62,51 @@ const [isKantinTN3, setIsKantinTN3] = useState(false);
 
   // Fetch User Data
   const fetchUserData = async () => {
-  try {
-    if (user?.publicMetadata?.role === 'seller') {
-      setIsSeller(true);
-    }
-    if (user?.publicMetadata?.role === 'bem') {
-      setIsBem(true);
-    }
-    if (user?.publicMetadata?.role === 'kantek') {
-      setIsKantek(true);
-    }
-    if (user?.publicMetadata?.role === 'kandok') {
-      setIsKandok(true);
-    }if (user?.publicMetadata?.role === 'kantel') {
-      setIsKantel(true);
-    }
-    if (user?.publicMetadata?.role === 'kansip') {
-      setIsKansip(true);
-    }
-    if (user?.publicMetadata?.role === 'kantintn1') {
-      setIsKantinTN1(true);
-    }
-    if (user?.publicMetadata?.role === 'kantintn2') {
-      setIsKantinTN2(true);
-    }
-    if (user?.publicMetadata?.role === 'kantintn3') {
-      setIsKantinTN3(true);
-    }
+    try {
+      if (user?.publicMetadata?.role === 'seller') {
+        setIsSeller(true);
+      }
+      if (user?.publicMetadata?.role === 'bem') {
+        setIsBem(true);
+      }
+      if (user?.publicMetadata?.role === 'kantek') {
+        setIsKantek(true);
+      }
+      if (user?.publicMetadata?.role === 'kandok') {
+        setIsKandok(true);
+      }
+      if (user?.publicMetadata?.role === 'kantel') {
+        setIsKantel(true);
+      }
+      if (user?.publicMetadata?.role === 'kansip') {
+        setIsKansip(true);
+      }
+      if (user?.publicMetadata?.role === 'kantintn') {
+        setIsKantintn(true);
+      }
+      if (user?.publicMetadata?.role === 'berkah') {
+        setIsBerkah(true);
+      }
+      if (user?.publicMetadata?.role === 'taniamart') {
+        setIsTaniamart(true);
+      }
 
+      const token = await getToken();
 
-    const token = await getToken();
+      const { data } = await axios.get('/api/user/data', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const { data } = await axios.get('/api/user/data', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (data.success) {
-      setUserData(data.user);
-      setCartItems(data.user?.cartItems ?? {}); // <--- pake safe access dan fallback
-    } else {
-      toast.error(data.message);
+      if (data.success) {
+        setUserData(data.user);
+        setCartItems(data.user?.cartItems ?? {}); // <--- pake safe access dan fallback
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
+  };
 
 
   // Add item to cart
@@ -196,17 +196,15 @@ const [isKantinTN3, setIsKantinTN3] = useState(false);
 
   const value = {
     user, getToken, currency, router,
-  isSeller, setIsSeller,
-  isBem, setIsBem,
-
-  isKantek, setIsKantek,
-  isKandok, setIsKandok,
-  isKantel, setIsKantel,
-  isKansip, setIsKansip,
-  isKantinTN1, setIsKantinTN1,
-  isKantinTN2, setIsKantinTN2,
-  isKantinTN3, setIsKantinTN3,
-
+    isSeller, setIsSeller,
+    isBem, setIsBem,
+    isKantek, setIsKantek,
+    isKandok, setIsKandok,
+    isKantel, setIsKantel,
+    isKansip, setIsKansip,
+    isBerkah, setIsBerkah,
+    isKantintn, setIsKantintn,
+    isTaniamart, setIsTaniamart,
   userData, fetchUserData,
   products, fetchProductData,
   cartItems, setCartItems,

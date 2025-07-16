@@ -3,6 +3,12 @@ import Order from "@/models/Order";
 import Notification from "@/models/Notification";
 import authSeller from "@/lib/authSeller";
 import authKandok from "@/lib/authkandok";
+import authKantek from "@/lib/authkantek";
+import authKansip from "@/lib/authkansip";
+import authKantel from "@/lib/authkantel";
+import authBerkah from "@/lib/authberkah";
+import authKantintn from "@/lib/authkantintn";
+import authTaniamart from "@/lib/authtaniamart";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -10,11 +16,17 @@ export async function PUT(request) {
   try {
     const { userId } = getAuth(request);
     
-    // Verifikasi apakah pengguna adalah seller atau kandok
+    // Verifikasi apakah pengguna adalah seller atau dari kantin
     const isSeller = await authSeller(userId);
     const isKandok = !isSeller ? await authKandok(userId) : false;
+    const isKantek = !isSeller ? await authKantek(userId) : false;
+    const isKansip = !isSeller ? await authKansip(userId) : false;
+    const isKantel = !isSeller ? await authKantel(userId) : false;
+    const isBerkah = !isSeller ? await authBerkah(userId) : false;
+    const isKantintn = !isSeller ? await authKantintn(userId) : false;
+    const isTaniamart = !isSeller ? await authTaniamart(userId) : false;
     
-    if (!isSeller && !isKandok) {
+    if (!isSeller && !isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
       return NextResponse.json(
         { success: false, message: "Tidak diizinkan mengubah status pesanan" },
         { status: 403 }

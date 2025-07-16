@@ -20,7 +20,13 @@ const Navbar = () => {
   const {
     isSeller,
     isBem,
+    isKantek,
     isKandok,
+    isKantel,
+    isKansip,
+    isBerkah,
+    isKantintn,
+    isTaniamart,
     router,
     user,
     products
@@ -182,6 +188,78 @@ const Navbar = () => {
               Kandok
             </button>
           )}
+          {isKantek && (
+            <button 
+              onClick={() => router.push('/kantek')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kantek') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantek
+            </button>
+          )}
+          {isKansip && (
+            <button 
+              onClick={() => router.push('/kansip')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kansip') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kansip
+            </button>
+          )}
+          {isKantel && (
+            <button 
+              onClick={() => router.push('/kantel')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kantel') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantel
+            </button>
+          )}
+          {isBerkah && (
+            <button 
+              onClick={() => router.push('/berkah')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/berkah') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantin Berkah
+            </button>
+          )}
+          {isKantintn && (
+            <button 
+              onClick={() => router.push('/kantintn')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kantintn') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantin TN
+            </button>
+          )}
+          {isTaniamart && (
+            <button 
+              onClick={() => router.push('/taniamart')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/taniamart') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Tania Mart
+            </button>
+          )}
         </div>
 
         {/* Desktop Right */}
@@ -285,7 +363,7 @@ const Navbar = () => {
             TrashBack
           </Link>
 
-          {(isSeller || isBem || isKandok) && <hr className="my-4 border-gray-100" />}
+          {(isSeller || isBem || isKantek || isKandok || isKantel || isKansip || isBerkah || isKantintn || isTaniamart) && <hr className="my-4 border-gray-100" />}
 
           {isSeller && (
             <button 
@@ -309,6 +387,54 @@ const Navbar = () => {
               className={getMobileMenuClasses('/kandok')}
             >
               Kandok Dashboard
+            </button>
+          )}
+          {isKantek && (
+            <button 
+              onClick={() => { router.push('/kantek'); setMobileOpen(false); }} 
+              className={getMobileMenuClasses('/kantek')}
+            >
+              Kantek Dashboard
+            </button>
+          )}
+          {isKansip && (
+            <button 
+              onClick={() => { router.push('/kansip'); setMobileOpen(false); }} 
+              className={getMobileMenuClasses('/kansip')}
+            >
+              Kansip Dashboard
+            </button>
+          )}
+          {isKantel && (
+            <button 
+              onClick={() => { router.push('/kantel'); setMobileOpen(false); }} 
+              className={getMobileMenuClasses('/kantel')}
+            >
+              Kantel Dashboard
+            </button>
+          )}
+          {isBerkah && (
+            <button 
+              onClick={() => { router.push('/berkah'); setMobileOpen(false); }} 
+              className={getMobileMenuClasses('/berkah')}
+            >
+              Berkah Dashboard
+            </button>
+          )}
+          {isKantintn && (
+            <button 
+              onClick={() => { router.push('/kantintn'); setMobileOpen(false); }} 
+              className={getMobileMenuClasses('/kantintn')}
+            >
+              Kantintn Dashboard
+            </button>
+          )}
+          {isTaniamart && (
+            <button 
+              onClick={() => { router.push('/taniamart'); setMobileOpen(false); }} 
+              className={getMobileMenuClasses('/taniamart')}
+            >
+              Taniamart Dashboard
             </button>
           )}
 

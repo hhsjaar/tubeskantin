@@ -2,6 +2,12 @@ import { v2 as cloudinary } from "cloudinary";
 import { getAuth } from '@clerk/nextjs/server'
 import authSeller from "@/lib/authSeller";
 import authKandok from "@/lib/authkandok";
+import authKantek from "@/lib/authkantek";
+import authKansip from "@/lib/authkansip";
+import authKantel from "@/lib/authkantel";
+import authBerkah from "@/lib/authberkah";
+import authKantintn from "@/lib/authkantintn";
+import authTaniamart from "@/lib/authtaniamart";
 import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
@@ -18,16 +24,20 @@ export async function POST(request) {
         const { userId } = getAuth(request);
 
         const isSeller = await authSeller(userId);
-        const isKandok = await authKandok (userId);
-
+        
         if (!isSeller) {
-    const isKandok = await authKandok(userId); // Fungsi untuk cek apakah user adalah Kandok
-    if (!isKandok) {
-        return NextResponse.json({ success: false, message: 'not authorized' });
-    }
-    // Kalau isKandok = true, lanjutkan logic sebagai user Kandok
-}
-
+            const isKandok = await authKandok(userId);
+            const isKantek = await authKantek(userId);
+            const isKansip = await authKansip(userId);
+            const isKantel = await authKantel(userId);
+            const isBerkah = await authBerkah(userId);
+            const isKantintn = await authKantintn(userId);
+            const isTaniamart = await authTaniamart(userId);
+            
+            if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
+                return NextResponse.json({ success: false, message: 'not authorized' });
+            }
+        }
 
         const formData = await request.formData();
 
@@ -58,8 +68,6 @@ export async function POST(request) {
         const karbonMakanan = formData.get('karbonMakanan');
         const karbonPengolahan = formData.get('karbonPengolahan');
         const karbonTransportasiLimbah = formData.get('karbonTransportasiLimbah');
-
-        
 
         const files = formData.getAll('images');
 
@@ -98,7 +106,7 @@ export async function POST(request) {
             category,
             price: Number(price),
             offerPrice: Number(offerPrice),
-            kantin, // Menambahkan field kantin
+            kantin,
             portionSize,
             calories: Number(calories),
             totalFat: Number(totalFat),
@@ -113,7 +121,6 @@ export async function POST(request) {
             vitaminA: Number(vitaminA),
             vitaminC: Number(vitaminC),
             image,
-            // Menambahkan karbon jejak
             karbonMakanan: Number(karbonMakanan),
             karbonPengolahan: Number(karbonPengolahan),
             karbonTransportasiLimbah: Number(karbonTransportasiLimbah),
@@ -123,8 +130,7 @@ export async function POST(request) {
         return NextResponse.json({ success: true, message: 'Upload successful', newProduct });
 
     } catch (error) {
-        // Ensure we return a response in case of an error
-        console.error(error); // Log error to the console
-        return NextResponse.json({ success: false, message: error.message }); // Return response with error message
+        console.error(error);
+        return NextResponse.json({ success: false, message: error.message });
     }
 }

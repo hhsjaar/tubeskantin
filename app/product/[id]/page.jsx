@@ -211,7 +211,7 @@ const Product = () => {
 
                 <div className="flex flex-col items-center bg-white rounded-2xl shadow-md py-10 px-6 mt-16">
                     <div className="flex flex-col items-center mb-8">
-                        <h2 className="text-3xl font-bold">Produk <span className="text-[#479C25]">Unggulan</span></h2>
+                        <h2 className="text-3xl font-bold">Menu<span className="text-[#479C25]"> Lain</span></h2>
                         <div className="w-32 h-1 bg-gradient-to-r from-[#479C25]/30 via-[#479C25] to-[#479C25]/30 mt-3 rounded-full"></div>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6 w-full">

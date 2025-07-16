@@ -2,7 +2,13 @@
 import connectDB from '@/config/db';
 import Product from '@/models/Product';
 import { getAuth } from '@clerk/nextjs/server';
-import authkandok from '@/lib/authkandok';
+import authKandok from '@/lib/authkandok';
+import authKantek from '@/lib/authkantek';
+import authKansip from '@/lib/authkansip';
+import authKantel from '@/lib/authkantel';
+import authBerkah from '@/lib/authberkah';
+import authKantintn from '@/lib/authkantintn';
+import authTaniamart from '@/lib/authtaniamart';
 import { NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import path from 'path';
@@ -23,8 +29,17 @@ export async function GET(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { userId } = getAuth(request);
-    const kandokUser = await authkandok(userId);
-    if (!kandokUser) {
+    
+    // Verifikasi apakah pengguna adalah dari salah satu kantin
+    const isKandok = await authKandok(userId);
+    const isKantek = await authKantek(userId);
+    const isKansip = await authKansip(userId);
+    const isKantel = await authKantel(userId);
+    const isBerkah = await authBerkah(userId);
+    const isKantintn = await authKantintn(userId);
+    const isTaniamart = await authTaniamart(userId);
+
+    if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
       return NextResponse.json({ success: false, message: 'Not authorized' }, { status: 403 });
     }
 
@@ -35,7 +50,9 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
     }
 
-    if (String(product.seller) !== String(kandokUser._id)) {
+    // Verifikasi apakah produk milik kantin yang sesuai
+    const kantinUser = isKandok || isKantek || isKansip || isKantel || isBerkah || isKantintn || isTaniamart;
+    if (String(product.seller) !== String(kantinUser._id)) {
       return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
     }
 
@@ -49,8 +66,17 @@ export async function DELETE(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const { userId } = getAuth(request);
-    const kandokUser = await authkandok(userId);
-    if (!kandokUser) {
+    
+    // Verifikasi apakah pengguna adalah dari salah satu kantin
+    const isKandok = await authKandok(userId);
+    const isKantek = await authKantek(userId);
+    const isKansip = await authKansip(userId);
+    const isKantel = await authKantel(userId);
+    const isBerkah = await authBerkah(userId);
+    const isKantintn = await authKantintn(userId);
+    const isTaniamart = await authTaniamart(userId);
+
+    if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
       return NextResponse.json({ success: false, message: 'Not authorized' }, { status: 403 });
     }
 
