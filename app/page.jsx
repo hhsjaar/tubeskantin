@@ -107,16 +107,16 @@ const Home = () => {
       <Navbar />
       
       {/* HeaderSlider */}
-      <div className="px-6 md:px-16 lg:px-32">
+      <div className="px-6 md:px-16 lg:px-32 dark:bg-gray-900">
         <HeaderSlider />
       </div>
 
-      {/* Makanan Favorit Section - Full Width */}
-      <div className=" py-16 px-6 md:px-16 lg:px-32">
+      {/* Makanan Favorit Section */}
+      <div className="py-16 px-6 md:px-16 lg:px-32 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="relative inline-block">
-              <h2 className="text-4xl font-semibold mb-4 bg-gradient-to-r from-green-600 to-green-600 bg-clip-text text-transparent relative">
+              <h2 className="text-4xl font-semibold mb-4 bg-gradient-to-r from-green-600 to-green-600 bg-clip-text text-transparent relative dark:from-green-400 dark:to-green-500">
                 Makanan Favorit Minggu Ini
                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-green-400 to-green-500 rounded-full"></div>
               </h2>
@@ -132,7 +132,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Ngantin Slogan Section - Full Width */}
+      {/* Ngantin Slogan Section - tetap sama karena sudah menggunakan gradient */}
       <div className="bg-gradient-to-r from-[#479C25] to-[#3a7d1f] py-16 px-6 md:px-16 lg:px-32 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 text-center max-w-6xl mx-auto">
@@ -142,12 +142,12 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Menu Baru Section - Full Width */}
-      <div className=" py-16 px-6 md:px-16 lg:px-32">
+      {/* Menu Baru Section */}
+      <div className="py-16 px-6 md:px-16 lg:px-32 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="relative inline-block">
-              <h2 className="text-4xl font-semibold mb-4 bg-gradient-to-r from-[#479C25] to-green-600 bg-clip-text text-transparent relative">
+              <h2 className="text-4xl font-semibold mb-4 bg-gradient-to-r from-[#479C25] to-green-600 bg-clip-text text-transparent relative dark:from-green-400 dark:to-green-500">
                 Menu Baru
                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-[#479C25] to-green-600 rounded-full"></div>
               </h2>
@@ -163,8 +163,8 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Fitur Unggulan Section - Full Width */}
-      <div id="fitur" className="bg-gradient-to-br from-gray-900 to-gray-800 py-16 px-6 md:px-16 lg:px-32 text-white">
+      {/* Fitur Unggulan Section - sudah gelap, tambahkan dark mode untuk konsistensi */}
+      <div id="fitur" className="bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 py-16 px-6 md:px-16 lg:px-32 text-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">🛠️ Fitur Unggulan Ngantin</h2>

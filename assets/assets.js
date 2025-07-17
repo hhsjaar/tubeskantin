@@ -7,6 +7,7 @@ import kantel from "./kantel.jpg";
 import kantinberkah from "./kantinberkah.jpg";
 import kantintn from "./kantintn.jpg";
 import taniamart from "./taniamart.jpg";
+import ngantindark from "./ngantindark.png";
 import ai from "./ai.svg";
 import banksampah from "./banksampah.png";
 import user_icon from "./user_icon.svg";
@@ -58,6 +59,7 @@ import product_details_page_apple_earphone_image5 from "./product_details_page_a
 
 export const assets = {
   logo,
+  ngantindark,
   ai,
   search_icon,
   user_icon,

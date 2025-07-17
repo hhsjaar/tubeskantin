@@ -63,23 +63,23 @@ const HeaderSlider = () => {
         {sliderData.map((slide, index) => (
           <div
             key={slide.id}
-            className="flex flex-col-reverse md:flex-row items-center justify-between bg-[#E6E9F2] py-8 md:px-14 px-5 mt-6 rounded-xl min-w-full"
+            className="flex flex-col-reverse md:flex-row items-center justify-between bg-[#E6E9F2] dark:bg-gray-900 py-8 md:px-14 px-5 mt-6 rounded-xl min-w-full"
           >
             <div className="md:pl-8 mt-10 md:mt-0">
-              <p className="md:text-base text-[#479C25] pb-1">{slide.offer}</p>
-              <h1 className="max-w-lg md:text-[40px] md:leading-[48px] text-2xl font-semibold">
+              <p className="md:text-base text-[#479C25] dark:text-green-400 pb-1">{slide.offer}</p>
+              <h1 className="max-w-lg md:text-[40px] md:leading-[48px] text-2xl font-semibold dark:text-white">
                 {slide.title}
               </h1>
               <div className="flex items-center mt-4 md:mt-6 ">
                 <button 
                   onClick={() => router.push(slide.button1Link)}
-                  className="md:px-10 px-7 md:py-2.5 py-2 bg-[#479C25] rounded-full text-white font-medium hover:bg-[#3a7d1f] transition-colors cursor-pointer"
+                  className="md:px-10 px-7 md:py-2.5 py-2 bg-[#479C25] dark:bg-green-700 rounded-full text-white font-medium hover:bg-[#3a7d1f] dark:hover:bg-green-800 transition-colors cursor-pointer"
                 >
                   {slide.buttonText1}
                 </button>
                 <button 
                   onClick={() => router.push(slide.button2Link)}
-                  className="group flex items-center gap-2 px-6 py-2.5 font-medium hover:text-[#479C25] transition-colors cursor-pointer"
+                  className="group flex items-center gap-2 px-6 py-2.5 font-medium hover:text-[#479C25] dark:hover:text-green-400 transition-colors cursor-pointer dark:text-gray-200"
                 >
                   {slide.buttonText2}
                   <Image className="group-hover:translate-x-1 transition" src={assets.arrow_icon} alt="arrow_icon" />
@@ -103,7 +103,7 @@ const HeaderSlider = () => {
             key={index}
             onClick={() => handleSlideChange(index)}
             className={`h-2 w-2 rounded-full cursor-pointer ${
-              currentSlide === index ? "bg-[#479C25]" : "bg-gray-500/30"
+              currentSlide === index ? "bg-[#479C25] dark:bg-green-400" : "bg-gray-500/30 dark:bg-gray-700"
             }`}
           ></div>
         ))}

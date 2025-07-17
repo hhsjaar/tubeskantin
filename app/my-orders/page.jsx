@@ -85,8 +85,8 @@ const MyOrders = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        {/* Hero Section dengan Gradient Background */}
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-[#479C25] to-[#3a7d1f] py-12 px-6 md:px-16 lg:px-32 rounded-b-3xl shadow-lg overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
           <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#3a7d1f] rounded-full filter blur-3xl opacity-20"></div>
@@ -105,10 +105,10 @@ const MyOrders = () => {
 
         <div className="container mx-auto px-6 md:px-16 lg:px-32 py-8">
           {/* Tab Navigation */}
-          <div className="bg-white rounded-2xl shadow-lg p-4 mb-8 backdrop-filter backdrop-blur-lg bg-opacity-80 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 mb-8 backdrop-filter backdrop-blur-lg bg-opacity-80 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-4">
               <FaFilter className="text-[#479C25]" />
-              <h2 className="text-xl font-bold text-gray-800">Status Pesanan</h2>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">Status Pesanan</h2>
             </div>
             
             <div className="flex gap-4">
@@ -117,7 +117,7 @@ const MyOrders = () => {
                 className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
                   activeTab === "ongoing"
                     ? 'bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white shadow-md transform scale-[1.02]'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 <FaSpinner className={`${activeTab === "ongoing" ? "animate-spin" : ""}`} />
@@ -130,7 +130,7 @@ const MyOrders = () => {
                 className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
                   activeTab === "history"
                     ? 'bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white shadow-md transform scale-[1.02]'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 <FaHistory />
@@ -144,23 +144,23 @@ const MyOrders = () => {
           <div className="space-y-6 mb-16">
             {loading ? (
               <div className="flex justify-center py-12">
-                <div className="p-8 rounded-xl bg-white shadow-lg">
+                <div className="p-8 rounded-xl bg-white dark:bg-gray-800 shadow-lg">
                   <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 rounded-full border-4 border-[#479C25] border-t-transparent animate-spin"></div>
-                    <p className="text-gray-600 font-medium">Memuat pesanan...</p>
+                    <p className="text-gray-600 dark:text-gray-300 font-medium">Memuat pesanan...</p>
                   </div>
                 </div>
               </div>
             ) : filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-[#479C25]">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-[#479C25]">
                     <FaBoxOpen className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-medium text-gray-800">
+                  <h3 className="text-xl font-medium text-gray-800 dark:text-white">
                     {activeTab === "ongoing" ? "Tidak ada pesanan yang sedang berjalan" : "Belum ada riwayat pesanan"}
                   </h3>
-                  <p className="text-gray-500 max-w-md">
+                  <p className="text-gray-500 dark:text-gray-400 max-w-md">
                     {activeTab === "ongoing" 
                       ? "Anda belum memiliki pesanan yang sedang diproses. Silakan pesan makanan atau minuman terlebih dahulu." 
                       : "Riwayat pesanan Anda akan muncul di sini setelah pesanan selesai atau dibatalkan."}
@@ -171,9 +171,9 @@ const MyOrders = () => {
               filteredOrders.map((order, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                 >
-                  {/* Header dengan status */}
+                  {/* Header dengan status - tetap sama karena menggunakan gradient */}
                   <div className={`bg-gradient-to-r ${getStatusColor(order.status)} px-6 py-3 flex justify-between items-center`}>
                     <div className="flex items-center gap-2">
                       <span className="text-white text-lg">{getStatusIcon(order.status)}</span>
