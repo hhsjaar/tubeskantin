@@ -9,7 +9,7 @@ import { FaTag, FaShoppingBag, FaPercent, FaLeaf, FaInfoCircle, FaCreditCard } f
 const OrderSummary = () => {
   const { router, getCartCount, getCartAmount, getToken, user, cartItems, setCartItems, products} = useAppContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [note, setNote] = useState(""); // <-- Tambahkan state note
   const [promoCode, setPromoCode] = useState("");
   const [discountValue, setDiscountValue] = useState(0);
   const [isPromoApplied, setIsPromoApplied] = useState(false);
@@ -43,6 +43,7 @@ const OrderSummary = () => {
         {
           items: orderItems,
           promoCode: isPromoApplied ? promoCode : null,
+          note, // <-- Kirim note ke backend
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -188,6 +189,22 @@ const OrderSummary = () => {
                 Pakai
               </button>
             </div>
+          </div>
+
+          {/* Catatan Pembeli Input */}
+          <div className="space-y-2">
+            <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+              <svg className="w-4 h-4 text-[#479C25]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Catatan untuk Penjual
+            </label>
+            <textarea
+              placeholder="Contoh: Mohon dibungkus rapi, Pedas level 2, dll."
+              className="w-full h-24 outline-none p-3 text-gray-600 border border-gray-200 rounded-lg focus:border-[#479C25] transition-colors resize-none"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
           </div>
 
           <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent my-2"></div>

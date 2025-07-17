@@ -26,6 +26,7 @@ const OrderSchema = new mongoose.Schema({
     default: "Menunggu Konfirmasi" 
   },
   statusUpdatedAt: { type: Date, default: Date.now },
+  note: { type: String }, // <-- Tambahkan ini
 });
 
 // ✅ Gunakan huruf besar di model name

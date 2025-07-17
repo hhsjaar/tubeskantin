@@ -24,7 +24,7 @@ export async function POST(request) {
     
 
     const body = await request.json();
-    const { items, promoCode } = body;
+    const { items, promoCode, note } = body; // <-- Tambahkan note
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -113,7 +113,8 @@ const newOrder = new Order({
   promoCode: promoCode || null,
   date: new Date(),
   status: "Menunggu Konfirmasi",
-  statusUpdatedAt: new Date()
+  statusUpdatedAt: new Date(),
+  note: note || "", // <-- Tambahkan ini
 });
 
 

@@ -16,6 +16,7 @@ const Orders = () => {
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
     const [activeTab, setActiveTab] = useState("all"); // Tab untuk filter pesanan
     const [groupByDate, setGroupByDate] = useState(true); // State untuk toggle pengelompokan berdasarkan tanggal
+    const [expandedOrders, setExpandedOrders] = useState({}); // State untuk melacak pesanan yang detailnya dibuka
 
     const fetchSellerOrders = async () => {
         try {
@@ -27,7 +28,7 @@ const Orders = () => {
 
             if (data.success) {
                 const taniamartOrders = data.orders.filter(order =>
-                    order.items.some(item => item.product?.kantin === "Tania Mart")
+                    order.items.some(item => item.product?.kantin === "Kantin Kodok")
                 );
                 setOrders(taniamartOrders);
                 setLoading(false);
@@ -73,6 +74,14 @@ const Orders = () => {
         }
     }, [user]);
 
+    // Fungsi untuk toggle detail pesanan
+    const toggleOrderDetails = (orderId) => {
+        setExpandedOrders(prev => ({
+            ...prev,
+            [orderId]: !prev[orderId]
+        }));
+    };
+
     // Fungsi untuk mendapatkan warna status
     const getStatusColor = (status) => {
         switch (status) {
@@ -95,6 +104,14 @@ const Orders = () => {
             case "Dibatalkan": return "❌";
             default: return "🔄";
         }
+    };
+
+    // Fungsi untuk menghitung total harga pesanan (tanpa pajak)
+    const calculateOrderTotal = (items) => {
+        return items.reduce((total, item) => {
+            const itemPrice = item.product?.offerPrice || item.product?.price || 0;
+            return total + (itemPrice * item.quantity);
+        }, 0);
     };
 
     // Filter pesanan berdasarkan tab aktif
@@ -208,20 +225,20 @@ const Orders = () => {
                         >
                             Dibatalkan
                         </button>
-                        </div>
+                    </div>
                         
-                        {/* Toggle untuk pengelompokan berdasarkan tanggal */}
-                        <div className="flex items-center mt-3 md:mt-0">
-                            <label className="inline-flex items-center cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    className="sr-only peer" 
-                                    checked={groupByDate}
-                                    onChange={() => setGroupByDate(!groupByDate)}
-                                />
-                                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                                <span className="ms-3 text-sm font-medium text-gray-700">Kelompokkan per Hari</span>
-                            </label>
+                    {/* Toggle untuk pengelompokan berdasarkan tanggal */}
+                    <div className="flex items-center mt-3 md:mt-0 mb-6">
+                        <label className="inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                className="sr-only peer" 
+                                checked={groupByDate}
+                                onChange={() => setGroupByDate(!groupByDate)}
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            <span className="ms-3 text-sm font-medium text-gray-700">Kelompokkan per Hari</span>
+                        </label>
                     </div>
 
                     {loading ? (
@@ -266,6 +283,9 @@ const Orders = () => {
                                             minute: '2-digit'
                                         });
                                         
+                                        // Hitung total pesanan (tanpa pajak)
+                                        const orderTotal = calculateOrderTotal(order.items);
+                                        
                                         return (
                                             <div
                                                 key={index}
@@ -307,26 +327,93 @@ const Orders = () => {
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <h3 className="font-medium text-gray-900 mb-1">
-                                                                        {order.items[0]?.product?.name || "Produk Tidak Dikenal"}
-                                                                        {order.items.length > 1 && ` & ${order.items.length - 1} item lainnya`}
-                                                                    </h3>
-                                                                    <div className="text-sm text-gray-500 mb-2">
-                                                                        {order.items
-                                                                            .map((item) =>
-                                                                                item.product
-                                                                                    ? `${item.product.name} x ${item.quantity}`
-                                                                                    : `Produk tidak ditemukan x ${item.quantity}`
-                                                                            )
-                                                                            .join(", ")}
+                                                                    <div className="flex justify-between items-center mb-2">
+                                                                        <h3 className="font-medium text-gray-900">
+                                                                            {order.items[0]?.product?.name || "Produk Tidak Dikenal"}
+                                                                            {order.items.length > 1 && ` & ${order.items.length - 1} item lainnya`}
+                                                                        </h3>
+                                                                        <button 
+                                                                            onClick={() => toggleOrderDetails(order._id)}
+                                                                            className="text-xs font-medium text-emerald-600 hover:text-emerald-800 flex items-center"
+                                                                        >
+                                                                            {expandedOrders[order._id] ? (
+                                                                                <>
+                                                                                    <span>Sembunyikan Detail</span>
+                                                                                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                                                                                    </svg>
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <span>Lihat Detail</span>
+                                                                                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                                                    </svg>
+                                                                                </>
+                                                                            )}
+                                                                        </button>
                                                                     </div>
-                                                                    <div className="flex items-center space-x-4">
-                                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                                            {order.items.length} item
-                                                                        </span>
-                                                                        <span className="font-medium text-emerald-600">
-                                                                            {currency}{order.total?.toLocaleString() || order.amount?.toLocaleString()}
-                                                                        </span>
+                                                                    
+                                                                    {/* Detail pesanan yang dapat di-expand */}
+                                                                    {expandedOrders[order._id] ? (
+                                                                        <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100">
+                                                                            <h4 className="text-sm font-medium text-gray-700 mb-2">Detail Pesanan:</h4>
+                                                                            <div className="space-y-2">
+                                                                                {order.items.map((item, idx) => (
+                                                                                    <div key={idx} className="flex items-center justify-between text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                                                                                        <div className="flex items-center space-x-2">
+                                                                                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-medium">
+                                                                                                {item.quantity}
+                                                                                            </span>
+                                                                                            <div>
+                                                                                                <span className="text-gray-700">{item.product?.name || "Produk tidak ditemukan"}</span>
+                                                                                                {item.product?.description && (
+                                                                                                    <p className="text-xs text-gray-500 mt-0.5">{item.product.description.substring(0, 60)}{item.product.description.length > 60 ? '...' : ''}</p>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="text-right">
+                                                                                            <div className="text-gray-600">
+                                                                                                {currency}{((item.product?.offerPrice || item.product?.price) * item.quantity).toLocaleString()}
+                                                                                            </div>
+                                                                                            <div className="text-xs text-gray-500">
+                                                                                                {currency}{(item.product?.offerPrice || item.product?.price).toLocaleString()} x {item.quantity}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="space-y-2 mt-1 mb-3">
+                                                                            {order.items.slice(0, 2).map((item, idx) => (
+                                                                                <div key={idx} className="flex items-center justify-between text-sm">
+                                                                                    <div className="flex items-center space-x-2">
+                                                                                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-medium">
+                                                                                            {item.quantity}
+                                                                                        </span>
+                                                                                        <span className="text-gray-700">{item.product?.name || "Produk tidak ditemukan"}</span>
+                                                                                    </div>
+                                                                                    <span className="text-gray-600">
+                                                                                        {currency}{((item.product?.offerPrice || item.product?.price) * item.quantity).toLocaleString()}
+                                                                                    </span>
+                                                                                </div>
+                                                                            ))}
+                                                                            {order.items.length > 2 && (
+                                                                                <div className="text-xs text-gray-500 italic">
+                                                                                    + {order.items.length - 2} item lainnya...
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    
+                                                                    <div className="mt-3 pt-3 border-t border-gray-100">
+                                                                        <div className="flex justify-between items-center text-sm">
+                                                                            <span className="font-medium text-gray-700">Total Pesanan:</span>
+                                                                            <span className="font-bold text-emerald-600">
+                                                                                {currency}{orderTotal.toLocaleString()}
+                                                                            </span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -410,6 +497,9 @@ const Orders = () => {
                                     minute: '2-digit'
                                 });
                                 
+                                // Hitung total pesanan (tanpa pajak)
+                                const orderTotal = calculateOrderTotal(order.items);
+                                
                                 return (
                                     <div
                                         key={index}
@@ -432,40 +522,112 @@ const Orders = () => {
                                                 {/* Informasi produk */}
                                                 <div className="flex-1">
                                                     <div className="flex gap-4">
-                                                        <div className="relative h-20 w-20 rounded-lg overflow-hidden border bg-gray-50">
-                                                            <Image
-                                                                src={order.items[0]?.product?.image[0] || assets.box_icon}
-                                                                alt={order.items[0]?.product?.name || "Produk"}
-                                                                fill
-                                                                className="object-cover"
-                                                            />
-                                                            {order.items.length > 1 && (
-                                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-medium">
-                                                                    +{order.items.length - 1}
+                                                        {/* Mengganti tampilan gambar tunggal dengan tampilan multi gambar */}
+                                                        <div className="flex -space-x-2 relative">
+                                                            {order.items.slice(0, 2).map((item, idx) => (
+                                                                <div key={idx} className="relative h-20 w-20 rounded-lg overflow-hidden border bg-gray-50 shadow-sm">
+                                                                    <Image
+                                                                        src={item?.product?.image[0] || assets.box_icon}
+                                                                        alt={item?.product?.name || "Produk"}
+                                                                        fill
+                                                                        className="object-cover"
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                            {order.items.length > 2 && (
+                                                                <div className="absolute -right-3 -bottom-3 h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-medium shadow-md">
+                                                                    +{order.items.length - 2}
                                                                 </div>
                                                             )}
                                                         </div>
                                                         <div className="flex-1">
-                                                            <h3 className="font-medium text-gray-900 mb-1">
-                                                                {order.items[0]?.product?.name || "Produk Tidak Dikenal"}
-                                                                {order.items.length > 1 && ` & ${order.items.length - 1} item lainnya`}
-                                                            </h3>
-                                                            <div className="text-sm text-gray-500 mb-2">
-                                                                {order.items
-                                                                    .map((item) =>
-                                                                        item.product
-                                                                            ? `${item.product.name} x ${item.quantity}`
-                                                                            : `Produk tidak ditemukan x ${item.quantity}`
-                                                                    )
-                                                                    .join(", ")}
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <h3 className="font-medium text-gray-900">
+                                                                    {order.items[0]?.product?.name || "Produk Tidak Dikenal"}
+                                                                    {order.items.length > 1 && ` & ${order.items.length - 1} item lainnya`}
+                                                                </h3>
+                                                                <button 
+                                                                    onClick={() => toggleOrderDetails(order._id)}
+                                                                    className="text-xs font-medium text-emerald-600 hover:text-emerald-800 flex items-center"
+                                                                >
+                                                                    {expandedOrders[order._id] ? (
+                                                                        <>
+                                                                            <span>Sembunyikan Detail</span>
+                                                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                                                                            </svg>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <span>Lihat Detail</span>
+                                                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                                            </svg>
+                                                                        </>
+                                                                    )}
+                                                                </button>
                                                             </div>
-                                                            <div className="flex items-center space-x-4">
-                                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                                    {order.items.length} item
-                                                                </span>
-                                                                <span className="font-medium text-emerald-600">
-                                                                    {currency}{order.total?.toLocaleString() || order.amount?.toLocaleString()}
-                                                                </span>
+                                                            
+                                                            {/* Detail pesanan yang dapat di-expand */}
+                                                            {expandedOrders[order._id] ? (
+                                                                <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100">
+                                                                    <h4 className="text-sm font-medium text-gray-700 mb-2">Detail Pesanan:</h4>
+                                                                    <div className="space-y-2">
+                                                                        {order.items.map((item, idx) => (
+                                                                            <div key={idx} className="flex items-center justify-between text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                                                                                <div className="flex items-center space-x-2">
+                                                                                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-medium">
+                                                                                        {item.quantity}
+                                                                                    </span>
+                                                                                    <div>
+                                                                                        <span className="text-gray-700">{item.product?.name || "Produk tidak ditemukan"}</span>
+                                                                                        {item.product?.description && (
+                                                                                            <p className="text-xs text-gray-500 mt-0.5">{item.product.description.substring(0, 60)}{item.product.description.length > 60 ? '...' : ''}</p>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="text-right">
+                                                                                    <div className="text-gray-600">
+                                                                                        {currency}{((item.product?.offerPrice || item.product?.price) * item.quantity).toLocaleString()}
+                                                                                    </div>
+                                                                                    <div className="text-xs text-gray-500">
+                                                                                        {currency}{(item.product?.offerPrice || item.product?.price).toLocaleString()} x {item.quantity}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="space-y-2 mt-1 mb-3">
+                                                                    {order.items.slice(0, 2).map((item, idx) => (
+                                                                        <div key={idx} className="flex items-center justify-between text-sm">
+                                                                            <div className="flex items-center space-x-2">
+                                                                                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-medium">
+                                                                                    {item.quantity}
+                                                                                </span>
+                                                                                <span className="text-gray-700">{item.product?.name || "Produk tidak ditemukan"}</span>
+                                                                            </div>
+                                                                            <span className="text-gray-600">
+                                                                                {currency}{((item.product?.offerPrice || item.product?.price) * item.quantity).toLocaleString()}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))}
+                                                                    {order.items.length > 2 && (
+                                                                        <div className="text-xs text-gray-500 italic">
+                                                                            + {order.items.length - 2} item lainnya...
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                            
+                                                            <div className="mt-3 pt-3 border-t border-gray-100">
+                                                                <div className="flex justify-between items-center text-sm">
+                                                                    <span className="font-medium text-gray-700">Total Pesanan:</span>
+                                                                    <span className="font-bold text-emerald-600">
+                                                                        {currency}{orderTotal.toLocaleString()}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

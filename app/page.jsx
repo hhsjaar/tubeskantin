@@ -38,7 +38,7 @@ const kantinList = [
     id: "kansip"
   },
   {
-    name: "Kantin Widya",
+    name: "Kantin Berkah",
     description: "Kantin masakan berselera di Tata Niaga",
     id: "kantintn1"
   },

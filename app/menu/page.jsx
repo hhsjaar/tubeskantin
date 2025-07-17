@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAppContext } from "@/context/AppContext";
 import { useSearchParams } from 'next/navigation';
-import { FaStore, FaUtensils, FaCoffee, FaIceCream, FaHamburger, FaFilter, FaSearch } from "react-icons/fa";
+import { FaStore, FaUtensils, FaCookie, FaCoffee, FaIceCream, FaHamburger, FaFilter, FaSearch } from "react-icons/fa";
 
 // Separate component for search params logic
 const MenuContent = () => {
@@ -46,6 +46,7 @@ const MenuContent = () => {
         { id: "Makanan Berat", name: "Makanan Berat", icon: <FaHamburger /> },
         { id: "Makanan Ringan", name: "Makanan Ringan", icon: <FaIceCream /> },
         { id: "Minuman", name: "Minuman", icon: <FaCoffee /> },
+        { id: "Gorengan", name: "Gorengan", icon: <FaCookie /> },
     ];
 
     // Filter produk berdasarkan kantin, kategori, dan pencarian
