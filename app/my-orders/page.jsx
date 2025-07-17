@@ -85,7 +85,7 @@ const MyOrders = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-[#479C25] to-[#3a7d1f] py-12 px-6 md:px-16 lg:px-32 rounded-b-3xl shadow-lg overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
@@ -99,7 +99,7 @@ const MyOrders = () => {
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-white">Pesanan Saya</h1>
             </div>
-            <p className="text-green-100 text-lg max-w-2xl">Pantau status pesanan Anda dan lihat riwayat pembelian</p>
+            <p className="text-green-100 text-lg max-w-2xl font-medium">Pantau status pesanan Anda dan lihat riwayat pembelian</p>
           </div>
         </div>
 
@@ -114,28 +114,28 @@ const MyOrders = () => {
             <div className="flex gap-4">
               <button
                 onClick={() => setActiveTab("ongoing")}
-                className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
+                className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg group ${
                   activeTab === "ongoing"
                     ? 'bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white shadow-md transform scale-[1.02]'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-[1.02]'
                 }`}
               >
-                <FaSpinner className={`${activeTab === "ongoing" ? "animate-spin" : ""}`} />
-                <span>Sedang Berjalan</span>
-                <span className="ml-1 bg-white/20 text-xs px-2 py-0.5 rounded-full">{ongoingCount}</span>
+                <FaSpinner className={`${activeTab === "ongoing" ? "animate-spin" : ""} group-hover:scale-110 transition-transform duration-300`} />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300">Sedang Berjalan</span>
+                <span className="ml-1 bg-white/20 text-xs px-2 py-0.5 rounded-full group-hover:bg-white/30 transition-colors duration-300">{ongoingCount}</span>
               </button>
               
               <button
                 onClick={() => setActiveTab("history")}
-                className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
+                className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg group ${
                   activeTab === "history"
                     ? 'bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white shadow-md transform scale-[1.02]'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-[1.02]'
                 }`}
               >
-                <FaHistory />
-                <span>Riwayat</span>
-                <span className="ml-1 bg-white/20 text-xs px-2 py-0.5 rounded-full">{historyCount}</span>
+                <FaHistory className="group-hover:scale-110 transition-transform duration-300" />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300">Riwayat</span>
+                <span className="ml-1 bg-white/20 text-xs px-2 py-0.5 rounded-full group-hover:bg-white/30 transition-colors duration-300">{historyCount}</span>
               </button>
             </div>
           </div>
@@ -144,23 +144,23 @@ const MyOrders = () => {
           <div className="space-y-6 mb-16">
             {loading ? (
               <div className="flex justify-center py-12">
-                <div className="p-8 rounded-xl bg-white dark:bg-gray-800 shadow-lg">
+                <div className="p-8 rounded-xl bg-white/80 dark:bg-gray-900/80 shadow-lg backdrop-filter backdrop-blur-xl border border-white/20 dark:border-gray-700/50">
                   <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 rounded-full border-4 border-[#479C25] border-t-transparent animate-spin"></div>
-                    <p className="text-gray-600 dark:text-gray-300 font-medium">Memuat pesanan...</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-medium">Memuat pesanan...</p>
                   </div>
                 </div>
               </div>
             ) : filteredOrders.length === 0 ? (
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
+              <div className="bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-lg p-12 text-center backdrop-filter backdrop-blur-xl border border-white/20 dark:border-gray-700/50 hover:border-[#479C25]/20 dark:hover:border-[#479C25]/20 transition-all duration-300">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-[#479C25]">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-[#479C25] dark:text-green-400">
                     <FaBoxOpen className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-medium text-gray-800 dark:text-white">
+                  <h3 className="text-xl font-medium text-gray-900 dark:text-white">
                     {activeTab === "ongoing" ? "Tidak ada pesanan yang sedang berjalan" : "Belum ada riwayat pesanan"}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400 max-w-md">
+                  <p className="text-gray-700 dark:text-gray-300 max-w-md">
                     {activeTab === "ongoing" 
                       ? "Anda belum memiliki pesanan yang sedang diproses. Silakan pesan makanan atau minuman terlebih dahulu." 
                       : "Riwayat pesanan Anda akan muncul di sini setelah pesanan selesai atau dibatalkan."}
@@ -171,15 +171,14 @@ const MyOrders = () => {
               filteredOrders.map((order, index) => (
                 <div
                   key={index}
-                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                  className="bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-lg overflow-hidden backdrop-filter backdrop-blur-xl border border-white/20 dark:border-gray-700/50 hover:border-[#479C25]/20 dark:hover:border-[#479C25]/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group"
                 >
-                  {/* Header dengan status - tetap sama karena menggunakan gradient */}
-                  <div className={`bg-gradient-to-r ${getStatusColor(order.status)} px-6 py-3 flex justify-between items-center`}>
+                  <div className={`bg-gradient-to-r ${getStatusColor(order.status)} px-6 py-3 flex justify-between items-center group-hover:shadow-md transition-shadow duration-300`}>
                     <div className="flex items-center gap-2">
-                      <span className="text-white text-lg">{getStatusIcon(order.status)}</span>
-                      <span className="text-white font-medium">{order.status || "Menunggu Konfirmasi"}</span>
+                      <span className="text-white text-lg group-hover:scale-110 transition-transform duration-300">{getStatusIcon(order.status)}</span>
+                      <span className="text-white font-medium group-hover:translate-x-0.5 transition-transform duration-300">{order.status || "Menunggu Konfirmasi"}</span>
                     </div>
-                    <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                    <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full group-hover:bg-white/30 transition-colors duration-300">
                       <span className="text-white text-sm font-medium">ID: {order._id?.substring(0, 8) || "#000000"}</span>
                     </div>
                   </div>
@@ -215,7 +214,7 @@ const MyOrders = () => {
                       
                       {/* Info Produk */}
                       <div className="flex flex-col gap-1">
-                        <span className="font-medium text-base text-gray-800">
+                        <span className="font-medium text-base text-gray-900">
                           {order.items
                             .map(
                               (item) =>
@@ -223,12 +222,12 @@ const MyOrders = () => {
                             )
                             .join(", ")}
                         </span>
-                        <span className="text-sm text-gray-500 flex items-center gap-1.5">
+                        <span className="text-sm dark:text-gray-200 text-gray-700 flex items-center gap-1.5">
                           <FaBoxOpen className="text-[#479C25] h-3.5 w-3.5" />
                           Total Produk: {order.items.length}
                         </span>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <span className="text-xs text-gray-200 flex items-center gap-1">
                             <FaCalendarAlt className="text-[#479C25] h-3 w-3" />
                             {order.date ? new Date(order.date).toLocaleDateString('id-ID', {
                               day: '2-digit',
@@ -237,7 +236,7 @@ const MyOrders = () => {
                             }).replace(/\//g, '/') : "Tanggal tidak diketahui"}
                           </span>
                           {order.statusUpdatedAt && (
-                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <span className="text-xs text-gray-200 flex items-center gap-1">
                               <FaRegClock className="text-[#479C25] h-3 w-3" />
                               Diperbarui: {new Date(order.statusUpdatedAt).toLocaleDateString('id-ID', {
                                 day: '2-digit',
@@ -256,24 +255,24 @@ const MyOrders = () => {
                     </div>
 
                     {/* Info Harga */}
-                    <div className="my-auto w-full md:w-1/2 bg-gray-50/50 rounded-xl p-4 border border-gray-100">
+                    <div className="my-auto w-full md:w-1/2 bg-gray-50/30 dark:bg-gray-800/30 rounded-xl p-4 border border-white/20 dark:border-gray-700/50 backdrop-filter backdrop-blur-sm">
                       <table className="w-full text-sm text-gray-700">
                         <tbody>
                           <tr>
-                            <td className="py-1">Subtotal</td>
-                            <td className="py-1 text-right font-medium">{currency}{order.amount?.toLocaleString() ?? "0"}</td>
+                            <td className="py-1 dark:text-gray-200">Subtotal</td>
+                            <td className="py-1 dark:text-gray-50 text-right font-medium dark:text-gray-50">{currency}{order.amount?.toLocaleString() ?? "0"}</td>
                           </tr>
                           <tr>
-                            <td className="py-1">Pajak (2%)</td>
-                            <td className="py-1 text-right font-medium">{currency}{order.tax?.toLocaleString() ?? "0"}</td>
+                            <td className="py-1 dark:text-gray-200">Pajak (2%)</td>
+                            <td className="py-1 dark:text-gray-200 text-right font-medium">{currency}{order.tax?.toLocaleString() ?? "0"}</td>
                           </tr>
                           <tr>
-                            <td className="py-1">Diskon</td>
-                            <td className="py-1 text-right text-orange-600 font-medium">- {currency}{order.discount?.toLocaleString() ?? "0"}</td>
+                            <td className="py-1 dark:text-gray-200">Diskon</td>
+                            <td className="py-1 dark:text-gray-200 text-right text-orange-600 font-medium">- {currency}{order.discount?.toLocaleString() ?? "0"}</td>
                           </tr>
                           <tr className="border-t pt-2">
-                            <td className="py-2 font-semibold">Total</td>
-                            <td className="py-2 text-right font-bold bg-gradient-to-r from-[#479C25] to-[#3a7d1f] bg-clip-text text-transparent">{currency}{order.total?.toLocaleString() ?? "0"}</td>
+                            <td className="py-2 dark:text-gray-200 font-semibold">Total</td>
+                            <td className="py-2 dark:text-gray-200 text-right font-bold bg-gradient-to-r from-[#479C25] to-[#3a7d1f] bg-clip-text text-transparent">{currency}{order.total?.toLocaleString() ?? "0"}</td>
                           </tr>
                           {order.promoCode && (
                             <tr>

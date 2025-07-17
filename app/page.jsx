@@ -163,62 +163,68 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Fitur Unggulan Section - sudah gelap, tambahkan dark mode untuk konsistensi */}
-      <div id="fitur" className="bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 py-16 px-6 md:px-16 lg:px-32 text-white">
-        <div className="max-w-7xl mx-auto">
+      {/* Fitur Unggulan Section */}
+      <div id="fitur" className="bg-gradient-to-r from-[#479C25] to-[#3a7d1f] dark:from-green-800 dark:to-green-900 py-16 px-6 md:px-16 lg:px-32 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">🛠️ Fitur Unggulan Ngantin</h2>
-            <p className="text-gray-300 text-xl max-w-3xl mx-auto leading-relaxed">Solusi lengkap untuk kebutuhan jajan mahasiswa modern yang cerdas dan peduli lingkungan</p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white dark:text-green-50">🛠️ Fitur Unggulan Ngantin</h2>
+            <p className="text-white/90 dark:text-green-50/90 text-xl max-w-3xl mx-auto leading-relaxed">Solusi lengkap untuk kebutuhan jajan mahasiswa modern yang cerdas dan peduli lingkungan</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <div className="bg-gradient-to-br from-[#479C25]/20 to-transparent border border-[#479C25]/30 rounded-2xl p-8 hover:border-[#479C25]/50 hover:transform hover:scale-105 transition-all duration-300">
+            <div className="bg-white/10 dark:bg-gray-900/40 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 dark:hover:bg-gray-800/60 hover:transform hover:scale-105 transition-all duration-300 border border-white/20 dark:border-green-400/20">
               <div className="text-4xl mb-6">📱</div>
-              <h3 className="text-2xl font-bold mb-4 text-[#479C25]">Jajan Gak Pake Ribet</h3>
-              <p className="text-gray-300 leading-relaxed mb-4">Pesan makanan langsung lewat aplikasi, cukup klik dari HP, bayar online, dan tunggu makananmu siap.</p>
-              <p className="text-[#479C25] font-semibold">📱 Efisiensi waktu, maksimalin produktivitas!</p>
+              <h3 className="text-2xl font-bold mb-4 text-white dark:text-green-50">Jajan Gak Pake Ribet</h3>
+              <p className="text-white/80 dark:text-green-50/80 leading-relaxed mb-4">Pesan makanan langsung lewat aplikasi, cukup klik dari HP, bayar online, dan tunggu makananmu siap.</p>
+              <p className="text-white dark:text-green-50 font-semibold">📱 Efisiensi waktu, maksimalin produktivitas!</p>
             </div>
             
-            <div className="bg-gradient-to-br from-[#479C25]/20 to-transparent border border-[#479C25]/30 rounded-2xl p-8 hover:border-[#479C25]/50 hover:transform hover:scale-105 transition-all duration-300">
+            {/* Card kedua dengan style yang sama */}
+            <div className="bg-white/10 dark:bg-gray-900/40 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 dark:hover:bg-gray-800/60 hover:transform hover:scale-105 transition-all duration-300 border border-white/20 dark:border-green-400/20">
               <div className="text-4xl mb-6">📊</div>
-              <h3 className="text-2xl font-bold mb-4 text-[#479C25]">Lebih Efisien & Terkontrol</h3>
-              <p className="text-gray-300 leading-relaxed mb-4">Semua riwayat transaksi, pesanan, dan pengeluaran kamu terekam rapi. Atur keuangan makanmu tanpa repot.</p>
-              <p className="text-[#479C25] font-semibold">📊 Tracking belanja = gaya hidup cerdas.</p>
+              <h3 className="text-2xl font-bold mb-4 text-white dark:text-green-50">Lebih Efisien & Terkontrol</h3>
+              <p className="text-white/80 dark:text-green-50/80 leading-relaxed mb-4">Semua riwayat transaksi, pesanan, dan pengeluaran kamu terekam rapi. Atur keuangan makanmu tanpa repot.</p>
+              <p className="text-white dark:text-green-50 font-semibold">📊 Tracking belanja = gaya hidup cerdas.</p>
             </div>
             
-            <div className="bg-gradient-to-br from-[#479C25]/20 to-transparent border border-[#479C25]/30 rounded-2xl p-8 hover:border-[#479C25]/50 hover:transform hover:scale-105 transition-all duration-300">
+            {/* Card ketiga dengan style yang sama */}
+            <div className="bg-white/10 dark:bg-gray-900/40 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 dark:hover:bg-gray-800/60 hover:transform hover:scale-105 transition-all duration-300 border border-white/20 dark:border-green-400/20">
               <div className="text-4xl mb-6">🥗</div>
-              <h3 className="text-2xl font-bold mb-4 text-[#479C25]">Informasi Gizi Lengkap</h3>
-              <p className="text-gray-300 leading-relaxed mb-4">Setiap menu menampilkan info kandungan gizi seperti kalori, protein, lemak, hingga alergi makanan.</p>
-              <p className="text-[#479C25] font-semibold">🥗 Makan enak, tetap sehat dan terukur.</p>
+              <h3 className="text-2xl font-bold mb-4 text-white dark:text-green-50">Informasi Gizi Lengkap</h3>
+              <p className="text-white/80 dark:text-green-50/80 leading-relaxed mb-4">Setiap menu menampilkan info kandungan gizi seperti kalori, protein, lemak, hingga alergi makanan.</p>
+              <p className="text-white dark:text-green-50 font-semibold">🥗 Makan enak, tetap sehat dan terukur.</p>
             </div>
             
-            <div className="bg-gradient-to-br from-[#479C25]/20 to-transparent border border-[#479C25]/30 rounded-2xl p-8 hover:border-[#479C25]/50 hover:transform hover:scale-105 transition-all duration-300">
+            {/* Card keempat dengan style yang sama */}
+            <div className="bg-white/10 dark:bg-gray-900/40 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 dark:hover:bg-gray-800/60 hover:transform hover:scale-105 transition-all duration-300 border border-white/20 dark:border-green-400/20">
               <div className="text-4xl mb-6">🌍</div>
-              <h3 className="text-2xl font-bold mb-4 text-[#479C25]">Sadar Lingkungan</h3>
-              <p className="text-gray-300 leading-relaxed mb-4">Setiap pembelian menampilkan estimasi jejak karbon, termasuk opsi menu dengan dampak lingkungan lebih rendah.</p>
-              <p className="text-[#479C25] font-semibold">🌍 Makan sambil belajar jadi warga bumi yang bijak.</p>
+              <h3 className="text-2xl font-bold mb-4 text-white dark:text-green-50">Sadar Lingkungan</h3>
+              <p className="text-white/80 dark:text-green-50/80 leading-relaxed mb-4">Setiap pembelian menampilkan estimasi jejak karbon, termasuk opsi menu dengan dampak lingkungan lebih rendah.</p>
+              <p className="text-white dark:text-green-50 font-semibold">🌍 Makan sambil belajar jadi warga bumi yang bijak.</p>
             </div>
             
-            <div className="bg-gradient-to-br from-[#479C25]/20 to-transparent border border-[#479C25]/30 rounded-2xl p-8 hover:border-[#479C25]/50 hover:transform hover:scale-105 transition-all duration-300">
+            {/* Card kelima dengan style yang sama */}
+            <div className="bg-white/10 dark:bg-gray-900/40 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 dark:hover:bg-gray-800/60 hover:transform hover:scale-105 transition-all duration-300 border border-white/20 dark:border-green-400/20">
               <div className="text-4xl mb-6">♻️</div>
-              <h3 className="text-2xl font-bold mb-4 text-[#479C25]">Trashback Reward</h3>
-              <p className="text-gray-300 leading-relaxed mb-4">Dapat reward atau potongan harga jika kamu mengonfirmasi membuang sisa makanan dan sampah dengan benar.</p>
-              <p className="text-[#479C25] font-semibold">♻️ Buang Sampah? Dapat Hadiah!</p>
+              <h3 className="text-2xl font-bold mb-4 text-white dark:text-green-50">Trashback Reward</h3>
+              <p className="text-white/80 dark:text-green-50/80 leading-relaxed mb-4">Dapat reward atau potongan harga jika kamu mengonfirmasi membuang sisa makanan dan sampah dengan benar.</p>
+              <p className="text-white dark:text-green-50 font-semibold">♻️ Buang Sampah? Dapat Hadiah!</p>
             </div>
             
-            <div className="bg-gradient-to-br from-[#479C25]/20 to-transparent border border-[#479C25]/30 rounded-2xl p-8 hover:border-[#479C25]/50 hover:transform hover:scale-105 transition-all duration-300">
+            {/* Card keenam dengan style yang sama */}
+            <div className="bg-white/10 dark:bg-gray-900/40 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 dark:hover:bg-gray-800/60 hover:transform hover:scale-105 transition-all duration-300 border border-white/20 dark:border-green-400/20">
               <div className="text-4xl mb-6">🍽️</div>
-              <h3 className="text-2xl font-bold mb-4 text-[#479C25]">Multi-Kantin Platform</h3>
-              <p className="text-gray-300 leading-relaxed mb-4">Akses semua kantin di Polines dalam satu platform. Promo eksklusif, cashback, dan loyalty point tersedia.</p>
-              <p className="text-[#479C25] font-semibold">🍽️ Lebih banyak pilihan, lebih gampang jajan.</p>
+              <h3 className="text-2xl font-bold mb-4 text-white dark:text-green-50">Multi-Kantin Platform</h3>
+              <p className="text-white/80 dark:text-green-50/80 leading-relaxed mb-4">Akses semua kantin di Polines dalam satu platform. Promo eksklusif, cashback, dan loyalty point tersedia.</p>
+              <p className="text-white dark:text-green-50 font-semibold">🍽️ Lebih banyak pilihan, lebih gampang jajan.</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Kantin Kami Section - Full Width */}
-      <div id="kantin" className="bg-gradient-to-br from-blue-400/10 via-purple-300/10 to-pink-300/10 py-16 px-6 md:px-16 lg:px-32">
+      <div id="kantin" className="  py-16 px-6 md:px-16 lg:px-32">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="relative inline-block">
@@ -232,7 +238,7 @@ const Home = () => {
             {kantinList.map((kantin, index) => (
               <div 
                 key={index} 
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer transform hover:scale-105 border border-gray-100"
+                className="bg-white  dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer transform hover:scale-105 border border-gray-100"
                 onClick={() => handleKantinClick(kantin.name)}
               >
                 <div className="relative h-52 overflow-hidden">
@@ -260,7 +266,7 @@ const Home = () => {
                 </div>
                 
                 <div className="p-6">
-                  <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                  <p className="text-gray-600 dark:text-white/95 text-sm mb-6 leading-relaxed">
                     {kantin.description}
                   </p>
                   <button className="bg-gradient-to-r from-[#479C25] to-green-600 hover:from-[#3a7d1f] hover:to-green-700 px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 w-full shadow-lg hover:shadow-xl transform hover:scale-105">
@@ -275,112 +281,109 @@ const Home = () => {
       
       <Footer />
       <BubbleChat
-  chatflowid="0b35dc4a-1fab-4446-b39d-1d4563fc1e2b"
-            apiHost="https://chatbot-production-3c48.up.railway.app"
-            chatflowConfig={{
-                /* Chatflow Config */
-            }}
-            observersConfig={{
-                /* Observers Config */
-            }}
-            theme={{    
-                button: {
-                    backgroundColor: '#006400',
-                    right: 20,
-                    bottom: 20,
-                    size: 65,
-                    dragAndDrop: true,
-                    iconColor: 'white',
-                    customIconSrc: 'ai.svg',
-                    autoWindowOpen: {
-                        autoOpen: true,
-                        openDelay: 2,
-                        autoOpenOnMobile: false
-                    }
-                },
-                tooltip: {
-                    showTooltip: false,
-                    tooltipMessage: 'AI Mimin Ngantin 🧠!',
-                    tooltipBackgroundColor: '#14532D',
-                    tooltipTextColor: 'white',
-                    tooltipFontSize: 16
-                },
-                disclaimer: {
-                    showDisclaimer : false,
-                    title: 'Peringatan',
-                    message: "By using this chatbot, you agree to the <a target=\"_blank\" href=\"https://flowiseai.com/terms\">Terms & Condition</a>",
-                    textColor: 'black',
-                    buttonColor: '#3b82f6',
-                    buttonText: 'Start Chatting',
-                    buttonTextColor: 'white',
-                    blurredBackgroundColor: 'rgba(0, 0, 0, 0.4)',
-                    backgroundColor: 'white'
-                },
-                customCSS: ``,
-                chatWindow: {
-                    showTitle: true,
-                    showAgentMessages: true,
-                    title: 'Mimin Ngantin  🌿',
-                    titleAvatarSrc: 'ai.svg',
-                    welcomeMessage: 'Halo, mau makan apa hari ini?',
-                    errorMessage: 'Wah maaf aku kurang tau',
-                    backgroundColor: '#ffffff',
-                    backgroundImage: 'enter image path or link',
-                    height: 600,
-                    width: 400,
-                    fontSize: 16,
-                    starterPrompts: [
-                        '🍜 Rekomendasi menu favorit hari ini',
-                        '🥗 Menu sehat dan bergizi',
-                        '🌱 Makanan ramah lingkungan',
-                        '📍 Kantin mana yang paling dekat?',
-                    ],
-                    starterPromptFontSize: 15,
-                    clearChatOnReload: false,
-                    sourceDocsTitle: 'Sources:',
-                    renderHTML: true,
-                    botMessage: {
-                        backgroundColor: '#f7f8ff',
-                        textColor: '#303235',
-                        showAvatar: false,
-                        avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/parroticon.png'
-                    },
-                    userMessage: {
-                        backgroundColor: '#006400',
-                        textColor: '#ffffff',
-                        showAvatar: false,
-                        avatarSrc: 'https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png'
-                    },
-                    textInput: {
-                        placeholder: 'Mau makan apa hari ini?',
-                        backgroundColor: '#ffffff',
-                        textColor: '#303235',
-                        sendButtonColor: '#006400',
-                        maxChars: 50,
-                        maxCharsWarningMessage: 'Kamu mencapai batas maksimum. Masukkan kurang dari 50 karakter',
-                        autoFocus: true,
-                        sendMessageSound: true,
-                        sendSoundLocation: 'send_message.mp3',
-                        receiveMessageSound: true,
-                        receiveSoundLocation: 'receive_message.mp3'
-                    },
-                    feedback: {
-                        color: '#303235'
-                    },
-                    dateTimeToggle: {
-                        date: true,
-                        time: true
-                    },
-                    footer: {
-                        textColor: '#303235',
-                        text: 'Ngantin',
-                        company: '- Kantin Digital Polines 🤖',
-                        companyLink: 'https://ngantin.in'
-                    }}
+  
+ 
+    chatflowid="0b35dc4a-1fab-4446-b39d-1d4563fc1e2b"
+    apiHost="https://chatbot-production-3c48.up.railway.app"
+    darkMode={{
+    enabled: true,
+    detectTheme: true
   }}
-/>
 
-
+    theme={{
+      button: {
+        backgroundColor: '#22c55e',
+        right: 20,
+        bottom: 20,
+        size: 65,
+        dragAndDrop: true,
+        iconColor: 'white',
+        customIconSrc: 'ai.svg',
+        autoWindowOpen: {
+          autoOpen: true,
+          openDelay: 2,
+          autoOpenOnMobile: false
+        }
+      },
+      tooltip: {
+        showTooltip: false,
+        tooltipMessage: 'AI Mimin Ngantin 🧠!',
+        tooltipBackgroundColor: '#15803d',
+        tooltipTextColor: 'white',
+        tooltipFontSize: 16
+      },
+      disclaimer: {
+        showDisclaimer: false,
+        title: 'Peringatan',
+        message: "By using this chatbot, you agree to the <a target=\"_blank\" href=\"https://flowiseai.com/terms\">Terms & Condition</a>",
+        textColor: '#f3f4f6',
+        buttonColor: '#22c55e',
+        buttonText: 'Start Chatting',
+        buttonTextColor: 'white',
+        blurredBackgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: '#1f2937'
+      },
+      chatWindow: {
+        showTitle: true,
+        showAgentMessages: true,
+        title: 'Mimin Ngantin 🌿',
+        titleAvatarSrc: 'ai.svg',
+        welcomeMessage: 'Halo, mau makan apa hari ini?',
+        errorMessage: 'Wah maaf aku kurang tau',
+        backgroundColor: '#1f2937',
+        height: 600,
+        width: 400,
+        fontSize: 16,
+        starterPrompts: [
+          '🍜 Rekomendasi menu favorit hari ini',
+          '🥗 Menu sehat dan bergizi',
+          '🌱 Makanan ramah lingkungan',
+          '📍 Kantin mana yang paling dekat?'
+        ],
+        starterPromptFontSize: 15,
+        clearChatOnReload: false,
+        sourceDocsTitle: 'Sources:',
+        renderHTML: true,
+        botMessage: {
+          backgroundColor: '#374151',
+          textColor: '#f3f4f6',
+          showAvatar: true,
+          avatarSrc: 'ai.svg'
+        },
+        userMessage: {
+          backgroundColor: '#22c55e',
+          textColor: '#ffffff',
+          showAvatar: false
+        },
+        textInput: {
+          placeholder: 'Mau makan apa hari ini?',
+          backgroundColor: '#111827',
+          textColor: '#f3f4f6',
+          sendButtonColor: '#22c55e',
+          maxChars: 50,
+          maxCharsWarningMessage: 'Kamu mencapai batas maksimum. Masukkan kurang dari 50 karakter',
+          autoFocus: true,
+          sendMessageSound: true,
+          sendSoundLocation: 'send_message.mp3',
+          receiveMessageSound: true,
+          receiveSoundLocation: 'receive_message.mp3'
+        },
+        feedback: {
+          color: '#f3f4f6'
+        },
+        dateTimeToggle: {
+          date: true,
+          time: true
+        },
+        footer: {
+          textColor: '#f3f4f6',
+          text: 'Ngantin',
+          company: '- Kantin Digital Polines 🤖',
+          companyLink: 'https://ngantin.in'
+        }
+      }
+    }}
+  />
     </>
   );
 };

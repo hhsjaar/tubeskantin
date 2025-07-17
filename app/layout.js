@@ -1,7 +1,8 @@
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AppContextProvider } from "@/context/AppContext";
-import { ThemeProvider } from "@/context/ThemeContext"; // Tambahkan import
+import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeProvider as NextThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
 import AuthWatcher from "@/components/AuthWatcher";
@@ -17,16 +18,18 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body className={`${outfit.className} antialiased text-gray-700 dark:text-gray-200 dark:bg-gray-900`}>
           <Toaster />
-          <ThemeProvider>
-            <AppContextProvider>
-              <AuthWatcher />
-              {children}
-              <FloatingCart />
-            </AppContextProvider>
-          </ThemeProvider>
+          <NextThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ThemeProvider>
+              <AppContextProvider>
+                <AuthWatcher />
+                {children}
+                <FloatingCart />
+              </AppContextProvider>
+            </ThemeProvider>
+          </NextThemeProvider>
         </body>
       </html>
     </ClerkProvider>

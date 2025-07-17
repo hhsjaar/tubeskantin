@@ -126,19 +126,22 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-50">
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-50 transition-colors duration-300">
       <div className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-4">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-  <Image
-    onClick={() => router.push('/')}
-    src={theme === 'dark' ? assets.ngantindark : assets.logo} // Use assets object for paths
-    alt="logo"
-    className="w-28 md:w-32 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out"
-    width={128}
-    height={32}
-  />
-</div>
+        {/* Logo dan ThemeToggle */}
+        <div className="flex items-center gap-4">
+          <Image
+            onClick={() => router.push('/')}
+            src={theme === 'dark' ? assets.ngantindark : assets.logo}
+            alt="logo"
+            className="w-28 md:w-32 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out"
+            width={128}
+            height={32}
+          />
+          <div className="hidden md:block">
+            <ThemeToggle />
+          </div>
+        </div>
 
 
 
@@ -166,7 +169,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/seller') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white text-[#479c26] dark:bg-gray-900 hover:bg-[#479c26]/10'
               }`}
             >
               Admin
@@ -178,7 +181,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/bem-dashboard') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               BEM
@@ -190,7 +193,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/kandok') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Kandok
@@ -202,7 +205,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/kantek') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Kantek
@@ -214,7 +217,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/kansip') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Kansip
@@ -226,7 +229,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/kantel') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Kantel
@@ -238,7 +241,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/berkah') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Kantin Berkah
@@ -250,7 +253,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/kantintn') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Kantin TN
@@ -262,7 +265,7 @@ const Navbar = () => {
               className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/taniamart') 
                   ? 'bg-[#479c26] text-white' 
-                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+                  : 'bg-white  dark:bg-gray-900 text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Tania Mart
@@ -273,7 +276,6 @@ const Navbar = () => {
 
         {/* Desktop Right */}
         <div className="hidden md:flex items-center gap-4">
-          <ThemeToggle />
           <NotificationBell />
           <div className="relative search-container">
             <form onSubmit={handleSearch} className="flex border border-gray-200 dark:border-gray-700 hover:border-[#479c26] dark:hover:border-green-500 rounded-full px-4 py-2 items-center transition-colors duration-300 group">
@@ -331,8 +333,8 @@ const Navbar = () => {
 
         {/* Mobile Right */}
         <div className="flex items-center gap-3 md:hidden">
-          <ThemeToggle />
           <NotificationBell />
+          <ThemeToggle />
           <button 
             onClick={() => setMobileOpen(!mobileOpen)}
             className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-300"

@@ -82,12 +82,12 @@ export default function BankSampahPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        {/* Hero Section with Gradient Background */}
-        <div className="relative bg-gradient-to-r from-[#479C25] to-[#3a7d1f] py-16 px-6 md:px-16 lg:px-32 rounded-b-3xl shadow-lg overflow-hidden mb-10">
-          <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
-          <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#3a7d1f] rounded-full filter blur-3xl opacity-20"></div>
-          <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#479C25] rounded-full filter blur-3xl opacity-20"></div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        {/* Hero Section with Enhanced Gradient */}
+        <div className="relative bg-gradient-to-br from-[#479C25] via-[#3f8a20] to-[#3a7d1f] dark:from-[#2d6317] dark:via-[#245213] dark:to-[#1f4011] py-16 px-6 md:px-16 lg:px-32 rounded-b-3xl shadow-lg dark:shadow-green-900/40 overflow-hidden mb-10 transition-all duration-300">
+          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 dark:opacity-5"></div>
+          <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-gradient-to-br from-[#3a7d1f] to-[#479C25] dark:from-[#2d6317] dark:to-[#1f4011] rounded-full filter blur-3xl opacity-30 dark:opacity-40"></div>
+          <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-gradient-to-bl from-[#479C25] to-[#3a7d1f] dark:from-[#1f4011] dark:to-[#2d6317] rounded-full filter blur-3xl opacity-30 dark:opacity-40"></div>
           
           <div className="relative z-10 max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 flex items-center justify-center gap-3">
@@ -129,51 +129,51 @@ export default function BankSampahPage() {
                 )}
               </div>
 
-              {/* Info Cards */}
+              {/* Info Cards with Enhanced Design */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div className="bg-white rounded-xl p-5 shadow-md border border-green-100 hover:shadow-lg transition-all duration-300">
-                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-[#479C25] mb-3">
+                <div className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-xl p-5 shadow-md dark:shadow-green-900/20 border border-green-100 dark:border-green-900/20 hover:shadow-lg dark:hover:shadow-green-900/30 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-[#479C25] dark:text-green-400 mb-3">
                     <FaLeaf />
                   </div>
-                  <h3 className="font-bold text-gray-800 mb-1">Ramah Lingkungan</h3>
-                  <p className="text-sm text-gray-600">Berkontribusi dalam mengurangi sampah dan polusi lingkungan</p>
+                  <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1">Ramah Lingkungan</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Berkontribusi dalam mengurangi sampah dan polusi lingkungan</p>
                 </div>
                 
-                <div className="bg-white rounded-xl p-5 shadow-md border border-green-100 hover:shadow-lg transition-all duration-300">
-                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-[#479C25] mb-3">
+                <div className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-xl p-5 shadow-md dark:shadow-green-900/20 border border-green-100 dark:border-green-900/20 hover:shadow-lg dark:hover:shadow-green-900/30 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-[#479C25] dark:text-green-400 mb-3">
                     <FaRecycle />
                   </div>
-                  <h3 className="font-bold text-gray-800 mb-1">Dapatkan Reward</h3>
-                  <p className="text-sm text-gray-600">Tukarkan sampah daur ulang Anda dengan berbagai reward menarik</p>
+                  <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1">Dapatkan Reward</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Tukarkan sampah daur ulang Anda dengan berbagai reward menarik</p>
                 </div>
               </div>
             </div>
 
-            {/* Right: Form with Glass Effect */}
+            {/* Right: Form with Enhanced Glass Effect */}
             <div className="w-full lg:w-1/2">
-              <div className="backdrop-blur-lg bg-white/90 p-8 rounded-2xl shadow-xl border border-gray-100">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-                  <FaRecycle className="text-[#479C25]" /> Form TrashBack
+              <div className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/50 p-8 rounded-2xl shadow-xl dark:shadow-green-900/20 border border-gray-100 dark:border-green-900/20">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <FaRecycle className="text-[#479C25] dark:text-green-400" /> Form TrashBack
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Dynamic Sampah Input */}
+                  {/* Dynamic Sampah Input with Enhanced Design */}
                   <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <FaTrash className="text-[#479C25]" /> Jenis Sampah
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                      <FaTrash className="text-[#479C25] dark:text-green-400" /> Jenis Sampah
                     </label>
                     
                     {sampahList.map((item, index) => (
                       <div 
                         key={index} 
-                        className="flex flex-col md:flex-row md:items-center gap-3 p-4 rounded-xl bg-gray-50 border border-gray-100 transition-all duration-300 hover:shadow-md"
+                        className="flex flex-col md:flex-row md:items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-100/50 dark:border-green-900/20 transition-all duration-300 hover:shadow-md dark:hover:shadow-green-900/30 group"
                       >
                         <input
                           type="text"
                           value={item.sampah}
                           onChange={(e) => handleSampahChange(index, "sampah", e.target.value)}
                           required
-                          className="flex-1 py-2.5 px-4 rounded-lg border border-gray-200 w-full focus:outline-none focus:ring-2 focus:ring-[#479C25] transition-all duration-300"
+                          className="flex-1 py-2.5 px-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100 w-full focus:outline-none focus:ring-2 focus:ring-[#479C25] dark:focus:ring-green-500 transition-all duration-300"
                           placeholder="Jenis Sampah"
                         />
                         <div className="flex items-center gap-2">
@@ -219,7 +219,7 @@ export default function BankSampahPage() {
                     <button
                       type="button"
                       onClick={addSampah}
-                      className="w-full md:w-auto px-4 py-2.5 bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 font-medium"
+                      className="w-full md:w-auto px-4 py-2.5 bg-gradient-to-br from-[#479C25] via-[#3f8a20] to-[#3a7d1f] dark:from-[#2d6317] dark:via-[#245213] dark:to-[#1f4011] text-white rounded-lg shadow-md hover:shadow-lg dark:shadow-green-900/30 transition-all duration-300 flex items-center justify-center gap-2 font-medium hover:scale-105 active:scale-95"
                     >
                       <FaPlus size={12} /> Tambah Jenis Sampah
                     </button>
@@ -228,13 +228,13 @@ export default function BankSampahPage() {
                   {/* Lokasi */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
-                      <FaMapMarkerAlt className="text-[#479C25]" /> Lokasi
+                      <FaMapMarkerAlt className="text-[#479C25] dark:text-green-400" /> Lokasi
                     </label>
                     <select
                       value={lokasi}
                       onChange={(e) => setLokasi(e.target.value)}
                       required
-                      className="w-full py-2.5 px-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#479C25] transition-all duration-300 bg-white"
+                      className="w-full py-2.5 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#479C25] dark:focus:ring-green-500 transition-all duration-300"
                     >
                       <option value="" disabled>Pilih Lokasi</option>
                       <option value="Kantin Teknik">Kantin Teknik</option>
@@ -255,7 +255,7 @@ export default function BankSampahPage() {
                     <textarea
                       value={catatan}
                       onChange={(e) => setCatatan(e.target.value)}
-                      className="w-full py-2.5 px-4 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#479C25] transition-all duration-300"
+                      className="w-full py-2.5 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#479C25] transition-all duration-300"
                       rows={3}
                       placeholder="Tambahkan catatan atau deskripsi tentang sampah yang Anda kumpulkan"
                     />
@@ -264,7 +264,7 @@ export default function BankSampahPage() {
                   {/* Foto Upload */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-3">
-                      <FaCamera className="text-[#479C25]" /> Foto Sampah
+                      <FaCamera className="text-[#479C25] dark:text-green-400" /> Foto Sampah
                     </label>
                     <div className="flex flex-wrap gap-4">
                       <label htmlFor="fotoSampah" className="cursor-pointer">
@@ -277,30 +277,30 @@ export default function BankSampahPage() {
                           hidden
                           onChange={handleFotoChange}
                         />
-                        <div className="w-28 h-28 border-2 border-dashed border-[#479C25]/40 rounded-xl flex flex-col justify-center items-center bg-green-50 hover:bg-green-100 transition-all duration-300 group">
-                          <FaUpload className="text-[#479C25] mb-2 group-hover:scale-110 transition-all duration-300" />
-                          <p className="text-[#479C25] text-sm font-medium">Upload</p>
+                        <div className="w-28 h-28 border-2 border-dashed border-[#479C25]/40 rounded-xl flex flex-col justify-center items-center bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all duration-300 group">
+                          <FaUpload className="text-[#479C25] dark:text-green-400 mb-2 group-hover:scale-110 transition-all duration-300" />
+                          <p className="text-[#479C25] dark:text-green-400 text-sm font-medium">Upload</p>
                         </div>
                       </label>
 
                       {fotoSampah.map((file, index) => (
-                        <div key={index} className="w-28 h-28 relative rounded-xl overflow-hidden shadow-md group hover:shadow-lg transition-all duration-300 hover:scale-105">
+                        <div key={index} className="w-28 h-28 relative rounded-xl overflow-hidden shadow-md dark:shadow-green-900/30 group hover:shadow-lg dark:hover:shadow-green-900/40 transition-all duration-300 hover:scale-105">
                           <img
                             src={URL.createObjectURL(file)}
                             alt={`Preview ${index}`}
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 dark:group-hover:bg-black/40 transition-all duration-300"></div>
                         </div>
                       ))}
                     </div>
-                    <p className="mt-2 text-xs text-gray-500">Upload foto sampah yang akan Anda kumpulkan</p>
+                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Upload foto sampah yang akan Anda kumpulkan</p>
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-br from-[#479C25] via-[#3f8a20] to-[#3a7d1f] dark:from-[#2d6317] dark:via-[#245213] dark:to-[#1f4011] text-white py-3 rounded-xl font-medium shadow-md hover:shadow-lg dark:shadow-green-900/30 transition-all duration-300 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {loading ? (
                       <>
@@ -309,7 +309,7 @@ export default function BankSampahPage() {
                       </>
                     ) : (
                       <>
-                        <FaRecycle />
+                        <FaRecycle className="transform group-hover:rotate-180 transition-transform duration-300" />
                         <span>Kirim Data</span>
                       </>
                     )}

@@ -27,13 +27,13 @@ const FeaturedProduct = () => {
   return (
     <div className="mt-14">
       <div className="flex flex-col items-center">
-        <p className="text-3xl font-medium">Featured Products</p>
+        <p className="text-3xl font-medium dark:text-gray-100">Featured Products</p>
         <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-14 mt-12 md:px-14 px-4">
         {products.map(({ id, image, title, description }) => (
-          <div key={id} className="relative group">
+          <div key={id} className="relative group bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl dark:shadow-gray-900/30">
             <Image
               src={image}
               alt={title}
@@ -44,8 +44,8 @@ const FeaturedProduct = () => {
               <p className="text-sm lg:text-base leading-5 max-w-60">
                 {description}
               </p>
-              <button className="flex items-center gap-1.5 bg-orange-600 px-4 py-2 rounded">
-                Buy now <Image className="h-3 w-3" src={assets.redirect_icon} alt="Redirect Icon" />
+              <button className="flex items-center gap-1.5 bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 px-4 py-2 rounded transition-colors duration-200">
+                Buy now <Image className="h-3 w-3 dark:invert" src={assets.redirect_icon} alt="Redirect Icon" />
               </button>
             </div>
           </div>
