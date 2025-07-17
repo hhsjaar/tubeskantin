@@ -67,7 +67,7 @@ const ProductCard = ({ product }) => {
                     {/* Harga dan Jumlah Terjual */}
                     <div className="mt-2 flex items-center justify-between">
                         <p className="text-base font-bold bg-gradient-to-r from-[#479C25] to-[#3a7d1f] dark:from-green-400 dark:to-green-500 bg-clip-text text-transparent">
-                            {currency}{product.offerPrice}
+                            {currency}{product.offerPrice.toLocaleString('id-ID')}
                         </p>
                         
                         {typeof product.orderCount === 'number' && (

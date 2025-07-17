@@ -9,8 +9,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import dynamic from 'next/dynamic';
-// Remove this line:
-// import { BubbleChat } from "flowise-embed-react";
+import { useTheme } from '@/context/ThemeContext'; // Tambahkan import ini
 
 const BubbleChat = dynamic(
   () => import('flowise-embed-react').then(mod => mod.BubbleChat),
@@ -56,6 +55,7 @@ const kantinList = [
 
 const Home = () => {
   const router = useRouter();
+  const { isDarkMode } = useTheme(); // Tambahkan hook tema
   const [products, setProducts] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
@@ -281,109 +281,110 @@ const Home = () => {
       
       <Footer />
       <BubbleChat
-  
- 
-    chatflowid="0b35dc4a-1fab-4446-b39d-1d4563fc1e2b"
-    apiHost="https://chatbot-production-3c48.up.railway.app"
-    darkMode={{
-    enabled: true,
-    detectTheme: true
-  }}
-
-    theme={{
-      button: {
-        backgroundColor: '#22c55e',
-        right: 20,
-        bottom: 20,
-        size: 65,
-        dragAndDrop: true,
-        iconColor: 'white',
-        customIconSrc: 'ai.svg',
-        autoWindowOpen: {
-          autoOpen: true,
-          openDelay: 2,
-          autoOpenOnMobile: false
-        }
-      },
-      tooltip: {
-        showTooltip: false,
-        tooltipMessage: 'AI Mimin Ngantin 🧠!',
-        tooltipBackgroundColor: '#15803d',
-        tooltipTextColor: 'white',
-        tooltipFontSize: 16
-      },
-      disclaimer: {
-        showDisclaimer: false,
-        title: 'Peringatan',
-        message: "By using this chatbot, you agree to the <a target=\"_blank\" href=\"https://flowiseai.com/terms\">Terms & Condition</a>",
-        textColor: '#f3f4f6',
-        buttonColor: '#22c55e',
-        buttonText: 'Start Chatting',
-        buttonTextColor: 'white',
-        blurredBackgroundColor: 'rgba(0, 0, 0, 0.8)',
-        backgroundColor: '#1f2937'
-      },
-      chatWindow: {
-        showTitle: true,
-        showAgentMessages: true,
-        title: 'Mimin Ngantin 🌿',
-        titleAvatarSrc: 'ai.svg',
-        welcomeMessage: 'Halo, mau makan apa hari ini?',
-        errorMessage: 'Wah maaf aku kurang tau',
-        backgroundColor: '#1f2937',
-        height: 600,
-        width: 400,
-        fontSize: 16,
-        starterPrompts: [
-          '🍜 Rekomendasi menu favorit hari ini',
-          '🥗 Menu sehat dan bergizi',
-          '🌱 Makanan ramah lingkungan',
-          '📍 Kantin mana yang paling dekat?'
-        ],
-        starterPromptFontSize: 15,
-        clearChatOnReload: false,
-        sourceDocsTitle: 'Sources:',
-        renderHTML: true,
-        botMessage: {
-          backgroundColor: '#374151',
-          textColor: '#f3f4f6',
-          showAvatar: true,
-          avatarSrc: 'ai.svg'
-        },
-        userMessage: {
-          backgroundColor: '#22c55e',
-          textColor: '#ffffff',
-          showAvatar: false
-        },
-        textInput: {
-          placeholder: 'Mau makan apa hari ini?',
-          backgroundColor: '#111827',
-          textColor: '#f3f4f6',
-          sendButtonColor: '#22c55e',
-          maxChars: 50,
-          maxCharsWarningMessage: 'Kamu mencapai batas maksimum. Masukkan kurang dari 50 karakter',
-          autoFocus: true,
-          sendMessageSound: true,
-          sendSoundLocation: 'send_message.mp3',
-          receiveMessageSound: true,
-          receiveSoundLocation: 'receive_message.mp3'
-        },
-        feedback: {
-          color: '#f3f4f6'
-        },
-        dateTimeToggle: {
-          date: true,
-          time: true
-        },
-        footer: {
-          textColor: '#f3f4f6',
-          text: 'Ngantin',
-          company: '- Kantin Digital Polines 🤖',
-          companyLink: 'https://ngantin.in'
-        }
-      }
-    }}
-  />
+        chatflowid="0b35dc4a-1fab-4446-b39d-1d4563fc1e2b"
+        apiHost="https://chatbot-production-3c48.up.railway.app"
+        theme={{
+          button: {
+            backgroundColor: '#22c55e',
+            right: 20,
+            bottom: 20,
+            size: 65,
+            dragAndDrop: true,
+            iconColor: 'white',
+            customIconSrc: 'ai.svg',
+            autoWindowOpen: {
+              autoOpen: true,
+              openDelay: 2,
+              autoOpenOnMobile: false
+            }
+          },
+          tooltip: {
+            showTooltip: false,
+            tooltipMessage: 'AI Mimin Ngantin 🧠!',
+            tooltipBackgroundColor: '#15803d',
+            tooltipTextColor: 'white',
+            tooltipFontSize: 16
+          },
+          disclaimer: {
+            showDisclaimer: false,
+            title: 'Peringatan',
+            message: "Ketika anda menggunakan Chatbot ini, anda menyetujui <a target=\"_blank\" href=\"https://flowiseai.com/terms\">Syarat & Ketentuannya</a>",
+            textColor: isDarkMode ? '#f3f4f6' : '#374151',
+            buttonColor: '#22c55e',
+            buttonText: 'Start Chatting',
+            buttonTextColor: 'white',
+            blurredBackgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backgroundColor: isDarkMode ? '#1f2937' : '#ffffff'
+          },
+          chatWindow: {
+            showTitle: true,
+            showAgentMessages: true,
+            title: 'Mimin Ngantin 🌿',
+            titleAvatarSrc: 'ai.svg',
+            welcomeMessage: 'Halo, mau makan apa hari ini?',
+            errorMessage: 'Wah maaf aku kurang tau',
+            backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+            height: 600,
+            width: 400,
+            fontSize: 16,
+            starterPrompts: isDarkMode ? [
+  '🌙 Menu favorit untuk malam hari',
+  '🥗 Makanan sehat & bergizi',
+  '🌿 Pilihan ramah lingkungan',
+  '🗺️ Kantin terdekat dari lokasi saya'
+] : [
+  '☀️ Menu favorit untuk siang hari',
+  '🥗 Menu sehat dan bergizi',
+  '🌱 Makanan ramah lingkungan', 
+  '📍 Kantin mana yang paling dekat?'
+],
+            starterPromptFontSize: 15,
+            starterPromptBackgroundColor: isDarkMode ? '#777777' : '#f3f4f6',
+  starterPromptTextColor: isDarkMode ? '#f3f4f6' : '#374151',
+  starterPromptHoverBackgroundColor: isDarkMode ? '#4b5563' : '#e5e7eb',
+            clearChatOnReload: false,
+            sourceDocsTitle: 'Sources:',
+            renderHTML: true,
+            botMessage: {
+              backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
+              textColor: isDarkMode ? '#f3f4f6' : '#374151',
+              showAvatar: false,
+              avatarSrc: 'ai.svg'
+            },
+            userMessage: {
+              backgroundColor: '#22c55e',
+              textColor: '#ffffff',
+              showAvatar: false
+            },
+            textInput: {
+              placeholder: 'Mau makan apa hari ini?',
+              backgroundColor: isDarkMode ? '#111827' : '#ffffff',
+              textColor: isDarkMode ? '#f3f4f6' : '#374151',
+              sendButtonColor: '#22c55e',
+              maxChars: 50,
+              maxCharsWarningMessage: 'Kamu mencapai batas maksimum. Masukkan kurang dari 50 karakter',
+              autoFocus: true,
+              sendMessageSound: true,
+              sendSoundLocation: 'send_message.mp3',
+              receiveMessageSound: true,
+              receiveSoundLocation: 'receive_message.mp3'
+            },
+            feedback: {
+              color: isDarkMode ? '#f3f4f6' : '#374151'
+            },
+            dateTimeToggle: {
+              date: true,
+              time: true
+            },
+            footer: {
+              textColor: isDarkMode ? '#f3f4f6' : '#374151',
+              text: 'Ngantin',
+              company: '- Kantin Digital Polines 🤖',
+              companyLink: 'https://ngantin.in'
+            }
+          }
+        }}
+      />
     </>
   );
 };

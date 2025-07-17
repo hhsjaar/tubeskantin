@@ -84,11 +84,11 @@ const Product = () => {
                             
                             <div className="mt-6 flex items-center">
                                 <p className="text-4xl font-bold text-[#479C25] dark:text-green-400">
-                                    Rp{productData.offerPrice}
+                                    Rp{productData.offerPrice.toLocaleString('id-ID')}
                                 </p>
                                 {productData.price > productData.offerPrice && (
                                     <p className="ml-3 text-lg text-gray-500 dark:text-gray-400 line-through">
-                                        Rp{productData.price}
+                                        Rp{productData.price.toLocaleString('id-ID')}
                                     </p>
                                 )}
                             </div>

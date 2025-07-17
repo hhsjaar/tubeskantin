@@ -140,7 +140,7 @@ const ProductList = () => {
                 />
               </div>
               <button
-                onClick={() => router.push('/kandok/page')}
+                onClick={() => router.push('/kandok')}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors flex items-center justify-center w-full md:w-auto"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

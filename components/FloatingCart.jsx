@@ -64,7 +64,7 @@ const FloatingCart = () => {
                     <div className="flex-1">
                       <p className="text-sm font-medium dark:text-gray-200">{product.name}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Rp {product.offerPrice.toLocaleString()}
+                        Rp {product.offerPrice.toLocaleString('id-ID')}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <button 
