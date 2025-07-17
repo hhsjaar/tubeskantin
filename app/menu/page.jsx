@@ -44,9 +44,10 @@ const MenuContent = () => {
     const categoryList = [
         { id: "All", name: "Semua", icon: <FaUtensils /> },
         { id: "Makanan Berat", name: "Makanan Berat", icon: <FaHamburger /> },
-        { id: "Makanan Ringan", name: "Makanan Ringan", icon: <FaIceCream /> },
         { id: "Minuman", name: "Minuman", icon: <FaCoffee /> },
         { id: "Gorengan", name: "Gorengan", icon: <FaCookie /> },
+                { id: "Snack", name: "Snack", icon: <FaIceCream /> },
+
     ];
 
     // Filter produk berdasarkan kantin, kategori, dan pencarian

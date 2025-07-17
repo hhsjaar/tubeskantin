@@ -21,7 +21,7 @@ export const AppContextProvider = (props) => {
   const [products, setProducts] = useState([]);
   const [userData, setUserData] = useState(null);
   const [isSeller, setIsSeller] = useState(false);
-  const [isBem, setIsBem] = useState(false);  // New state for BEM role
+  const [isBem, setIsBem] = useState(false);
   const [isKantek, setIsKantek] = useState(false);
   const [isKandok, setIsKandok] = useState(false);
   const [isKantel, setIsKantel] = useState(false);
@@ -32,7 +32,6 @@ export const AppContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [bankSampahData, setBankSampahData] = useState([]);
 
-  // Fetch Bank Sampah data
   const fetchBankSampahData = async () => {
     try {
       const { data } = await axios.get('/api/bank-sampah/get');
@@ -46,7 +45,6 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  // Fetch Product Data
   const fetchProductData = async () => {
     try {
       const { data } = await axios.get('/api/product/list');
@@ -56,11 +54,10 @@ export const AppContextProvider = (props) => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error("Gagal memuat data produk");
     }
   };
 
-  // Fetch User Data
   const fetchUserData = async () => {
     try {
       if (user?.publicMetadata?.role === 'seller') {
@@ -99,20 +96,18 @@ export const AppContextProvider = (props) => {
 
       if (data.success) {
         setUserData(data.user);
-        setCartItems(data.user?.cartItems ?? {}); // <--- pake safe access dan fallback
+        setCartItems(data.user?.cartItems ?? {});
       } else {
-        toast.error(data.message);
+        toast.error("Gagal memuat data pengguna");
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error("Terjadi kesalahan saat memuat data pengguna");
     }
   };
 
-
-  // Add item to cart
   const addToCart = async (itemId) => {
     if (!user) {
-      return toast('Please login', {
+      return toast('Silakan login terlebih dahulu', {
         icon: '⚠️',
       });
     }
@@ -128,14 +123,13 @@ export const AppContextProvider = (props) => {
       try {
         const token = await getToken();
         await axios.post('/api/cart/update', { cartData }, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success('Item added to cart');
+        toast.success('Produk berhasil ditambahkan ke keranjang');
       } catch (error) {
-        toast.error(error.message);
+        toast.error("Gagal menambahkan ke keranjang");
       }
     }
   };
 
-  // Update cart quantity
   const updateCartQuantity = async (itemId, quantity) => {
     let cartData = structuredClone(cartItems);
     if (quantity === 0) {
@@ -148,14 +142,13 @@ export const AppContextProvider = (props) => {
       try {
         const token = await getToken();
         await axios.post('/api/cart/update', { cartData }, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success('Cart Updated');
+        toast.success('Keranjang berhasil diperbarui');
       } catch (error) {
-        toast.error(error.message);
+        toast.error("Gagal memperbarui keranjang");
       }
     }
   };
 
-  // Get total cart item count
   const getCartCount = () => {
     let totalCount = 0;
     for (const items in cartItems) {
@@ -166,23 +159,20 @@ export const AppContextProvider = (props) => {
     return totalCount;
   };
 
-  // Get total cart amount
   const getCartAmount = () => {
     let totalAmount = 0;
     for (const items in cartItems) {
       let itemInfo = products.find((product) => product._id === items);
 
-      // Check if itemInfo is found before accessing offerPrice
       if (itemInfo && itemInfo.offerPrice) {
         totalAmount += itemInfo.offerPrice * cartItems[items];
       } else {
-        console.warn(`Product not found or missing offerPrice for item: ${items}`);
+        console.warn(`Produk tidak ditemukan atau harga tidak tersedia untuk item: ${items}`);
       }
     }
     return Math.floor(totalAmount * 100) / 100;
   };
 
-  // Fetch necessary data on component mount
   useEffect(() => {
     fetchProductData();
     fetchBankSampahData();
@@ -205,12 +195,12 @@ export const AppContextProvider = (props) => {
     isBerkah, setIsBerkah,
     isKantintn, setIsKantintn,
     isTaniamart, setIsTaniamart,
-  userData, fetchUserData,
-  products, fetchProductData,
-  cartItems, setCartItems,
-  addToCart, updateCartQuantity,
-  getCartCount, getCartAmount,
-  bankSampahData, fetchBankSampahData
+    userData, fetchUserData,
+    products, fetchProductData,
+    cartItems, setCartItems,
+    addToCart, updateCartQuantity,
+    getCartCount, getCartAmount,
+    bankSampahData, fetchBankSampahData
   };
 
   return (

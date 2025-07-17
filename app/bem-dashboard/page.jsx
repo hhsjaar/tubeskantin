@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
 import { FaRecycle, FaLeaf, FaCoins, FaChartLine, FaMapMarkerAlt, FaCalendarAlt, FaUser, FaImage, FaTimes, FaArrowLeft, FaFileAlt } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 export default function BemDashboard() {
   const [bankSampahList, setBankSampahList] = useState([]);
@@ -71,13 +72,13 @@ export default function BemDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedBankSampahId || !promoCode || !promoValue) {
-      alert("Mohon isi semua field promo.");
+      toast.error("Mohon isi semua field promo.");
       return;
     }
 
     const bankSampah = bankSampahList.find((bs) => bs._id === selectedBankSampahId);
     if (!bankSampah || !bankSampah.userId?._id) {
-      alert("Data user tidak ditemukan.");
+      toast.error("Data user tidak ditemukan.");
       return;
     }
 
@@ -107,16 +108,16 @@ export default function BemDashboard() {
           });
         }
         
-        alert("Promo berhasil ditambahkan.");
+        toast.success("Promo berhasil ditambahkan.");
         setPromoCode("");
         setPromoValue("");
         setSelectedBankSampahId("");
         fetchBankSampah(); // Refresh data
       } else {
-        alert(data.message || "Gagal menambahkan promo");
+        toast.error(data.message || "Gagal menambahkan promo");
       }
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message);
     } finally {
       setLoading(false);
     }

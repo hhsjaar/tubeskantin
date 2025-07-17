@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import { assets } from "@/assets/assets";
 import { FaLeaf, FaMapMarkerAlt, FaFileAlt, FaCamera, FaPlus, FaMinus, FaTrash, FaRecycle, FaUpload } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 export default function BankSampahPage() {
   const [bankSampahData, setBankSampahData] = useState([]);
@@ -18,23 +19,11 @@ export default function BankSampahPage() {
   const [catatan, setCatatan] = useState("");
   const [fotoSampah, setFotoSampah] = useState([]);
 
-  // Tambahkan state untuk notifikasi
-  const [notification, setNotification] = useState({ show: false, message: "", type: "success" });
-  
-  // Fungsi untuk menampilkan notifikasi
-  const showNotification = (message, type = "success") => {
-    setNotification({ show: true, message, type });
-    setTimeout(() => {
-      setNotification({ show: false, message: "", type: "success" });
-    }, 3000);
-  };
-  
-  // Ubah handler submit untuk menggunakan notifikasi in-app
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     if (!lokasi || sampahList.some(item => !item.sampah) || fotoSampah.length === 0) {
-      showNotification("Mohon isi semua field yang diperlukan.", "error");
+      toast.error("Mohon isi semua field yang diperlukan.");
       return;
     }
   
@@ -56,16 +45,16 @@ export default function BankSampahPage() {
       });
   
       if (data.success) {
-        showNotification("Data berhasil ditambahkan!", "success");
+        toast.success("Data berhasil ditambahkan!");
         setSampahList([{ sampah: "", jumlahSampah: 1 }]);
         setLokasi("");
         setCatatan("");
         setFotoSampah([]);
       } else {
-        showNotification(data.message || "Gagal mengirim data", "error");
+        toast.error(data.message || "Gagal mengirim data");
       }
     } catch (err) {
-      showNotification(err.message || "Terjadi kesalahan", "error");
+      toast.error(err.message || "Terjadi kesalahan");
     } finally {
       setLoading(false);
     }
@@ -331,14 +320,6 @@ export default function BankSampahPage() {
           </div>
         </div>
       </div>
-      {/* Notification */}
-      {notification.show && (
-        <div className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-y-0 ${
-          notification.type === "success" ? "bg-green-500" : "bg-red-500"
-        }`}>
-          <p className="text-white font-medium">{notification.message}</p>
-        </div>
-      )}
       <Footer />
     </>
   );

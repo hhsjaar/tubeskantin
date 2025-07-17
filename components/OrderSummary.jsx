@@ -9,13 +9,13 @@ import { FaTag, FaShoppingBag, FaPercent, FaLeaf, FaInfoCircle, FaCreditCard } f
 const OrderSummary = () => {
   const { router, getCartCount, getCartAmount, getToken, user, cartItems, setCartItems, products} = useAppContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [note, setNote] = useState(""); // <-- Tambahkan state note
+  const [note, setNote] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [discountValue, setDiscountValue] = useState(0);
   const [isPromoApplied, setIsPromoApplied] = useState(false);
 
   const subtotal = getCartAmount();
-  const serviceFee = Math.floor(subtotal * 0.05); // Mengubah dari 2% menjadi 5%
+  const serviceFee = Math.floor(subtotal * 0.05);
   const totalBeforeDiscount = subtotal + serviceFee;
   const totalAfterDiscount = Math.max(0, totalBeforeDiscount - discountValue);
   const [snapOpened, setSnapOpened] = useState(false);
@@ -43,7 +43,7 @@ const OrderSummary = () => {
         {
           items: orderItems,
           promoCode: isPromoApplied ? promoCode : null,
-          note, // <-- Kirim note ke backend
+          note,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -75,7 +75,7 @@ const OrderSummary = () => {
       if (data.success) {
         setDiscountValue(data.promo.value);
         setIsPromoApplied(true);
-        toast.success(`Kode promo berhasil! Anda hemat Rp${data.promo.value.toLocaleString()}`); // Mengubah currency ke Rp
+        toast.success(`Kode promo berhasil! Anda hemat Rp${data.promo.value.toLocaleString()}`);
       } else {
         setDiscountValue(0);
         setIsPromoApplied(false);
@@ -113,6 +113,8 @@ const OrderSummary = () => {
     const kantin = kantins.find(k => k.id === kantinId);
     if (!kantin) return toast.error("Kantin tidak ditemukan");
 
+    setIsSubmitting(true);
+
     try {
       const { data } = await axios.post("/api/checkout", {
         kantinId,
@@ -121,6 +123,7 @@ const OrderSummary = () => {
       });
 
       if (!data.snapToken || !data.clientKey) {
+        setIsSubmitting(false);
         return toast.error("Snap token gagal dibuat");
       }
 
@@ -141,10 +144,17 @@ const OrderSummary = () => {
               setCartItems({});
               router.push("/order-placed");
             },
-            onError: () => toast.error("Pembayaran gagal"),
-            onClose: () => toast("Pembayaran dibatalkan"),
+            onError: () => {
+              setIsSubmitting(false);
+              toast.error("Pembayaran gagal");
+            },
+            onClose: () => {
+              setIsSubmitting(false);
+              toast("Pembayaran dibatalkan");
+            },
           });
         } else {
+          setIsSubmitting(false);
           toast.error("Midtrans snap gagal dimuat.");
         }
       };
@@ -152,14 +162,13 @@ const OrderSummary = () => {
     } catch (err) {
       console.error("Checkout error", err);
       toast.error("Checkout gagal");
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="w-full md:w-96 sticky top-24">
-      {/* Card dengan efek glass morphism */}
       <div className="bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg overflow-hidden">
-        {/* Header dengan gradient hijau */}
         <div className="bg-gradient-to-r from-[#479C25] to-[#3a7d1f] px-6 py-5 text-white">
           <div className="flex items-center gap-3">
             <FaShoppingBag className="w-5 h-5" />
@@ -168,7 +177,6 @@ const OrderSummary = () => {
         </div>
         
         <div className="p-6 space-y-6">
-          {/* Promo Code Input */}
           <div className="space-y-2">
             <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
               <FaTag className="text-[#479C25]" />
@@ -191,7 +199,6 @@ const OrderSummary = () => {
             </div>
           </div>
 
-          {/* Catatan Pembeli Input */}
           <div className="space-y-2">
             <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
               <svg className="w-4 h-4 text-[#479C25]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,7 +216,6 @@ const OrderSummary = () => {
 
           <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent my-2"></div>
 
-          {/* Order Details */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2 text-gray-700">
@@ -252,7 +258,6 @@ const OrderSummary = () => {
               </p>
             </div>
             
-            {/* Carbon Footprint Info */}
             <div className="bg-green-50/70 rounded-lg p-3 mt-4">
               <div className="flex items-center gap-2">
                 <FaLeaf className="text-green-600 w-4 h-4" />
@@ -261,7 +266,6 @@ const OrderSummary = () => {
               <p className="text-xs text-green-600 mt-1 pl-6">Pembelian ini menghasilkan ~{(getCartCount() * 0.5).toFixed(1)} kg CO₂e</p>
             </div>
             
-            {/* Informasi Pembayaran */}
             <div className="bg-blue-50/70 rounded-lg p-3">
               <div className="flex items-center gap-2">
                 <FaCreditCard className="text-blue-600 w-4 h-4" />
@@ -270,7 +274,6 @@ const OrderSummary = () => {
               <p className="text-xs text-blue-600 mt-1 pl-6">Tersedia berbagai metode pembayaran: QRIS, transfer bank, e-wallet, dan kartu kredit</p>
             </div>
             
-            {/* Informasi Tambahan */}
             <div className="bg-yellow-50/70 rounded-lg p-3">
               <div className="flex items-center gap-2">
                 <FaInfoCircle className="text-yellow-600 w-4 h-4" />
@@ -281,16 +284,15 @@ const OrderSummary = () => {
           </div>
         </div>
         
-        {/* Checkout Button */}
         <div className="p-6 pt-0">
           <button
             onClick={createOrder}
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white py-4 rounded-lg hover:shadow-lg transition-all font-bold text-lg flex items-center justify-center gap-2"
+            className={`w-full bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white py-4 rounded-lg transition-all font-bold text-lg flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-75 cursor-not-allowed' : 'hover:shadow-lg'}`}
           >
             {isSubmitting ? (
               <>
-                <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Memproses...</span>
               </>
             ) : (
