@@ -160,17 +160,112 @@ const Navbar = () => {
             <span className={getUnderlineClasses('/trashback')}></span>
           </Link>
 
-          {/* Dashboard Buttons */}
-          {isSeller && (
+         {isSeller && (
             <button 
               onClick={() => router.push('/seller')} 
-              className={`border border-[#479c26] dark:border-green-500 transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
                 isActiveMenu('/seller') 
-                  ? 'bg-[#479c26] dark:bg-green-600 text-white' 
-                  : 'bg-white dark:bg-gray-900 text-[#479c26] dark:text-green-400 hover:bg-[#479c26]/10 dark:hover:bg-green-900/50'
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
               }`}
             >
               Admin
+            </button>
+          )}
+          {isBem && (
+            <button 
+              onClick={() => router.push('/bem-dashboard')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/bem-dashboard') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              BEM
+            </button>
+          )}
+          {isKandok && (
+            <button 
+              onClick={() => router.push('/kandok')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kandok') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kandok
+            </button>
+          )}
+          {isKantek && (
+            <button 
+              onClick={() => router.push('/kantek')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kantek') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantek
+            </button>
+          )}
+          {isKansip && (
+            <button 
+              onClick={() => router.push('/kansip')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kansip') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kansip
+            </button>
+          )}
+          {isKantel && (
+            <button 
+              onClick={() => router.push('/kantel')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kantel') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantel
+            </button>
+          )}
+          {isBerkah && (
+            <button 
+              onClick={() => router.push('/berkah')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/berkah') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantin Berkah
+            </button>
+          )}
+          {isKantintn && (
+            <button 
+              onClick={() => router.push('/kantintn')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/kantintn') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Kantin TN
+            </button>
+          )}
+          {isTaniamart && (
+            <button 
+              onClick={() => router.push('/taniamart')} 
+              className={`border border-[#479c26] transition-all duration-300 text-xs px-4 py-2 rounded-full shadow-sm hover:shadow-md ${
+                isActiveMenu('/taniamart') 
+                  ? 'bg-[#479c26] text-white' 
+                  : 'bg-white text-[#479c26] hover:bg-[#479c26]/10'
+              }`}
+            >
+              Tania Mart
             </button>
           )}
           {/* Repeat similar pattern for other dashboard buttons */}
