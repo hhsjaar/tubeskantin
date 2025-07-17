@@ -8,7 +8,7 @@ export async function GET(request) {
   try {
     const { userId } = getAuth(request);
     if (!userId) {
-      return NextResponse.json({ success: false, message: "Not authenticated" }, { status: 401 });
+      return NextResponse.json({ success: false, message: "Anda tidak memiliki akses" }, { status: 401 });
     }
     await connectDB();
 

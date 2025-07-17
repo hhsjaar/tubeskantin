@@ -68,7 +68,7 @@ export async function POST(request) {
     if (!userId) {
       return NextResponse.json({
         success: false,
-        message: "Not authenticated",
+        message: "Anda tidak memiliki akses",
       });
     }
 

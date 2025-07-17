@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
     await connectDB();
     const product = await Product.findById(params.id);
     if (!product) {
-      return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'Produk Tidak Ada' }, { status: 404 });
     }
     return NextResponse.json({ success: true, product });
   } catch (error) {
@@ -40,24 +40,24 @@ export async function DELETE(request, { params }) {
     const isTaniamart = await authTaniamart(userId);
 
     if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
-      return NextResponse.json({ success: false, message: 'Not authorized' }, { status: 403 });
+      return NextResponse.json({ success: false, message: 'Anda tidak memiliki akses' }, { status: 403 });
     }
 
     await connectDB();
 
     const product = await Product.findById(params.id);
     if (!product) {
-      return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'Produk tidak ada' }, { status: 404 });
     }
 
     // Verifikasi apakah produk milik kantin yang sesuai
     const kantinUser = isKandok || isKantek || isKansip || isKantel || isBerkah || isKantintn || isTaniamart;
     if (String(product.seller) !== String(kantinUser._id)) {
-      return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ success: false, message: 'Dilarang!' }, { status: 403 });
     }
 
     await Product.findByIdAndDelete(params.id);
-    return NextResponse.json({ success: true, message: 'Product deleted' });
+    return NextResponse.json({ success: true, message: 'Produk dihapus' });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message });
   }
@@ -77,7 +77,7 @@ export async function PUT(request, { params }) {
     const isTaniamart = await authTaniamart(userId);
 
     if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
-      return NextResponse.json({ success: false, message: 'Not authorized' }, { status: 403 });
+      return NextResponse.json({ success: false, message: 'Anda tidak memiliki akses' }, { status: 403 });
     }
 
     await connectDB();
@@ -114,10 +114,10 @@ export async function PUT(request, { params }) {
     const updatedProduct = await Product.findByIdAndUpdate(params.id, updatedData, { new: true });
 
     if (!updatedProduct) {
-      return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'Produk tidak ada' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, message: 'Product updated', product: updatedProduct });
+    return NextResponse.json({ success: true, message: 'Produk diperbarui', product: updatedProduct });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message });
   }

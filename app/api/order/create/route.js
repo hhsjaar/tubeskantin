@@ -28,7 +28,7 @@ export async function POST(request) {
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { success: false, message: "Items are required" },
+        { success: false, message: "Tidak ada produk" },
         { status: 400 }
       );
     }
@@ -39,7 +39,7 @@ export async function POST(request) {
 
     if (products.length !== productIds.length) {
       return NextResponse.json(
-        { success: false, message: "Some products not found" },
+        { success: false, message: "Beberapa produk tidak ada" },
         { status: 404 }
       );
     }
@@ -66,7 +66,7 @@ export async function POST(request) {
 
       if (!promo) {
         return NextResponse.json(
-          { success: false, message: "Promo code invalid or expired" },
+          { success: false, message: "Kode promo salah atau kadaluarsa" },
           { status: 400 }
         );
       }
@@ -96,7 +96,7 @@ const orderId = `ORDER-${userId}-${Date.now()}`;
 const existingOrder = await Order.findOne({ orderId });
 if (existingOrder) {
   return NextResponse.json(
-    { success: false, message: "Duplicate order detected" },
+    { success: false, message: "Terdeteksi Duplikat Pesanan" },
     { status: 409 }
   );
 }
@@ -167,7 +167,7 @@ await Notification.create({
 
     return NextResponse.json({
       success: true,
-      message: "Order created successfully",
+      message: "Pesanan Berhasil Dibuat",
       data: {
         orderId: newOrder._id,
         amount,

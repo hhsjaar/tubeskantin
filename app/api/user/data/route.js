@@ -16,7 +16,7 @@ export async function GET(request) {
     });
 
     if (!users || users.length === 0) {
-      return NextResponse.json({ success: false, message: "No users found" });
+      return NextResponse.json({ success: false, message: "Pengguna tidak ditemukan" });
     }
 
     return NextResponse.json({ success: true, users });

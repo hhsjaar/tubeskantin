@@ -5,6 +5,7 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class', // Tambahkan ini untuk mengaktifkan dark mode
   theme: {
     extend: {
       fontFamily: {

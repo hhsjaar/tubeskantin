@@ -11,6 +11,18 @@
 
 body {
     font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode variables */
+:root {
+  --background: #ffffff;
+  --foreground: #374151;
+}
+
+.dark {
+  --background: #111827;
+  --foreground: #f3f4f6;
 }
 
 @layer base {
@@ -19,7 +31,7 @@ body {
       -webkit-appearance: none;
       margin: 0;
     }
-  }
+}
 
 ::-webkit-scrollbar {
   display: none;

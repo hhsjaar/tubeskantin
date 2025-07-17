@@ -100,7 +100,7 @@ export async function PUT(request) {
     });
     
   } catch (error) {
-    console.error("Error updating order status:", error);
+    console.error("Gagal memperbarui status pesanan:", error);
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 }

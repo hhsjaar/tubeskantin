@@ -1,6 +1,7 @@
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AppContextProvider } from "@/context/AppContext";
+import { ThemeProvider } from "@/context/ThemeContext"; // Tambahkan import
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
 import AuthWatcher from "@/components/AuthWatcher";
@@ -17,13 +18,15 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${outfit.className} antialiased text-gray-700`}>
+        <body className={`${outfit.className} antialiased text-gray-700 dark:text-gray-200 dark:bg-gray-900`}>
           <Toaster />
-          <AppContextProvider>
-            <AuthWatcher />
-            {children}
-            <FloatingCart />
-          </AppContextProvider>
+          <ThemeProvider>
+            <AppContextProvider>
+              <AuthWatcher />
+              {children}
+              <FloatingCart />
+            </AppContextProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

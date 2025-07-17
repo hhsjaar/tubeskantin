@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useAppContext } from '@/context/AppContext';
 import { useClerk, UserButton } from '@clerk/nextjs';
 import NotificationBell from './NotificationBeli';
+import ThemeToggle from './ThemeToggle'; // Tambahkan import
 import { Menu, X } from 'lucide-react';
 import { usePathname, useRouter as useNextRouter } from 'next/navigation';
 import { useDebounce } from 'use-debounce';
@@ -121,7 +122,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b shadow-sm sticky top-0 z-50">
+    <nav className="bg-white dark:bg-gray-900 border-b dark:border-gray-700 shadow-sm sticky top-0 z-50">
       <div className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-4">
         {/* Logo */}
         <div className="flex items-center gap-3">
@@ -135,9 +136,8 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/" className={getMenuClasses('/')}>
-            <span>Beranda</span>
-            <span className={getUnderlineClasses('/')}></span>
+          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:text-[#479c26] dark:hover:text-[#479c26] transition-colors duration-200">
+            Beranda
           </Link>
           <Link href="/menu" className={getMenuClasses('/menu')}>
             <span>Menu</span>
@@ -264,6 +264,7 @@ const Navbar = () => {
 
         {/* Desktop Right */}
         <div className="hidden md:flex items-center gap-4">
+          {/* <ThemeToggle /> Tambahkan toggle theme */}
           <NotificationBell />
           <div className="relative search-container">
             <form onSubmit={handleSearch} className="flex border border-gray-200 hover:border-[#479c26] rounded-full px-4 py-2 items-center transition-colors duration-300 group">
@@ -321,6 +322,7 @@ const Navbar = () => {
 
         {/* Mobile Right */}
         <div className="flex items-center gap-3 md:hidden">
+          <ThemeToggle /> {/* Tambahkan toggle theme untuk mobile */}
           <NotificationBell />
           <button 
             onClick={() => setMobileOpen(!mobileOpen)}

@@ -35,7 +35,7 @@ export async function POST(request) {
             const isTaniamart = await authTaniamart(userId);
             
             if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
-                return NextResponse.json({ success: false, message: 'not authorized' });
+                return NextResponse.json({ success: false, message: 'Anda tidak memiliki akses' });
             }
         }
 
@@ -72,7 +72,7 @@ export async function POST(request) {
         const files = formData.getAll('images');
 
         if (!files || files.length === 0) {
-            return NextResponse.json({ success: false, message: 'no files uploaded' });
+            return NextResponse.json({ success: false, message: 'Foto belum diupload' });
         }
 
         const result = await Promise.all(
@@ -127,7 +127,7 @@ export async function POST(request) {
             date: Date.now(),
         });
 
-        return NextResponse.json({ success: true, message: 'Upload successful', newProduct });
+        return NextResponse.json({ success: true, message: 'Berhasil Upload', newProduct });
 
     } catch (error) {
         console.error(error);

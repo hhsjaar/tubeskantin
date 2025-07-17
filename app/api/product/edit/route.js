@@ -27,12 +27,12 @@ export async function PUT(request) {
     const isTaniamart = await authTaniamart(userId);
 
     if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
-      return NextResponse.json({ success: false, message: 'Not authorized' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Anda tidak memiliki akses' }, { status: 401 });
     }
 
     const formData = await request.formData();
     const id = request.nextUrl.searchParams.get("id");
-    if (!id) return NextResponse.json({ success: false, message: "Product ID is required" }, { status: 400 });
+    if (!id) return NextResponse.json({ success: false, message: "ID Produk diperlukan" }, { status: 400 });
 
     const fields = [
       "name", "description", "category", "kantin",
@@ -64,10 +64,10 @@ export async function PUT(request) {
     const updatedProduct = await Product.findByIdAndUpdate(id, data, { new: true });
 
     if (!updatedProduct) {
-      return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'Produk tidak ada' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, message: 'Product updated', product: updatedProduct });
+    return NextResponse.json({ success: true, message: 'Produk diperbarui', product: updatedProduct });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
