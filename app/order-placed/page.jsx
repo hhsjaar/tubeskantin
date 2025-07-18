@@ -14,7 +14,7 @@ const OrderPlaced = () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          router.push('/my-orders');
+          router.push('/my-orders?refresh=true');
           return 0;
         }
         return prev - 1;
@@ -62,7 +62,7 @@ const OrderPlaced = () => {
         
         {/* Tombol untuk langsung ke halaman pesanan */}
         <button 
-          onClick={() => router.push('/my-orders')} 
+          onClick={() => router.push('/my-orders?refresh=true')} 
           className="w-full py-3 px-4 bg-gradient-to-r from-[#479C25] to-[#3a7d1f] text-white rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 hover:-translate-y-1 duration-300"
         >
           <FaShoppingBag className="h-4 w-4" />

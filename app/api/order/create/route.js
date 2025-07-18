@@ -8,7 +8,7 @@ import Order from "@/models/Order";
 import User from "@/models/User";
 import connectDB from "@/config/db";
 import mongoose from "mongoose";
-
+import crypto from "crypto";
 
 export async function POST(request) {
   await connectDB();
@@ -22,9 +22,8 @@ export async function POST(request) {
       );
     }
     
-
     const body = await request.json();
-    const { items, promoCode, note } = body; // <-- Tambahkan note
+    const { items, promoCode, note, midtransOrderId } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -51,8 +50,8 @@ export async function POST(request) {
       amount += product.offerPrice * item.quantity;
     }
 
-    // Hitung pajak 2%
-    const tax = Math.floor(amount * 0.02);
+    // Hitung biaya layanan 5%
+    const tax = Math.floor(amount * 0.05);
 
     // Hitung diskon dari promo
     let discount = 0;
@@ -81,89 +80,113 @@ export async function POST(request) {
 
     const total = amount + tax - discount;
 
-    // Simpan order
-const formattedItems = items.map((item) => {
-  if (!mongoose.Types.ObjectId.isValid(item.product)) {
-    throw new Error(`Invalid product ID: ${item.product}`);
-  }
-  return {
-    product: new mongoose.Types.ObjectId(item.product),
-    quantity: item.quantity,
-  };
-});
+    // Format items
+    const formattedItems = items.map((item) => {
+      if (!mongoose.Types.ObjectId.isValid(item.product)) {
+        throw new Error(`Invalid product ID: ${item.product}`);
+      }
+      return {
+        product: new mongoose.Types.ObjectId(item.product),
+        quantity: item.quantity,
+      };
+    });
 
-const orderId = `ORDER-${userId}-${Date.now()}`;
-const existingOrder = await Order.findOne({ orderId });
-if (existingOrder) {
-  return NextResponse.json(
-    { success: false, message: "Terdeteksi Duplikat Pesanan" },
-    { status: 409 }
-  );
-}
+    // ✅ Buat order ID yang unik dengan kombinasi userId dan timestamp
+    const orderId = midtransOrderId || `ORDER-${userId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-
-const newOrder = new Order({
-  orderId, // ✅ tambahkan ini
-  userId,
-  items: formattedItems,
-  amount,
-  tax,
-  discount,
-  total,
-  promoCode: promoCode || null,
-  date: new Date(),
-  status: "Menunggu Konfirmasi",
-  statusUpdatedAt: new Date(),
-  note: note || "", // <-- Tambahkan ini
-});
-
-
-    // Simpan order dan update orderCount
-    await newOrder.save();
-    console.log("Order saved:", newOrder._id);
-
-    // Update orderCount untuk setiap produk yang dibeli
-    for (const item of items) {
-      await Product.findByIdAndUpdate(
-        item.product,
-        { $inc: { orderCount: item.quantity } }
-      );
+    // ✅ Cek duplikasi yang lebih ketat dengan atomic operation
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        // Cek duplikasi dalam transaksi
+        const recentOrder = await Order.findOne({
+          $or: [
+            { orderId },
+            {
+              userId,
+              date: { $gte: new Date(Date.now() - 60000) }, // 1 menit terakhir
+              total: total, // Same total amount
+              amount: amount // Same subtotal
+            }
+          ]
+        }).session(session);
+    
+        if (recentOrder) {
+          throw new Error('DUPLICATE_ORDER');
+        }
+    
+        // Buat order baru dalam transaksi
+        const newOrder = new Order({
+          orderId,
+          userId,
+          items: formattedItems,
+          amount,
+          tax,
+          discount,
+          total,
+          promoCode: promoCode || null,
+          date: new Date(),
+          status: "Menunggu Konfirmasi",
+          statusUpdatedAt: new Date(),
+          note: note || "",
+        });
+    
+        await newOrder.save({ session });
+        
+        // Update orderCount untuk setiap produk yang dibeli
+        for (const item of items) {
+          await Product.findByIdAndUpdate(
+            item.product,
+            { $inc: { orderCount: item.quantity } },
+            { session }
+          );
+        }
+    
+        // Tandai promo sudah digunakan
+        if (promo) {
+          promo.used = true;
+          await promo.save({ session });
+        }
+    
+        // Clear user cart
+        const user = await User.findById(userId);
+        if (user) {
+          user.cartItems = {};
+          await user.save({ session });
+        }
+    
+        return newOrder;
+      });
+    } catch (error) {
+      if (error.message === 'DUPLICATE_ORDER') {
+        return NextResponse.json(
+          { success: false, message: "Terdeteksi Duplikat Pesanan. Silakan tunggu beberapa saat sebelum memesan kembali." },
+          { status: 409 }
+        );
+      }
+      throw error;
+    } finally {
+      await session.endSession();
     }
 
     // ✅ Tambahkan Notifikasi
-await Notification.create({
-  userId,
-  title: "Pesanan Berhasil",
-  message: `Pesanan kamu dengan total Rp${total.toLocaleString()} sedang diproses.`,
-});
-
-
-    // Tandai promo sudah digunakan
-    if (promo) {
-      promo.used = true;
-      await promo.save();
-      
-    }
-    
-
-    // Kirim event Inngest
-    await inngest.send({
-      name: "order/created",
-      data: {
-        userId,
-        items,
-        amount: total,
-        date: newOrder.date,
-        orderId: newOrder._id.toString(),
-      },
+    await Notification.create({
+      userId,
+      title: "Pesanan Berhasil",
+      message: `Pesanan kamu dengan total Rp${total.toLocaleString()} sedang diproses.`,
     });
 
-    // Clear user cart
-    const user = await User.findById(userId);
-    if (user) {
-      user.cartItems = {};
-      await user.save();
-    }
+    // Hapus pengiriman event ke Inngest untuk menghindari duplikasi data
+    // await inngest.send({
+    //   name: "order/created",
+    //   data: {
+    //     userId,
+    //     items,
+    //     amount: total,
+    //     date: newOrder.date,
+    //     orderId: newOrder._id.toString(),
+    //   },
+    // });
 
     return NextResponse.json({
       success: true,

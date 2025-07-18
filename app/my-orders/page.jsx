@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 import Loading from "@/components/Loading";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { FaHistory, FaSpinner, FaShoppingBag, FaCalendarAlt, FaFilter, FaBoxOpen, FaRegClock } from "react-icons/fa";
+import { FaHistory, FaSpinner, FaShoppingBag, FaCalendarAlt, FaFilter, FaBoxOpen, FaRegClock, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const MyOrders = () => {
   const { currency, getToken, user } = useAppContext();
@@ -16,15 +16,33 @@ const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("ongoing"); // ongoing atau history
+  const [expandedOrders, setExpandedOrders] = useState(new Set()); // State untuk dropdown
+
+  // Fungsi untuk toggle dropdown detail pesanan
+  const toggleOrderDetails = (orderIndex) => {
+    const newExpanded = new Set(expandedOrders);
+    if (newExpanded.has(orderIndex)) {
+      newExpanded.delete(orderIndex);
+    } else {
+      newExpanded.add(orderIndex);
+    }
+    setExpandedOrders(newExpanded);
+  };
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchOrders = async () => {
+    if (isSubmitting) return; // Prevent multiple calls
+    
     try {
+      setIsSubmitting(true);
       const token = await getToken();
       const { data } = await axios.get("/api/order/list", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (data.success) {
+        console.log("Orders data:", JSON.stringify(data.orders[0], null, 2)); // Tambahkan ini untuk debugging
         setOrders(data.orders.reverse());
       } else {
         toast.error(data.message);
@@ -33,12 +51,31 @@ const MyOrders = () => {
       toast.error(error.message);
     } finally {
       setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   useEffect(() => {
-    if (user) fetchOrders();
+    if (user && !isSubmitting) {
+      fetchOrders();
+    }
   }, [user]);
+
+  // Tambahkan useEffect untuk menangani refresh dari parameter URL
+  useEffect(() => {
+    // Cek apakah ada parameter refresh=true di URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldRefresh = urlParams.get('refresh') === 'true';
+    
+    if (shouldRefresh && user) {
+      // Refresh data pesanan
+      fetchOrders();
+      
+      // Hapus parameter dari URL tanpa refresh halaman
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }, []);
 
   // Fungsi untuk mendapatkan warna status
   const getStatusColor = (status) => {
@@ -206,29 +243,90 @@ const MyOrders = () => {
                           </div>
                         ))}
                         {order.items.length > 2 && (
-                          <div className="relative flex items-center justify-center w-20 h-20 bg-gray-100 rounded-xl border border-gray-200">
-                            <span className="text-sm font-medium text-gray-600">+{order.items.length - 2} lagi</span>
+                          <div className="relative flex items-center justify-center w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">+{order.items.length - 2} lagi</span>
                           </div>
                         )}
                       </div>
                       
-                      {/* Info Produk */}
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium text-base text-gray-900">
-                          {order.items
-                            .map(
-                              (item) =>
-                                `${item.product?.name ?? "Produk Tidak Dikenal"} x ${item.quantity ?? 0}`
-                            )
-                            .join(", ")}
-                        </span>
-                        <span className="text-sm dark:text-gray-200 text-gray-700 flex items-center gap-1.5">
-                          <FaBoxOpen className="text-[#479C25] h-3.5 w-3.5" />
-                          Total Produk: {order.items.length}
-                        </span>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-gray-200 flex items-center gap-1">
-                            <FaCalendarAlt className="text-[#479C25] h-3 w-3" />
+                      {/* Info Produk Modern dengan Dropdown */}
+                      <div className="flex flex-col gap-3">
+                        {/* Header dengan tombol dropdown */}
+                        <div 
+                          className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 cursor-pointer hover:shadow-md transition-all duration-300 group"
+                          onClick={() => toggleOrderDetails(index)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 bg-[#479C25] rounded-full animate-pulse"></div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900 dark:text-white text-lg group-hover:text-[#479C25] dark:group-hover:text-green-400 transition-colors duration-300">
+                                {order.items.length} Item Pesanan
+                              </h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Klik untuk melihat detail produk
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-[#479C25] dark:text-green-400">
+                              {expandedOrders.has(index) ? 'Tutup' : 'Lihat'}
+                            </span>
+                            {expandedOrders.has(index) ? (
+                              <FaChevronUp className="text-[#479C25] dark:text-green-400 group-hover:scale-110 transition-transform duration-300" />
+                            ) : (
+                              <FaChevronDown className="text-[#479C25] dark:text-green-400 group-hover:scale-110 transition-transform duration-300" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Dropdown Detail Produk */}
+                        {expandedOrders.has(index) && (
+                          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden shadow-inner animate-fadeIn">
+                            <div className="p-4 bg-gradient-to-r from-[#479C25]/5 to-[#3a7d1f]/5 border-b border-gray-200 dark:border-gray-600">
+                              <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <FaBoxOpen className="text-[#479C25] dark:text-green-400" />
+                                Detail Produk Pesanan
+                              </h4>
+                            </div>
+                            <div className="divide-y divide-gray-200 dark:divide-gray-600">
+                              {order.items.map((item, itemIdx) => (
+  <div key={itemIdx} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
+    <div className="flex items-center gap-4">
+      <div className="relative">
+        <Image
+          src={item.product?.image[0] || assets.box_icon}
+          alt={item.product?.name || `Produk ${itemIdx + 1}`}
+          width={60}
+          height={60}
+          className="rounded-lg object-cover border shadow-sm"
+        />
+        <div className="absolute -top-2 -right-2 bg-[#479C25] text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          {item.quantity}
+        </div>
+      </div>
+      <div className="flex-1">
+        <h5 className="font-medium text-gray-900 dark:text-white text-base">
+          {item.product?.name ?? "Produk Tidak Dikenal"}
+        </h5>
+        <div className="flex items-center gap-4 mt-1">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            Jumlah: <span className="font-semibold text-[#479C25] dark:text-green-400">{item.quantity}</span>
+          </span>
+          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+            {currency}{((item.product?.offerPrice || 0) * item.quantity).toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-3 mt-2">
+                          <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <FaCalendarAlt className="text-[#479C25] dark:text-green-400 h-3 w-3" />
                             {order.date ? new Date(order.date).toLocaleDateString('id-ID', {
                               day: '2-digit',
                               month: '2-digit',
@@ -236,8 +334,8 @@ const MyOrders = () => {
                             }).replace(/\//g, '/') : "Tanggal tidak diketahui"}
                           </span>
                           {order.statusUpdatedAt && (
-                            <span className="text-xs text-gray-200 flex items-center gap-1">
-                              <FaRegClock className="text-[#479C25] h-3 w-3" />
+                            <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                              <FaRegClock className="text-[#479C25] dark:text-green-400 h-3 w-3" />
                               Diperbarui: {new Date(order.statusUpdatedAt).toLocaleDateString('id-ID', {
                                 day: '2-digit',
                                 month: '2-digit',
@@ -256,27 +354,27 @@ const MyOrders = () => {
 
                     {/* Info Harga */}
                     <div className="my-auto w-full md:w-1/2 bg-gray-50/30 dark:bg-gray-800/30 rounded-xl p-4 border border-white/20 dark:border-gray-700/50 backdrop-filter backdrop-blur-sm">
-                      <table className="w-full text-sm text-gray-700">
+                      <table className="w-full text-sm">
                         <tbody>
                           <tr>
-                            <td className="py-1 dark:text-gray-200">Subtotal</td>
-                            <td className="py-1 dark:text-gray-50 text-right font-medium dark:text-gray-50">{currency}{order.amount?.toLocaleString() ?? "0"}</td>
+                            <td className="py-1 text-gray-700 dark:text-gray-300">Subtotal</td>
+                            <td className="py-1 text-right font-medium text-gray-900 dark:text-gray-100">{currency}{order.amount?.toLocaleString() ?? "0"}</td>
                           </tr>
                           <tr>
-                            <td className="py-1 dark:text-gray-200">Pajak (2%)</td>
-                            <td className="py-1 dark:text-gray-200 text-right font-medium">{currency}{order.tax?.toLocaleString() ?? "0"}</td>
+                            <td className="py-1 text-gray-700 dark:text-gray-300">Biaya Layanan (5%)</td>
+                            <td className="py-1 text-right font-medium text-gray-900 dark:text-gray-100">{currency}{order.tax?.toLocaleString() ?? "0"}</td>
                           </tr>
                           <tr>
-                            <td className="py-1 dark:text-gray-200">Diskon</td>
-                            <td className="py-1 dark:text-gray-200 text-right text-orange-600 font-medium">- {currency}{order.discount?.toLocaleString() ?? "0"}</td>
+                            <td className="py-1 text-gray-700 dark:text-gray-300">Diskon</td>
+                            <td className="py-1 text-right font-medium text-red-600 dark:text-red-400">- {currency}{order.discount?.toLocaleString() ?? "0"}</td>
                           </tr>
                           <tr className="border-t pt-2">
-                            <td className="py-2 dark:text-gray-200 font-semibold">Total</td>
-                            <td className="py-2 dark:text-gray-200 text-right font-bold bg-gradient-to-r from-[#479C25] to-[#3a7d1f] bg-clip-text text-transparent">{currency}{order.total?.toLocaleString() ?? "0"}</td>
+                            <td className="py-2 font-semibold text-gray-900 dark:text-gray-100">Total</td>
+                            <td className="py-2 text-right font-bold text-green-600 dark:text-green-400">{currency}{order.total?.toLocaleString() ?? "0"}</td>
                           </tr>
                           {order.promoCode && (
                             <tr>
-                              <td colSpan="2" className="text-xs text-[#479C25] text-right">
+                              <td colSpan="2" className="text-xs text-[#479C25] dark:text-green-400 text-right">
                                 Kode promo digunakan: {order.promoCode}
                               </td>
                             </tr>
@@ -285,9 +383,9 @@ const MyOrders = () => {
                       </table>
                       {/* Menambahkan catatan pembeli */}
                       {order.note && (
-                        <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                           <div className="flex items-start gap-2">
-                            <svg className="w-4 h-4 text-[#479C25] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 text-[#479C25] dark:text-green-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
                             <div>

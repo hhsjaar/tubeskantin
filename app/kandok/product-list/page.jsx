@@ -88,7 +88,7 @@ const ProductList = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen flex flex-col bg-gray-50">
+    <div className="flex-1 min-h-screen flex flex-col bg-gray-50 dark:bg-gray-800">
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <Loading />
@@ -127,13 +127,13 @@ const ProductList = () => {
             <div className="flex flex-col md:flex-row gap-4 mb-6 items-center justify-between">
               <div className="relative w-full md:w-64">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="w-5 h-5 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </div>
                 <input
                   type="text"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   placeholder="Cari produk..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -151,12 +151,12 @@ const ProductList = () => {
             </div>
 
             {/* Tab untuk filter kategori */}
-            <div className="flex flex-wrap items-center mb-6 bg-white rounded-lg shadow p-3 overflow-x-auto">
+            <div className="flex flex-wrap items-center mb-6 bg-white dark:bg-gray-700 rounded-lg shadow p-3 overflow-x-auto">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-4 py-2 rounded-md font-medium text-sm flex-shrink-0 transition-all mr-2 ${activeCategory === category ? "bg-emerald-100 text-emerald-800" : "text-gray-600 hover:bg-gray-100"}`}
+                  className={`px-4 py-2 rounded-md font-medium text-sm flex-shrink-0 transition-all mr-2 ${activeCategory === category ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-800 dark:text-emerald-100" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"}`}
                 >
                   {category === "all" ? "Semua Kategori" : category}
                 </button>
@@ -164,10 +164,10 @@ const ProductList = () => {
             </div>
 
             {filteredProducts.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-md p-8 text-center">
+              <div className="bg-white dark:bg-gray-700 rounded-xl shadow-md p-8 text-center">
                 <div className="text-5xl mb-4">🍽️</div>
-                <h3 className="text-xl font-medium text-gray-700 mb-2">Tidak Ada Produk</h3>
-                <p className="text-gray-500">
+                <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">Tidak Ada Produk</h3>
+                <p className="text-gray-500 dark:text-gray-400">
                   {searchTerm
                     ? `Tidak ada produk yang cocok dengan pencarian "${searchTerm}"`
                     : activeCategory !== "all"
@@ -176,31 +176,31 @@ const ProductList = () => {
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="bg-white dark:bg-gray-700 rounded-xl shadow-md overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Produk
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-sm:hidden">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider max-sm:hidden">
                           Kategori
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Harga
                         </th>
-                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Aksi
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {filteredProducts.map((product, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                        <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-14 w-14 relative rounded-md overflow-hidden border border-gray-200">
+                              <div className="flex-shrink-0 h-14 w-14 relative rounded-md overflow-hidden border border-gray-200 dark:border-gray-600">
                                 <Image
                                   src={product.image[0]}
                                   alt={product.name}
@@ -209,8 +209,8 @@ const ProductList = () => {
                                 />
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                                <div className="text-sm text-gray-500 truncate max-w-xs">{product.description}</div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{product.name}</div>
+                                <div className="text-sm text-gray-500 truncate max-w-xs dark:text-gray-400">{product.description}</div>
                               </div>
                             </div>
                           </td>
@@ -219,7 +219,7 @@ const ProductList = () => {
                               {product.category}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                             <span className="font-medium text-emerald-600">Rp{product.offerPrice.toLocaleString()}</span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

@@ -285,7 +285,7 @@ const Home = () => {
         apiHost="https://chatbot-production-3c48.up.railway.app"
         theme={{
           button: {
-            backgroundColor: '#22c55e',
+            backgroundColor: '#479C25',
             right: 20,
             bottom: 20,
             size: 65,
@@ -311,7 +311,7 @@ const Home = () => {
             message: "Ketika anda menggunakan Chatbot ini, anda menyetujui <a target=\"_blank\" href=\"https://flowiseai.com/terms\">Syarat & Ketentuannya</a>",
             textColor: isDarkMode ? '#f3f4f6' : '#374151',
             buttonColor: '#22c55e',
-            buttonText: 'Start Chatting',
+            buttonText: 'Mulai Percakapan',
             buttonTextColor: 'white',
             blurredBackgroundColor: 'rgba(0, 0, 0, 0.8)',
             backgroundColor: isDarkMode ? '#1f2937' : '#ffffff'
@@ -328,15 +328,17 @@ const Home = () => {
             width: 400,
             fontSize: 16,
             starterPrompts: isDarkMode ? [
-  '🌙 Menu favorit untuk malam hari',
+              '🗺️ Apa itu Trashback',
+  '🌙 Menu favorit untuk hari ini',
   '🥗 Makanan sehat & bergizi',
   '🌿 Pilihan ramah lingkungan',
-  '🗺️ Kantin terdekat dari lokasi saya'
+  
 ] : [
-  '☀️ Menu favorit untuk siang hari',
+  '📍 Apa itu Trashback',
+  '☀️ Menu favorit untuk hari ini',
   '🥗 Menu sehat dan bergizi',
   '🌱 Makanan ramah lingkungan', 
-  '📍 Kantin mana yang paling dekat?'
+  
 ],
             starterPromptFontSize: 15,
             starterPromptBackgroundColor: isDarkMode ? '#777777' : '#f3f4f6',
