@@ -319,3 +319,113 @@ export async function GET(request) {
     }, { status: 500 });
   }
 }
+
+// Parameter untuk memilih field tertentu
+const select = searchParams.get('select');
+let selectFields = {};
+
+if (select) {
+  const fieldList = select.split(',');
+  fieldList.forEach(field => {
+    selectFields[field] = 1;
+  });
+}
+
+// Gunakan selectFields dalam query database
+if (Object.keys(selectFields).length > 0) {
+  // Contoh penggunaan dalam case 'products'
+  if (dataType === 'products' || (includeProducts && !dataType)) {
+    const products = await Product.find()
+      .select(selectFields)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    
+    // Parameter untuk chunking
+    const chunk = parseInt(searchParams.get('chunk') || '1');
+    const chunkSize = parseInt(searchParams.get('chunkSize') || '10');
+    const skipChunk = (chunk - 1) * chunkSize;
+    
+    // Gunakan skipChunk dan chunkSize untuk pagination
+    if (dataType === 'products') {
+      const products = await Product.find()
+        .select('name description price offerPrice image category kantin')
+        .skip(skipChunk)
+        .limit(chunkSize)
+        .lean();
+      const totalProducts = await Product.countDocuments();
+      allData.products = products;
+      allData.chunking = {
+        total: totalProducts,
+        chunk,
+        chunkSize,
+        totalChunks: Math.ceil(totalProducts / chunkSize)
+      };
+    } else if (includeProducts) {
+      allData.products = products;
+    }
+  }
+  
+  // Lakukan hal yang sama untuk jenis data lainnya
+  // ...
+}
+
+// Parameter untuk kompresi data
+const compress = searchParams.get('compress') === 'true';
+
+// Fungsi untuk mengompres objek
+function compressObject(obj) {
+  if (!compress) return obj;
+  
+  const result = {};
+  const keysToKeep = ['id', 'name', 'price', 'image'];
+  
+  keysToKeep.forEach(key => {
+    if (obj[key] !== undefined) {
+      result[key] = obj[key];
+    }
+  });
+  
+  return result;
+}
+
+// Kompres data sebelum mengembalikan respons
+if (allData.products) {
+  allData.products = allData.products.map(compressObject);
+}
+
+// Parameter untuk membatasi ukuran respons
+const maxTokens = parseInt(searchParams.get('maxTokens') || '8000');
+
+// Fungsi untuk memperkirakan jumlah token dalam string
+function estimateTokens(str) {
+  return str.length / 4; // Perkiraan kasar: 1 token ≈ 4 karakter
+}
+
+// Batasi ukuran respons
+let responseJSON = JSON.stringify({ 
+  success: true, 
+  data: allData,
+  timestamp: new Date().toISOString()
+});
+
+if (estimateTokens(responseJSON) > maxTokens) {
+  // Jika respons terlalu besar, kurangi jumlah data
+  if (allData.products && allData.products.length > 3) {
+    allData.products = allData.products.slice(0, 3);
+    allData.truncated = true;
+  }
+  // Lakukan hal yang sama untuk jenis data lainnya
+  
+  responseJSON = JSON.stringify({ 
+    success: true, 
+    data: allData,
+    truncated: true,
+    timestamp: new Date().toISOString()
+  });
+}
+
+return NextResponse.json(JSON.parse(responseJSON));
+}
+
+// ... existing code ...
