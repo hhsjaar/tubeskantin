@@ -328,18 +328,17 @@ const Home = () => {
             width: 400,
             fontSize: 16,
             starterPrompts: isDarkMode ? [
-              '🗺️ Apa itu Trashback',
-  '🌙 Menu favorit untuk hari ini',
-  '🥗 Makanan sehat & bergizi',
-  '🌿 Pilihan ramah lingkungan',
-  
+  '🌙 Menu sehat hari ini dengan jejak karbon rendah',
+  '🥗 Pilihan makanan bergizi dan ramah lingkungan',
+  '🌿 Makanan sehat dengan jejak karbon minimal',
+  '⚖️ Rekomendasi makanan seimbang dan bergizi',
 ] : [
-  '📍 Apa itu Trashback',
-  '☀️ Menu favorit untuk hari ini',
-  '🥗 Menu sehat dan bergizi',
-  '🌱 Makanan ramah lingkungan', 
-  
-],
+  '☀️ Menu sehat dan ramah lingkungan hari ini',
+  '🥗 Rekomendasi makanan bergizi dengan jejak karbon rendah',
+  '🌱 Pilihan makanan dengan dampak lingkungan minimal',
+  '⚖️ Rekomendasi makanan seimbang dengan nilai gizi lengkap',
+]
+,
             starterPromptFontSize: 15,
             starterPromptBackgroundColor: isDarkMode ? '#777777' : '#f3f4f6',
   starterPromptTextColor: isDarkMode ? '#f3f4f6' : '#374151',
