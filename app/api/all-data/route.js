@@ -1,431 +1,270 @@
-import connectDB from "@/config/db";
-import Product from "@/models/Product";
-import User from "@/models/User";
-import Order from "@/models/Order";
-import BankSampah from "@/models/BankSampah";
-import PromoCode from "@/models/PromoCode";
-import Notification from "@/models/Notification";
-import Address from "@/models/Address";
-import { getAuth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import connectDB from '@/config/db'
+import Product from '@/models/Product'
+import { NextResponse } from 'next/server'
 
 export async function GET(request) {
-  try {
-    // Autentikasi pengguna (opsional, tergantung kebutuhan)
-    const { userId } = getAuth(request);
-    
-    // Koneksi ke database
-    await connectDB();
-    
-    // Ambil parameter query untuk filter dan pagination
-    const { searchParams } = new URL(request.url);
-    
-    // Parameter untuk memilih jenis data
-    const includeProducts = searchParams.get('products') !== 'false';
-    const includeUsers = searchParams.get('users') !== 'false';
-    const includeOrders = searchParams.get('orders') !== 'false';
-    const includeTrashback = searchParams.get('trashback') !== 'false';
-    const includePromoCodes = searchParams.get('promo_codes') !== 'false';
-    const includeNotifications = searchParams.get('notifications') !== 'false';
-    const includeAddresses = searchParams.get('addresses') !== 'false';
-    
-    // Parameter pagination
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const skip = (page - 1) * limit;
-    
-    // Parameter untuk memilih hanya satu jenis data
-    const dataType = searchParams.get('dataType'); // 'products', 'users', 'orders', etc.
-    
-    // Parameter untuk rekomendasi makanan
-    const recommendation = searchParams.get('recommendation'); // 'daily', 'lowCarbon', 'diet', 'healthy', 'balanced'
-    
-    // Objek untuk menyimpan semua data
-    const allData = {};
-    
-    // Fungsi untuk mendapatkan rekomendasi makanan berdasarkan kriteria
-    async function getRecommendedProducts(criteria, limit) {
-      let query = {};
-      let sort = {};
-      
-      switch(criteria) {
-        case 'daily':
-          // Rekomendasi makanan harian - seimbang nutrisi
-          sort = { protein: -1, totalCarbohydrates: -1, calories: 1 };
-          break;
-        case 'lowCarbon':
-          // Makanan dengan jejak karbon rendah
-          query = { 
-            $expr: { 
-              $lt: [{ $add: ["$karbonMakanan", "$karbonPengolahan", "$karbonTransportasiLimbah"] }, 10] 
-            } 
-          };
-          sort = { karbonMakanan: 1, karbonPengolahan: 1, karbonTransportasiLimbah: 1 };
-          break;
-        case 'diet':
-          // Makanan untuk diet - rendah kalori, tinggi protein
-          query = { calories: { $lt: 300 } };
-          sort = { protein: -1, calories: 1 };
-          break;
-        case 'healthy':
-          // Makanan sehat - tinggi vitamin dan mineral
-          sort = { 
-            vitaminA: -1, 
-            vitaminC: -1, 
-            vitaminD: -1, 
-            calcium: -1, 
-            iron: -1, 
-            potassium: -1 
-          };
-          break;
-        case 'balanced':
-          // Makanan seimbang - proporsi nutrisi yang baik
-          sort = { 
-            protein: -1, 
-            totalCarbohydrates: -1, 
-            totalFat: 1, 
-            sodium: 1, 
-            cholesterol: 1 
-          };
-          break;
-        default:
-          // Tidak ada kriteria khusus, kembalikan produk populer
-          sort = { orderCount: -1 };
-      }
-      
-      return await Product.find(query)
-        .select('name description price offerPrice image category kantin orderCount createdAt portionSize calories totalFat cholesterol sodium totalCarbohydrates protein vitaminD calcium iron potassium vitaminA vitaminC karbonMakanan karbonPengolahan karbonTransportasiLimbah')
-        .sort(sort)
-        .limit(limit)
-        .lean();
-    }
-    
-    // Jika ada parameter rekomendasi, prioritaskan itu
-    if (recommendation) {
-      const recommendedProducts = await getRecommendedProducts(recommendation, limit);
-      allData.products = recommendedProducts;
-      allData.recommendation = recommendation;
-      allData.recommendationInfo = {
-        type: recommendation,
-        count: recommendedProducts.length,
-        criteria: recommendation
-      };
-      
-      return NextResponse.json({ 
-        success: true, 
-        data: allData,
-        timestamp: new Date().toISOString()
-      });
-    }
-    
-    // Jika dataType ditentukan, hanya ambil jenis data tersebut
-    if (dataType) {
-      switch(dataType) {
-        case 'products':
-          const products = await Product.find()
-            .select('name description price offerPrice image category kantin orderCount createdAt portionSize calories totalFat cholesterol sodium totalCarbohydrates protein vitaminD calcium iron potassium vitaminA vitaminC karbonMakanan karbonPengolahan karbonTransportasiLimbah')
-            .skip(skip)
-            .limit(limit)
-            .lean();
-          const totalProducts = await Product.countDocuments();
-          allData.products = products;
-          allData.pagination = {
-            total: totalProducts,
-            page,
-            limit,
-            totalPages: Math.ceil(totalProducts / limit)
-          };
-          break;
-        case 'users':
-          const users = await User.find()
-            .select('name email imageUrl')
-            .skip(skip)
-            .limit(limit)
-            .lean();
-          const totalUsers = await User.countDocuments();
-          allData.users = users;
-          allData.pagination = {
-            total: totalUsers,
-            page,
-            limit,
-            totalPages: Math.ceil(totalUsers / limit)
-          };
-          break;
-        case 'orders':
-          const orders = await Order.find()
-            .populate({
-              path: 'items.product',
-              select: 'name image offerPrice kantin'
+    try {
+        await connectDB()
+
+        // Get query parameters untuk filtering
+        const { searchParams } = new URL(request.url)
+        const category = searchParams.get('category')
+        const kantin = searchParams.get('kantin')
+        const maxCalories = searchParams.get('maxCalories')
+        const maxCarbon = searchParams.get('maxCarbon')
+        const limit = parseInt(searchParams.get('limit')) || 500 // Default 500 produk
+        const compact = searchParams.get('compact') === 'true' // Mode ringkas untuk lebih banyak data
+
+        let query = {}
+
+        // Filter berdasarkan kategori
+        if (category) {
+            query.category = { $regex: category, $options: 'i' }
+        }
+
+        // Filter berdasarkan kantin
+        if (kantin) {
+            query.kantin = kantin
+        }
+
+        // Filter berdasarkan kalori maksimal
+        if (maxCalories) {
+            query.calories = { $lte: parseInt(maxCalories) }
+        }
+
+        // Filter berdasarkan jejak karbon maksimal
+        if (maxCarbon) {
+            query.$expr = {
+                $lte: [
+                    { $add: ['$karbonMakanan', '$karbonPengolahan', '$karbonTransportasiLimbah'] },
+                    parseInt(maxCarbon)
+                ]
+            }
+        }
+
+        // Pilih field berdasarkan mode compact atau full
+        let selectFields
+        if (compact) {
+            // Mode compact: hanya field penting untuk menghemat token
+            selectFields = {
+                name: 1,
+                category: 1,
+                kantin: 1,
+                calories: 1,
+                protein: 1,
+                totalFat: 1,
+                karbonMakanan: 1,
+                karbonPengolahan: 1,
+                karbonTransportasiLimbah: 1,
+                price: 1,
+                offerPrice: 1
+            }
+        } else {
+            // Mode full: semua field nutrisi
+            selectFields = {
+                name: 1,
+                description: 1,
+                price: 1,
+                offerPrice: 1,
+                category: 1,
+                kantin: 1,
+                portionSize: 1,
+                calories: 1,
+                totalFat: 1,
+                cholesterol: 1,
+                sodium: 1,
+                totalCarbohydrates: 1,
+                protein: 1,
+                vitaminA: 1,
+                vitaminC: 1,
+                vitaminD: 1,
+                calcium: 1,
+                iron: 1,
+                potassium: 1,
+                karbonMakanan: 1,
+                karbonPengolahan: 1,
+                karbonTransportasiLimbah: 1,
+                orderCount: 1
+            }
+        }
+
+        // Ambil produk dengan batasan yang fleksibel
+        const products = await Product.find(query)
+            .sort({ orderCount: -1, createdAt: -1 })
+            .limit(Math.min(limit, 1000)) // Maksimal 1000 produk
+            .select(selectFields)
+            .lean()
+
+        // Format data berdasarkan mode
+        let aiOptimizedData
+        if (compact) {
+            // Format ultra-compact untuk dataset besar
+            aiOptimizedData = products.map(product => {
+                const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
+                return {
+                    id: product._id,
+                    nama: product.name,
+                    kategori: product.category,
+                    kantin: product.kantin,
+                    kalori: product.calories,
+                    protein: product.protein,
+                    lemak: product.totalFat,
+                    karbon: totalCarbon,
+                    harga: product.offerPrice,
+                    tags: generateCompactTags(product, totalCarbon)
+                }
             })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-          const totalOrders = await Order.countDocuments();
-          allData.orders = orders;
-          allData.pagination = {
-            total: totalOrders,
-            page,
-            limit,
-            totalPages: Math.ceil(totalOrders / limit)
-          };
-          break;
-        case 'trashback':
-          const bankSampah = await BankSampah.find()
-            .populate('userId', 'name email imageUrl')
-            .skip(skip)
-            .limit(limit)
-            .lean();
-          const totalTrashback = await BankSampah.countDocuments();
-          allData.trashback = bankSampah;
-          allData.pagination = {
-            total: totalTrashback,
-            page,
-            limit,
-            totalPages: Math.ceil(totalTrashback / limit)
-          };
-          break;
-        case 'promoCodes':
-          const promoCodes = await PromoCode.find()
-            .skip(skip)
-            .limit(limit)
-            .lean();
-          const totalPromoCodes = await PromoCode.countDocuments();
-          allData.promoCodes = promoCodes;
-          allData.pagination = {
-            total: totalPromoCodes,
-            page,
-            limit,
-            totalPages: Math.ceil(totalPromoCodes / limit)
-          };
-          break;
-        case 'notifications':
-          const notifications = await Notification.find()
-            .skip(skip)
-            .limit(limit)
-            .lean();
-          const totalNotifications = await Notification.countDocuments();
-          allData.notifications = notifications;
-          allData.pagination = {
-            total: totalNotifications,
-            page,
-            limit,
-            totalPages: Math.ceil(totalNotifications / limit)
-          };
-          break;
-        case 'addresses':
-          const addresses = await Address.find()
-            .skip(skip)
-            .limit(limit)
-            .lean();
-          const totalAddresses = await Address.countDocuments();
-          allData.addresses = addresses;
-          allData.pagination = {
-            total: totalAddresses,
-            page,
-            limit,
-            totalPages: Math.ceil(totalAddresses / limit)
-          };
-          break;
-        default:
-          return NextResponse.json({ 
+        } else {
+            // Format lengkap untuk dataset sedang
+            aiOptimizedData = products.map(product => {
+                const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
+                
+                return {
+                    id: product._id,
+                    nama: product.name,
+                    deskripsi: product.description,
+                    harga: product.offerPrice,
+                    kategori: product.category,
+                    kantin: product.kantin,
+                    porsi: product.portionSize,
+                    
+                    nutrisi: {
+                        kalori: product.calories,
+                        lemak: product.totalFat,
+                        kolesterol: product.cholesterol,
+                        sodium: product.sodium,
+                        karbohidrat: product.totalCarbohydrates,
+                        protein: product.protein,
+                        vitaminA: product.vitaminA,
+                        vitaminC: product.vitaminC,
+                        vitaminD: product.vitaminD,
+                        kalsium: product.calcium,
+                        zatBesi: product.iron,
+                        kalium: product.potassium
+                    },
+                    
+                    jejakKarbon: {
+                        total: totalCarbon,
+                        detail: [product.karbonMakanan, product.karbonPengolahan, product.karbonTransportasiLimbah]
+                    },
+                    
+                    kategoriRekomendasi: generateRecommendationCategories(product, totalCarbon)
+                }
+            })
+        }
+
+        // Sistem adaptif untuk mengelola ukuran response
+        let finalData = aiOptimizedData
+        let responseData = {
+            success: true,
+            totalProduk: finalData.length,
+            mode: compact ? 'compact' : 'full',
+            produk: finalData,
+            metadata: {
+                timestamp: new Date().toISOString(),
+                optimizedForAI: true,
+                tokenLimit: '8000',
+                maxProducts: limit,
+                filters: { category, kantin, maxCalories, maxCarbon }
+            }
+        }
+
+        // Cek ukuran response dan adaptasi otomatis
+        let responseString = JSON.stringify(responseData)
+        const estimatedTokens = Math.ceil(responseString.length / 4) // Estimasi 4 karakter per token
+        
+        if (estimatedTokens > 7500) { // Sisakan buffer 500 token
+            // Strategi pengurangan bertahap
+            let reductionFactor = 7500 / estimatedTokens
+            let targetCount = Math.floor(finalData.length * reductionFactor)
+            
+            // Prioritaskan produk populer dan beragam kantin
+            const kantinGroups = {}
+            finalData.forEach(product => {
+                if (!kantinGroups[product.kantin]) kantinGroups[product.kantin] = []
+                kantinGroups[product.kantin].push(product)
+            })
+            
+            // Ambil produk secara merata dari setiap kantin
+            const balancedProducts = []
+            const kantinNames = Object.keys(kantinGroups)
+            const perKantin = Math.ceil(targetCount / kantinNames.length)
+            
+            kantinNames.forEach(kantin => {
+                balancedProducts.push(...kantinGroups[kantin].slice(0, perKantin))
+            })
+            
+            finalData = balancedProducts.slice(0, targetCount)
+            
+            responseData.produk = finalData
+            responseData.totalProduk = finalData.length
+            responseData.metadata.truncated = true
+            responseData.metadata.originalCount = aiOptimizedData.length
+            responseData.metadata.reason = 'Token limit optimization - balanced selection'
+            responseData.metadata.estimatedTokens = estimatedTokens
+        }
+
+        return NextResponse.json(responseData)
+
+    } catch (error) {
+        return NextResponse.json({ 
             success: false, 
-            message: 'Invalid dataType parameter' 
-          }, { status: 400 });
-      }
-    } else {
-      // Jika tidak ada dataType, ambil semua jenis data yang diminta dengan pagination
-      // Ambil data produk jika diminta
-      if (includeProducts) {
-        const products = await Product.find()
-          .select('name description price offerPrice image category kantin orderCount createdAt portionSize calories totalFat cholesterol sodium totalCarbohydrates protein vitaminD calcium iron potassium vitaminA vitaminC karbonMakanan karbonPengolahan karbonTransportasiLimbah')
-          .skip(skip)
-          .limit(limit)
-          .lean();
-        allData.products = products;
-      }
-      
-      // Ambil data pengguna jika diminta
-      if (includeUsers) {
-        const users = await User.find()
-          .select('name email imageUrl')
-          .skip(skip)
-          .limit(limit)
-          .lean();
-        allData.users = users;
-      }
-      
-      // Ambil data pesanan jika diminta
-      if (includeOrders) {
-        const orders = await Order.find()
-          .populate({
-            path: 'items.product',
-            select: 'name image offerPrice kantin'
-          })
-          .skip(skip)
-          .limit(limit)
-          .lean();
-        allData.orders = orders;
-      }
-      
-      // Ambil data bank sampah (trashback) jika diminta
-      if (includeTrashback) {
-        const bankSampah = await BankSampah.find()
-          .populate('userId', 'name email imageUrl')
-          .skip(skip)
-          .limit(limit)
-          .lean();
-        allData.trashback = bankSampah;
-      }
-      
-      // Ambil data kode promo jika diminta
-      if (includePromoCodes) {
-        const promoCodes = await PromoCode.find()
-          .skip(skip)
-          .limit(limit)
-          .lean();
-        allData.promoCodes = promoCodes;
-      }
-      
-      // Ambil data notifikasi jika diminta
-      if (includeNotifications) {
-        const notifications = await Notification.find()
-          .skip(skip)
-          .limit(limit)
-          .lean();
-        allData.notifications = notifications;
-      }
-      
-      // Ambil data alamat jika diminta
-      if (includeAddresses) {
-        const addresses = await Address.find()
-          .skip(skip)
-          .limit(limit)
-          .lean();
-        allData.addresses = addresses;
-      }
+            message: error.message,
+            timestamp: new Date().toISOString()
+        })
     }
+}
+
+// Fungsi helper untuk tag compact
+function generateCompactTags(product, totalCarbon) {
+    const tags = []
     
-    return NextResponse.json({ 
-      success: true, 
-      data: allData,
-      timestamp: new Date().toISOString()
-    });
+    if (product.calories <= 300) tags.push('LC') // Low Calorie
+    if (product.protein >= 15) tags.push('HP') // High Protein
+    if (totalCarbon <= 2) tags.push('ECO') // Eco Friendly
+    if (product.totalFat <= 5) tags.push('LF') // Low Fat
     
-  } catch (error) {
-    console.error("Error fetching all data:", error);
-    return NextResponse.json({ 
-      success: false, 
-      message: error.message 
-    }, { status: 500 });
-  }
+    return tags
 }
 
-// Parameter untuk memilih field tertentu
-const select = searchParams.get('select');
-let selectFields = {};
-
-if (select) {
-  const fieldList = select.split(',');
-  fieldList.forEach(field => {
-    selectFields[field] = 1;
-  });
-}
-
-// Gunakan selectFields dalam query database
-if (Object.keys(selectFields).length > 0) {
-  // Contoh penggunaan dalam case 'products'
-  if (dataType === 'products' || (includeProducts && !dataType)) {
-    const products = await Product.find()
-      .select(selectFields)
-      .skip(skip)
-      .limit(limit)
-      .lean();
+// Fungsi helper untuk kategori rekomendasi lengkap
+function generateRecommendationCategories(product, totalCarbon) {
+    const categories = []
     
-    // Parameter untuk chunking
-    const chunk = parseInt(searchParams.get('chunk') || '1');
-    const chunkSize = parseInt(searchParams.get('chunkSize') || '10');
-    const skipChunk = (chunk - 1) * chunkSize;
+    // Rekomendasi berdasarkan kalori
+    if (product.calories <= 300) categories.push('rendah-kalori')
+    if (product.calories >= 500) categories.push('tinggi-kalori')
     
-    // Gunakan skipChunk dan chunkSize untuk pagination
-    if (dataType === 'products') {
-      const products = await Product.find()
-        .select('name description price offerPrice image category kantin')
-        .skip(skipChunk)
-        .limit(chunkSize)
-        .lean();
-      const totalProducts = await Product.countDocuments();
-      allData.products = products;
-      allData.chunking = {
-        total: totalProducts,
-        chunk,
-        chunkSize,
-        totalChunks: Math.ceil(totalProducts / chunkSize)
-      };
-    } else if (includeProducts) {
-      allData.products = products;
-    }
-  }
-  
-  // Lakukan hal yang sama untuk jenis data lainnya
-  // ...
+    // Rekomendasi berdasarkan protein
+    if (product.protein >= 15) categories.push('tinggi-protein')
+    if (product.protein >= 20) categories.push('diet-protein')
+    
+    // Rekomendasi berdasarkan jejak karbon
+    if (totalCarbon <= 2) categories.push('ramah-lingkungan')
+    if (totalCarbon <= 1) categories.push('sangat-ramah-lingkungan')
+    if (totalCarbon >= 5) categories.push('tinggi-emisi')
+    
+    // Rekomendasi berdasarkan lemak
+    if (product.totalFat <= 5) categories.push('rendah-lemak')
+    if (product.totalFat >= 20) categories.push('tinggi-lemak')
+    
+    // Rekomendasi berdasarkan sodium
+    if (product.sodium <= 300) categories.push('rendah-garam')
+    if (product.sodium >= 1000) categories.push('tinggi-garam')
+    
+    // Rekomendasi berdasarkan vitamin
+    if (product.vitaminC >= 10) categories.push('tinggi-vitamin-c')
+    if (product.vitaminA >= 100) categories.push('tinggi-vitamin-a')
+    
+    // Rekomendasi berdasarkan kategori makanan
+    if (product.category.toLowerCase().includes('sayur')) categories.push('vegetarian')
+    if (product.category.toLowerCase().includes('buah')) categories.push('buah-segar')
+    if (product.category.toLowerCase().includes('nasi')) categories.push('karbohidrat-utama')
+    
+    // Rekomendasi diet khusus
+    if (product.calories <= 400 && product.totalFat <= 10) categories.push('diet-sehat')
+    if (product.protein >= 15 && product.totalFat <= 8) categories.push('diet-fitness')
+    if (totalCarbon <= 2 && product.calories <= 350) categories.push('eco-diet')
+    
+    return categories
 }
-
-// Parameter untuk kompresi data
-const compress = searchParams.get('compress') === 'true';
-
-// Fungsi untuk mengompres objek
-function compressObject(obj) {
-  if (!compress) return obj;
-  
-  const result = {};
-  const keysToKeep = ['id', 'name', 'price', 'image'];
-  
-  keysToKeep.forEach(key => {
-    if (obj[key] !== undefined) {
-      result[key] = obj[key];
-    }
-  });
-  
-  return result;
-}
-
-// Kompres data sebelum mengembalikan respons
-if (allData.products) {
-  allData.products = allData.products.map(compressObject);
-}
-
-// Parameter untuk membatasi ukuran respons
-const maxTokens = parseInt(searchParams.get('maxTokens') || '8000');
-
-// Fungsi untuk memperkirakan jumlah token dalam string
-function estimateTokens(str) {
-  return str.length / 4; // Perkiraan kasar: 1 token ≈ 4 karakter
-}
-
-// Batasi ukuran respons
-let responseJSON = JSON.stringify({ 
-  success: true, 
-  data: allData,
-  timestamp: new Date().toISOString()
-});
-
-if (estimateTokens(responseJSON) > maxTokens) {
-  // Jika respons terlalu besar, kurangi jumlah data
-  if (allData.products && allData.products.length > 3) {
-    allData.products = allData.products.slice(0, 3);
-    allData.truncated = true;
-  }
-  // Lakukan hal yang sama untuk jenis data lainnya
-  
-  responseJSON = JSON.stringify({ 
-    success: true, 
-    data: allData,
-    truncated: true,
-    timestamp: new Date().toISOString()
-  });
-}
-
-return NextResponse.json(JSON.parse(responseJSON));
-}
-
-// ... existing code ...
