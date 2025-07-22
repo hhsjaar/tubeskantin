@@ -18,6 +18,27 @@ const KANTIN_LIST = [
   "Tania Mart"
 ]
 
+// Kategori prompt yang umum digunakan
+const PROMPT_CATEGORIES = {
+  KESEHATAN: [
+    'menu sehat', 'makanan sehat', 'makanan bergizi', 'makanan seimbang',
+    'makanan diet', 'rendah kalori', 'rendah karbon', 'vegetarian'
+  ],
+  KECANTIKAN: [
+    'anti jerawat', 'bikin glowing', 'kulit sehat'
+  ],
+  ENERGI: [
+    'nambah energi', 'ngantuk', 'fokus belajar', 'anti stres', 'ngilangin pusing'
+  ],
+  EKONOMIS: [
+    'murah', 'hemat', 'terjangkau'
+  ],
+  PREFERENSI: [
+    'enak', 'kenyang lama', 'cemilan', 'sarapan', 'cepat saji', 'ringan',
+    'nambah berat badan', 'protein tinggi'
+  ]
+}
+
 // Endpoint GET untuk mendapatkan statistik kantin dan produk
 export async function GET() {
   try {
@@ -70,20 +91,43 @@ export async function POST(req) {
       .select('name description price image kantin calories protein totalCarbohydrates totalFat karbonMakanan karbonPengolahan karbonTransportasiLimbah')
       .lean()
     
+    // Mengidentifikasi kategori prompt untuk memberikan respons yang lebih relevan
+    const promptLower = prompt.toLowerCase()
+    const identifiedCategories = []
+    
+    for (const [category, keywords] of Object.entries(PROMPT_CATEGORIES)) {
+      for (const keyword of keywords) {
+        if (promptLower.includes(keyword)) {
+          identifiedCategories.push(category)
+          break
+        }
+      }
+    }
+    
     // Membuat prompt untuk OpenAI
     const systemPrompt = `
-Kamu adalah asisten AI yang ahli dalam nutrisi dan jejak karbon makanan.
-Berdasarkan permintaan pengguna, rekomendasikan 3-5 makanan dari daftar berikut yang paling sesuai:
+Kamu adalah asisten AI yang ahli dalam nutrisi, makanan sehat, dan rekomendasi makanan kantin kampus.
 
+Berikut adalah daftar makanan yang tersedia di kantin kampus dengan informasi nutrisi dan jejak karbon:
 ${JSON.stringify(products, null, 2)}
 
-Pertimbangkan nilai gizi (kalori, protein, karbohidrat, lemak) dan jejak karbon (karbonMakanan, karbonPengolahan, karbonTransportasiLimbah).
+Pengguna menanyakan: "${prompt}"
+
+${identifiedCategories.length > 0 ? `Prompt ini terkait dengan kategori: ${identifiedCategories.join(', ')}` : ''}
+
+Berdasarkan permintaan pengguna, berikan rekomendasi makanan yang paling sesuai. Pertimbangkan:
+
+1. Jika terkait KESEHATAN: fokus pada nilai gizi, kalori, dan jejak karbon
+2. Jika terkait KECANTIKAN: fokus pada makanan yang baik untuk kulit dan antioksidan
+3. Jika terkait ENERGI: fokus pada makanan yang memberikan energi dan meningkatkan fokus
+4. Jika terkait EKONOMIS: fokus pada makanan yang terjangkau namun tetap berkualitas
+5. Jika terkait PREFERENSI: fokus pada rasa dan kepuasan
 
 Berikan respons dalam format:
 1. Penjelasan singkat mengapa makanan ini direkomendasikan (1-2 kalimat)
-2. Daftar makanan yang direkomendasikan dengan format:
-   - [Nama Makanan] dari [Nama Kantin] - [Kalori] kkal, [Protein]g protein, [Total Jejak Karbon]kg CO2e
-3. Tips singkat untuk pola makan sehat dan ramah lingkungan (opsional)
+2. Daftar 3-5 makanan yang direkomendasikan dengan format:
+   - [Nama Makanan] dari [Nama Kantin] - [Kalori] kkal, [Protein]g protein
+3. Tips singkat yang relevan dengan permintaan pengguna (opsional)
 
 Gunakan bahasa yang sama dengan yang digunakan pengguna dalam permintaannya.
 `;
@@ -96,13 +140,14 @@ Gunakan bahasa yang sama dengan yang digunakan pengguna dalam permintaannya.
         { role: 'user', content: prompt }
       ],
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: 800,
     })
 
     return NextResponse.json({ 
       success: true, 
       kantinStats,
       totalProducts: products.length,
+      promptCategories: identifiedCategories,
       recommendation: completion.choices[0].message.content
     })
   } catch (error) {
