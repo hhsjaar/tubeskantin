@@ -37,8 +37,86 @@ export async function GET(request) {
     // Parameter untuk memilih hanya satu jenis data
     const dataType = searchParams.get('dataType'); // 'products', 'users', 'orders', etc.
     
+    // Parameter untuk rekomendasi makanan
+    const recommendation = searchParams.get('recommendation'); // 'daily', 'lowCarbon', 'diet', 'healthy', 'balanced'
+    
     // Objek untuk menyimpan semua data
     const allData = {};
+    
+    // Fungsi untuk mendapatkan rekomendasi makanan berdasarkan kriteria
+    async function getRecommendedProducts(criteria, limit) {
+      let query = {};
+      let sort = {};
+      
+      switch(criteria) {
+        case 'daily':
+          // Rekomendasi makanan harian - seimbang nutrisi
+          sort = { protein: -1, totalCarbohydrates: -1, calories: 1 };
+          break;
+        case 'lowCarbon':
+          // Makanan dengan jejak karbon rendah
+          query = { 
+            $expr: { 
+              $lt: [{ $add: ["$karbonMakanan", "$karbonPengolahan", "$karbonTransportasiLimbah"] }, 10] 
+            } 
+          };
+          sort = { karbonMakanan: 1, karbonPengolahan: 1, karbonTransportasiLimbah: 1 };
+          break;
+        case 'diet':
+          // Makanan untuk diet - rendah kalori, tinggi protein
+          query = { calories: { $lt: 300 } };
+          sort = { protein: -1, calories: 1 };
+          break;
+        case 'healthy':
+          // Makanan sehat - tinggi vitamin dan mineral
+          sort = { 
+            vitaminA: -1, 
+            vitaminC: -1, 
+            vitaminD: -1, 
+            calcium: -1, 
+            iron: -1, 
+            potassium: -1 
+          };
+          break;
+        case 'balanced':
+          // Makanan seimbang - proporsi nutrisi yang baik
+          sort = { 
+            protein: -1, 
+            totalCarbohydrates: -1, 
+            totalFat: 1, 
+            sodium: 1, 
+            cholesterol: 1 
+          };
+          break;
+        default:
+          // Tidak ada kriteria khusus, kembalikan produk populer
+          sort = { orderCount: -1 };
+      }
+      
+      return await Product.find(query)
+        .select('name description price offerPrice image category kantin orderCount createdAt portionSize calories totalFat cholesterol sodium totalCarbohydrates protein vitaminD calcium iron potassium vitaminA vitaminC karbonMakanan karbonPengolahan karbonTransportasiLimbah')
+        .sort(sort)
+        .limit(limit)
+        .lean();
+    }
+    
+    // Jika ada parameter rekomendasi, prioritaskan itu
+    if (recommendation) {
+      const recommendedProducts = await getRecommendedProducts(recommendation, limit);
+      allData.products = recommendedProducts;
+      allData.recommendation = recommendation;
+      allData.recommendationInfo = {
+        type: recommendation,
+        count: recommendedProducts.length,
+        criteria: recommendation
+      };
+      
+      return NextResponse.json({ 
+        success: true, 
+        data: allData,
+        timestamp: new Date().toISOString()
+      });
+    }
     
     // Jika dataType ditentukan, hanya ambil jenis data tersebut
     if (dataType) {
