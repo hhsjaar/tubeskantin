@@ -14,6 +14,32 @@ export async function GET(request) {
         const maxCarbon = searchParams.get('maxCarbon')
         const limit = parseInt(searchParams.get('limit')) || 500 // Default 500 produk
         const compact = searchParams.get('compact') === 'true' // Mode ringkas untuk lebih banyak data
+        const menuCountOnly = searchParams.get('menuCountOnly') === 'true' // Mode hanya mengembalikan jumlah menu
+
+        // Jika hanya meminta jumlah menu per kantin
+        if (menuCountOnly) {
+            const menuCounts = await Product.aggregate([
+                { $group: { _id: "$kantin", count: { $sum: 1 } } },
+                { $sort: { _id: 1 } }
+            ])
+
+            const formattedCounts = {}
+            let totalMenu = 0
+            
+            menuCounts.forEach(item => {
+                if (item._id) { // Pastikan kantin tidak null/undefined
+                    formattedCounts[item._id] = item.count
+                    totalMenu += item.count
+                }
+            })
+
+            return NextResponse.json({
+                success: true,
+                totalMenu,
+                menuPerKantin: formattedCounts,
+                timestamp: new Date().toISOString()
+            })
+        }
 
         let query = {}
 
@@ -36,7 +62,13 @@ export async function GET(request) {
         if (maxCarbon) {
             query.$expr = {
                 $lte: [
-                    { $add: ['$karbonMakanan', '$karbonPengolahan', '$karbonTransportasiLimbah'] },
+                    { 
+                        $add: [
+                            { $ifNull: ['$karbonMakanan', 0] },
+                            { $ifNull: ['$karbonPengolahan', 0] },
+                            { $ifNull: ['$karbonTransportasiLimbah', 0] }
+                        ] 
+                    },
                     parseInt(maxCarbon)
                 ]
             }
@@ -95,57 +127,78 @@ export async function GET(request) {
             .select(selectFields)
             .lean()
 
+        // Hitung jumlah menu per kantin
+        const kantinGroups = {}
+        products.forEach(product => {
+            if (product.kantin) {
+                if (!kantinGroups[product.kantin]) kantinGroups[product.kantin] = 0
+                kantinGroups[product.kantin]++
+            }
+        })
+
         // Format data berdasarkan mode
         let aiOptimizedData
         if (compact) {
             // Format ultra-compact untuk dataset besar
             aiOptimizedData = products.map(product => {
-                const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
+                const totalCarbon = (
+                    (product.karbonMakanan || 0) + 
+                    (product.karbonPengolahan || 0) + 
+                    (product.karbonTransportasiLimbah || 0)
+                )
                 return {
                     id: product._id,
                     nama: product.name,
-                    kategori: product.category,
-                    kantin: product.kantin,
-                    kalori: product.calories,
-                    protein: product.protein,
-                    lemak: product.totalFat,
+                    kategori: product.category || '',
+                    kantin: product.kantin || '',
+                    kalori: product.calories || 0,
+                    protein: product.protein || 0,
+                    lemak: product.totalFat || 0,
                     karbon: totalCarbon,
-                    harga: product.offerPrice,
+                    harga: product.offerPrice || product.price || 0,
                     tags: generateCompactTags(product, totalCarbon)
                 }
             })
         } else {
             // Format lengkap untuk dataset sedang
             aiOptimizedData = products.map(product => {
-                const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
+                const totalCarbon = (
+                    (product.karbonMakanan || 0) + 
+                    (product.karbonPengolahan || 0) + 
+                    (product.karbonTransportasiLimbah || 0)
+                )
                 
                 return {
                     id: product._id,
                     nama: product.name,
-                    deskripsi: product.description,
-                    harga: product.offerPrice,
-                    kategori: product.category,
-                    kantin: product.kantin,
-                    porsi: product.portionSize,
+                    deskripsi: product.description || '',
+                    harga: product.offerPrice || product.price || 0,
+                    kategori: product.category || '',
+                    kantin: product.kantin || '',
+                    porsi: product.portionSize || '',
                     
                     nutrisi: {
-                        kalori: product.calories,
-                        lemak: product.totalFat,
-                        kolesterol: product.cholesterol,
-                        sodium: product.sodium,
-                        karbohidrat: product.totalCarbohydrates,
-                        protein: product.protein,
-                        vitaminA: product.vitaminA,
-                        vitaminC: product.vitaminC,
-                        vitaminD: product.vitaminD,
-                        kalsium: product.calcium,
-                        zatBesi: product.iron,
-                        kalium: product.potassium
+                        kalori: product.calories || 0,
+                        lemak: product.totalFat || 0,
+                        kolesterol: product.cholesterol || 0,
+                        sodium: product.sodium || 0,
+                        karbohidrat: product.totalCarbohydrates || 0,
+                        protein: product.protein || 0,
+                        vitaminA: product.vitaminA || 0,
+                        vitaminC: product.vitaminC || 0,
+                        vitaminD: product.vitaminD || 0,
+                        kalsium: product.calcium || 0,
+                        zatBesi: product.iron || 0,
+                        kalium: product.potassium || 0
                     },
                     
                     jejakKarbon: {
                         total: totalCarbon,
-                        detail: [product.karbonMakanan, product.karbonPengolahan, product.karbonTransportasiLimbah]
+                        detail: [
+                            product.karbonMakanan || 0, 
+                            product.karbonPengolahan || 0, 
+                            product.karbonTransportasiLimbah || 0
+                        ]
                     },
                     
                     kategoriRekomendasi: generateRecommendationCategories(product, totalCarbon)
@@ -160,6 +213,8 @@ export async function GET(request) {
             totalProduk: finalData.length,
             mode: compact ? 'compact' : 'full',
             produk: finalData,
+            menuPerKantin: kantinGroups,
+            totalKantin: Object.keys(kantinGroups).length,
             metadata: {
                 timestamp: new Date().toISOString(),
                 optimizedForAI: true,
@@ -219,10 +274,10 @@ export async function GET(request) {
 function generateCompactTags(product, totalCarbon) {
     const tags = []
     
-    if (product.calories <= 300) tags.push('LC') // Low Calorie
-    if (product.protein >= 15) tags.push('HP') // High Protein
+    if ((product.calories || 0) <= 300) tags.push('LC') // Low Calorie
+    if ((product.protein || 0) >= 15) tags.push('HP') // High Protein
     if (totalCarbon <= 2) tags.push('ECO') // Eco Friendly
-    if (product.totalFat <= 5) tags.push('LF') // Low Fat
+    if ((product.totalFat || 0) <= 5) tags.push('LF') // Low Fat
     
     return tags
 }
@@ -232,12 +287,12 @@ function generateRecommendationCategories(product, totalCarbon) {
     const categories = []
     
     // Rekomendasi berdasarkan kalori
-    if (product.calories <= 300) categories.push('rendah-kalori')
-    if (product.calories >= 500) categories.push('tinggi-kalori')
+    if ((product.calories || 0) <= 300) categories.push('rendah-kalori')
+    if ((product.calories || 0) >= 500) categories.push('tinggi-kalori')
     
     // Rekomendasi berdasarkan protein
-    if (product.protein >= 15) categories.push('tinggi-protein')
-    if (product.protein >= 20) categories.push('diet-protein')
+    if ((product.protein || 0) >= 15) categories.push('tinggi-protein')
+    if ((product.protein || 0) >= 20) categories.push('diet-protein')
     
     // Rekomendasi berdasarkan jejak karbon
     if (totalCarbon <= 2) categories.push('ramah-lingkungan')
@@ -245,26 +300,26 @@ function generateRecommendationCategories(product, totalCarbon) {
     if (totalCarbon >= 5) categories.push('tinggi-emisi')
     
     // Rekomendasi berdasarkan lemak
-    if (product.totalFat <= 5) categories.push('rendah-lemak')
-    if (product.totalFat >= 20) categories.push('tinggi-lemak')
+    if ((product.totalFat || 0) <= 5) categories.push('rendah-lemak')
+    if ((product.totalFat || 0) >= 20) categories.push('tinggi-lemak')
     
     // Rekomendasi berdasarkan sodium
-    if (product.sodium <= 300) categories.push('rendah-garam')
-    if (product.sodium >= 1000) categories.push('tinggi-garam')
+    if ((product.sodium || 0) <= 300) categories.push('rendah-garam')
+    if ((product.sodium || 0) >= 1000) categories.push('tinggi-garam')
     
     // Rekomendasi berdasarkan vitamin
-    if (product.vitaminC >= 10) categories.push('tinggi-vitamin-c')
-    if (product.vitaminA >= 100) categories.push('tinggi-vitamin-a')
+    if ((product.vitaminC || 0) >= 10) categories.push('tinggi-vitamin-c')
+    if ((product.vitaminA || 0) >= 100) categories.push('tinggi-vitamin-a')
     
     // Rekomendasi berdasarkan kategori makanan
-    if (product.category.toLowerCase().includes('sayur')) categories.push('vegetarian')
-    if (product.category.toLowerCase().includes('buah')) categories.push('buah-segar')
-    if (product.category.toLowerCase().includes('nasi')) categories.push('karbohidrat-utama')
+    if (product.category && product.category.toLowerCase().includes('sayur')) categories.push('vegetarian')
+    if (product.category && product.category.toLowerCase().includes('buah')) categories.push('buah-segar')
+    if (product.category && product.category.toLowerCase().includes('nasi')) categories.push('karbohidrat-utama')
     
     // Rekomendasi diet khusus
-    if (product.calories <= 400 && product.totalFat <= 10) categories.push('diet-sehat')
-    if (product.protein >= 15 && product.totalFat <= 8) categories.push('diet-fitness')
-    if (totalCarbon <= 2 && product.calories <= 350) categories.push('eco-diet')
+    if ((product.calories || 0) <= 400 && (product.totalFat || 0) <= 10) categories.push('diet-sehat')
+    if ((product.protein || 0) >= 15 && (product.totalFat || 0) <= 8) categories.push('diet-fitness')
+    if (totalCarbon <= 2 && (product.calories || 0) <= 350) categories.push('eco-diet')
     
     return categories
 }
