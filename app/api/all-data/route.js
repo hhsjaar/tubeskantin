@@ -14,31 +14,6 @@ export async function GET(request) {
         const maxCarbon = searchParams.get('maxCarbon')
         const limit = parseInt(searchParams.get('limit')) || 500 // Default 500 produk
         const compact = searchParams.get('compact') === 'true' // Mode ringkas untuk lebih banyak data
-        const menuCountOnly = searchParams.get('menuCountOnly') === 'true' // Mode hanya menampilkan jumlah menu
-
-        // Jika hanya ingin mendapatkan jumlah menu per kantin
-        if (menuCountOnly) {
-            const menuCounts = await Product.aggregate([
-                { $group: { _id: "$kantin", count: { $sum: 1 } } },
-                { $sort: { _id: 1 } }
-            ])
-            
-            // Format data untuk respons
-            const kantinMenuCounts = {}
-            menuCounts.forEach(item => {
-                if (item._id) { // Pastikan kantin tidak null/undefined
-                    kantinMenuCounts[item._id] = item.count
-                }
-            })
-            
-            return NextResponse.json({
-                success: true,
-                menuCounts: kantinMenuCounts,
-                totalKantin: Object.keys(kantinMenuCounts).length,
-                totalMenu: Object.values(kantinMenuCounts).reduce((a, b) => a + b, 0),
-                timestamp: new Date().toISOString()
-            })
-        }
 
         let query = {}
 
@@ -120,14 +95,6 @@ export async function GET(request) {
             .select(selectFields)
             .lean()
 
-        // Hitung jumlah menu per kantin dari hasil query
-        const kantinMenuCounts = {}
-        products.forEach(product => {
-            if (product.kantin) {
-                kantinMenuCounts[product.kantin] = (kantinMenuCounts[product.kantin] || 0) + 1
-            }
-        })
-
         // Format data berdasarkan mode
         let aiOptimizedData
         if (compact) {
@@ -193,8 +160,6 @@ export async function GET(request) {
             totalProduk: finalData.length,
             mode: compact ? 'compact' : 'full',
             produk: finalData,
-            menuPerKantin: kantinMenuCounts, // Tambahkan informasi jumlah menu per kantin
-            totalKantin: Object.keys(kantinMenuCounts).length,
             metadata: {
                 timestamp: new Date().toISOString(),
                 optimizedForAI: true,
