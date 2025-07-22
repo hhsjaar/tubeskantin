@@ -1,9 +1,7 @@
 import connectDB from '@/config/db'
 import Product from '@/models/Product'
 import { NextResponse } from 'next/server'
-import { getAuth } from '@clerk/nextjs/server'
 
-// GET - Mengambil semua data produk untuk AI
 export async function GET(request) {
     try {
         await connectDB()
@@ -14,9 +12,33 @@ export async function GET(request) {
         const kantin = searchParams.get('kantin')
         const maxCalories = searchParams.get('maxCalories')
         const maxCarbon = searchParams.get('maxCarbon')
-        const limit = parseInt(searchParams.get('limit')) || 500
-        const compact = searchParams.get('compact') === 'true'
-        const refresh = searchParams.get('refresh') === 'true' // Parameter untuk refresh data
+        const limit = parseInt(searchParams.get('limit')) || 500 // Default 500 produk
+        const compact = searchParams.get('compact') === 'true' // Mode ringkas untuk lebih banyak data
+        const menuCountOnly = searchParams.get('menuCountOnly') === 'true' // Mode hanya menampilkan jumlah menu
+
+        // Jika hanya ingin mendapatkan jumlah menu per kantin
+        if (menuCountOnly) {
+            const menuCounts = await Product.aggregate([
+                { $group: { _id: "$kantin", count: { $sum: 1 } } },
+                { $sort: { _id: 1 } }
+            ])
+            
+            // Format data untuk respons
+            const kantinMenuCounts = {}
+            menuCounts.forEach(item => {
+                if (item._id) { // Pastikan kantin tidak null/undefined
+                    kantinMenuCounts[item._id] = item.count
+                }
+            })
+            
+            return NextResponse.json({
+                success: true,
+                menuCounts: kantinMenuCounts,
+                totalKantin: Object.keys(kantinMenuCounts).length,
+                totalMenu: Object.values(kantinMenuCounts).reduce((a, b) => a + b, 0),
+                timestamp: new Date().toISOString()
+            })
+        }
 
         let query = {}
 
@@ -45,19 +67,10 @@ export async function GET(request) {
             }
         }
 
-        // Jika refresh=true, update semua data produk dengan timestamp terbaru
-        if (refresh) {
-            await Product.updateMany({}, { 
-                $set: { 
-                    lastUpdated: new Date(),
-                    dataVersion: Date.now() // Tambahkan versi data untuk tracking
-                }
-            })
-        }
-
         // Pilih field berdasarkan mode compact atau full
         let selectFields
         if (compact) {
+            // Mode compact: hanya field penting untuk menghemat token
             selectFields = {
                 name: 1,
                 category: 1,
@@ -69,11 +82,10 @@ export async function GET(request) {
                 karbonPengolahan: 1,
                 karbonTransportasiLimbah: 1,
                 price: 1,
-                offerPrice: 1,
-                orderCount: 1,
-                lastUpdated: 1
+                offerPrice: 1
             }
         } else {
+            // Mode full: semua field nutrisi
             selectFields = {
                 name: 1,
                 description: 1,
@@ -97,25 +109,29 @@ export async function GET(request) {
                 karbonMakanan: 1,
                 karbonPengolahan: 1,
                 karbonTransportasiLimbah: 1,
-                orderCount: 1,
-                lastUpdated: 1,
-                createdAt: 1
+                orderCount: 1
             }
         }
 
-        // Ambil produk dengan data terbaru
+        // Ambil produk dengan batasan yang fleksibel
         const products = await Product.find(query)
-            .sort({ orderCount: -1, lastUpdated: -1, createdAt: -1 })
-            .limit(Math.min(limit, 1000))
+            .sort({ orderCount: -1, createdAt: -1 })
+            .limit(Math.min(limit, 1000)) // Maksimal 1000 produk
             .select(selectFields)
             .lean()
 
-        // Hitung total produk untuk statistik
-        const totalCount = await Product.countDocuments(query)
+        // Hitung jumlah menu per kantin dari hasil query
+        const kantinMenuCounts = {}
+        products.forEach(product => {
+            if (product.kantin) {
+                kantinMenuCounts[product.kantin] = (kantinMenuCounts[product.kantin] || 0) + 1
+            }
+        })
 
         // Format data berdasarkan mode
         let aiOptimizedData
         if (compact) {
+            // Format ultra-compact untuk dataset besar
             aiOptimizedData = products.map(product => {
                 const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
                 return {
@@ -128,12 +144,11 @@ export async function GET(request) {
                     lemak: product.totalFat,
                     karbon: totalCarbon,
                     harga: product.offerPrice,
-                    jumlahPesan: product.orderCount || 0,
-                    terakhirUpdate: product.lastUpdated,
                     tags: generateCompactTags(product, totalCarbon)
                 }
             })
         } else {
+            // Format lengkap untuk dataset sedang
             aiOptimizedData = products.map(product => {
                 const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
                 
@@ -145,8 +160,6 @@ export async function GET(request) {
                     kategori: product.category,
                     kantin: product.kantin,
                     porsi: product.portionSize,
-                    jumlahPesan: product.orderCount || 0,
-                    terakhirUpdate: product.lastUpdated,
                     
                     nutrisi: {
                         kalori: product.calories,
@@ -178,46 +191,41 @@ export async function GET(request) {
         let responseData = {
             success: true,
             totalProduk: finalData.length,
-            totalProdukDatabase: totalCount,
             mode: compact ? 'compact' : 'full',
             produk: finalData,
+            menuPerKantin: kantinMenuCounts, // Tambahkan informasi jumlah menu per kantin
+            totalKantin: Object.keys(kantinMenuCounts).length,
             metadata: {
                 timestamp: new Date().toISOString(),
                 optimizedForAI: true,
                 tokenLimit: '8000',
                 maxProducts: limit,
-                refreshed: refresh,
                 filters: { category, kantin, maxCalories, maxCarbon }
             }
         }
 
         // Cek ukuran response dan adaptasi otomatis
         let responseString = JSON.stringify(responseData)
-        const estimatedTokens = Math.ceil(responseString.length / 4)
+        const estimatedTokens = Math.ceil(responseString.length / 4) // Estimasi 4 karakter per token
         
-        if (estimatedTokens > 7500) {
+        if (estimatedTokens > 7500) { // Sisakan buffer 500 token
+            // Strategi pengurangan bertahap
             let reductionFactor = 7500 / estimatedTokens
             let targetCount = Math.floor(finalData.length * reductionFactor)
             
-            // Prioritaskan produk dengan update terbaru dan populer
+            // Prioritaskan produk populer dan beragam kantin
             const kantinGroups = {}
             finalData.forEach(product => {
                 if (!kantinGroups[product.kantin]) kantinGroups[product.kantin] = []
                 kantinGroups[product.kantin].push(product)
             })
             
+            // Ambil produk secara merata dari setiap kantin
             const balancedProducts = []
             const kantinNames = Object.keys(kantinGroups)
             const perKantin = Math.ceil(targetCount / kantinNames.length)
             
             kantinNames.forEach(kantin => {
-                // Urutkan berdasarkan update terbaru dan popularitas
-                kantinGroups[kantin].sort((a, b) => {
-                    const dateA = new Date(a.terakhirUpdate || 0)
-                    const dateB = new Date(b.terakhirUpdate || 0)
-                    if (dateB - dateA !== 0) return dateB - dateA
-                    return (b.jumlahPesan || 0) - (a.jumlahPesan || 0)
-                })
                 balancedProducts.push(...kantinGroups[kantin].slice(0, perKantin))
             })
             
@@ -227,7 +235,7 @@ export async function GET(request) {
             responseData.totalProduk = finalData.length
             responseData.metadata.truncated = true
             responseData.metadata.originalCount = aiOptimizedData.length
-            responseData.metadata.reason = 'Token limit optimization - prioritized recent updates'
+            responseData.metadata.reason = 'Token limit optimization - balanced selection'
             responseData.metadata.estimatedTokens = estimatedTokens
         }
 
@@ -242,179 +250,6 @@ export async function GET(request) {
     }
 }
 
-// PUT - Update jumlah menu/produk
-export async function PUT(request) {
-    try {
-        await connectDB()
-        
-        const { userId } = getAuth(request)
-        if (!userId) {
-            return NextResponse.json(
-                { success: false, message: "Unauthorized: user not logged in" },
-                { status: 401 }
-            )
-        }
-
-        const body = await request.json()
-        const { action, productId, productIds, increment, orderCount } = body
-
-        let result
-
-        switch (action) {
-            case 'increment':
-                // Increment order count untuk produk tertentu
-                if (productId) {
-                    result = await Product.findByIdAndUpdate(
-                        productId,
-                        { 
-                            $inc: { orderCount: increment || 1 },
-                            $set: { lastUpdated: new Date() }
-                        },
-                        { new: true }
-                    )
-                }
-                break
-
-            case 'set':
-                // Set order count ke nilai tertentu
-                if (productId && typeof orderCount === 'number') {
-                    result = await Product.findByIdAndUpdate(
-                        productId,
-                        { 
-                            $set: { 
-                                orderCount: orderCount,
-                                lastUpdated: new Date()
-                            }
-                        },
-                        { new: true }
-                    )
-                }
-                break
-
-            case 'bulk-increment':
-                // Bulk increment untuk multiple produk
-                if (productIds && Array.isArray(productIds)) {
-                    result = await Product.updateMany(
-                        { _id: { $in: productIds } },
-                        { 
-                            $inc: { orderCount: increment || 1 },
-                            $set: { lastUpdated: new Date() }
-                        }
-                    )
-                }
-                break
-
-            case 'reset-all':
-                // Reset semua order count (hanya untuk admin)
-                result = await Product.updateMany(
-                    {},
-                    { 
-                        $set: { 
-                            orderCount: 0,
-                            lastUpdated: new Date()
-                        }
-                    }
-                )
-                break
-
-            case 'refresh-data':
-                // Refresh semua data dengan timestamp baru
-                result = await Product.updateMany(
-                    {},
-                    { 
-                        $set: { 
-                            lastUpdated: new Date(),
-                            dataVersion: Date.now()
-                        }
-                    }
-                )
-                break
-
-            default:
-                return NextResponse.json(
-                    { success: false, message: "Invalid action. Use: increment, set, bulk-increment, reset-all, or refresh-data" },
-                    { status: 400 }
-                )
-        }
-
-        if (!result) {
-            return NextResponse.json(
-                { success: false, message: "Update failed or product not found" },
-                { status: 404 }
-            )
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: `Successfully executed ${action}`,
-            result: result,
-            timestamp: new Date().toISOString()
-        })
-
-    } catch (error) {
-        return NextResponse.json({
-            success: false,
-            message: error.message,
-            timestamp: new Date().toISOString()
-        }, { status: 500 })
-    }
-}
-
-// PATCH - Update data produk tertentu
-export async function PATCH(request) {
-    try {
-        await connectDB()
-        
-        const { userId } = getAuth(request)
-        if (!userId) {
-            return NextResponse.json(
-                { success: false, message: "Unauthorized: user not logged in" },
-                { status: 401 }
-            )
-        }
-
-        const body = await request.json()
-        const { productId, updates } = body
-
-        if (!productId || !updates) {
-            return NextResponse.json(
-                { success: false, message: "productId and updates are required" },
-                { status: 400 }
-            )
-        }
-
-        // Tambahkan timestamp update
-        updates.lastUpdated = new Date()
-
-        const result = await Product.findByIdAndUpdate(
-            productId,
-            { $set: updates },
-            { new: true, runValidators: true }
-        )
-
-        if (!result) {
-            return NextResponse.json(
-                { success: false, message: "Product not found" },
-                { status: 404 }
-            )
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: "Product updated successfully",
-            product: result,
-            timestamp: new Date().toISOString()
-        })
-
-    } catch (error) {
-        return NextResponse.json({
-            success: false,
-            message: error.message,
-            timestamp: new Date().toISOString()
-        }, { status: 500 })
-    }
-}
-
 // Fungsi helper untuk tag compact
 function generateCompactTags(product, totalCarbon) {
     const tags = []
@@ -423,7 +258,6 @@ function generateCompactTags(product, totalCarbon) {
     if (product.protein >= 15) tags.push('HP') // High Protein
     if (totalCarbon <= 2) tags.push('ECO') // Eco Friendly
     if (product.totalFat <= 5) tags.push('LF') // Low Fat
-    if ((product.orderCount || 0) >= 10) tags.push('POP') // Popular
     
     return tags
 }
@@ -456,11 +290,6 @@ function generateRecommendationCategories(product, totalCarbon) {
     // Rekomendasi berdasarkan vitamin
     if (product.vitaminC >= 10) categories.push('tinggi-vitamin-c')
     if (product.vitaminA >= 100) categories.push('tinggi-vitamin-a')
-    
-    // Rekomendasi berdasarkan popularitas
-    if ((product.orderCount || 0) >= 20) categories.push('sangat-populer')
-    if ((product.orderCount || 0) >= 10) categories.push('populer')
-    if ((product.orderCount || 0) <= 2) categories.push('jarang-dipesan')
     
     // Rekomendasi berdasarkan kategori makanan
     if (product.category.toLowerCase().includes('sayur')) categories.push('vegetarian')
