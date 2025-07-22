@@ -1,270 +1,156 @@
+import { NextResponse } from 'next/server'
+import OpenAI from 'openai'
 import connectDB from '@/config/db'
 import Product from '@/models/Product'
-import { NextResponse } from 'next/server'
 
-export async function GET(request) {
-    try {
-        await connectDB()
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
-        // Get query parameters untuk filtering
-        const { searchParams } = new URL(request.url)
-        const category = searchParams.get('category')
-        const kantin = searchParams.get('kantin')
-        const maxCalories = searchParams.get('maxCalories')
-        const maxCarbon = searchParams.get('maxCarbon')
-        const limit = parseInt(searchParams.get('limit')) || 500 // Default 500 produk
-        const compact = searchParams.get('compact') === 'true' // Mode ringkas untuk lebih banyak data
-
-        let query = {}
-
-        // Filter berdasarkan kategori
-        if (category) {
-            query.category = { $regex: category, $options: 'i' }
-        }
-
-        // Filter berdasarkan kantin
-        if (kantin) {
-            query.kantin = kantin
-        }
-
-        // Filter berdasarkan kalori maksimal
-        if (maxCalories) {
-            query.calories = { $lte: parseInt(maxCalories) }
-        }
-
-        // Filter berdasarkan jejak karbon maksimal
-        if (maxCarbon) {
-            query.$expr = {
-                $lte: [
-                    { $add: ['$karbonMakanan', '$karbonPengolahan', '$karbonTransportasiLimbah'] },
-                    parseInt(maxCarbon)
-                ]
-            }
-        }
-
-        // Pilih field berdasarkan mode compact atau full
-        let selectFields
-        if (compact) {
-            // Mode compact: hanya field penting untuk menghemat token
-            selectFields = {
-                name: 1,
-                category: 1,
-                kantin: 1,
-                calories: 1,
-                protein: 1,
-                totalFat: 1,
-                karbonMakanan: 1,
-                karbonPengolahan: 1,
-                karbonTransportasiLimbah: 1,
-                price: 1,
-                offerPrice: 1
-            }
-        } else {
-            // Mode full: semua field nutrisi
-            selectFields = {
-                name: 1,
-                description: 1,
-                price: 1,
-                offerPrice: 1,
-                category: 1,
-                kantin: 1,
-                portionSize: 1,
-                calories: 1,
-                totalFat: 1,
-                cholesterol: 1,
-                sodium: 1,
-                totalCarbohydrates: 1,
-                protein: 1,
-                vitaminA: 1,
-                vitaminC: 1,
-                vitaminD: 1,
-                calcium: 1,
-                iron: 1,
-                potassium: 1,
-                karbonMakanan: 1,
-                karbonPengolahan: 1,
-                karbonTransportasiLimbah: 1,
-                orderCount: 1
-            }
-        }
-
-        // Ambil produk dengan batasan yang fleksibel
-        const products = await Product.find(query)
-            .sort({ orderCount: -1, createdAt: -1 })
-            .limit(Math.min(limit, 1000)) // Maksimal 1000 produk
-            .select(selectFields)
-            .lean()
-
-        // Format data berdasarkan mode
-        let aiOptimizedData
-        if (compact) {
-            // Format ultra-compact untuk dataset besar
-            aiOptimizedData = products.map(product => {
-                const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
-                return {
-                    id: product._id,
-                    nama: product.name,
-                    kategori: product.category,
-                    kantin: product.kantin,
-                    kalori: product.calories,
-                    protein: product.protein,
-                    lemak: product.totalFat,
-                    karbon: totalCarbon,
-                    harga: product.offerPrice,
-                    tags: generateCompactTags(product, totalCarbon)
-                }
-            })
-        } else {
-            // Format lengkap untuk dataset sedang
-            aiOptimizedData = products.map(product => {
-                const totalCarbon = product.karbonMakanan + product.karbonPengolahan + product.karbonTransportasiLimbah
-                
-                return {
-                    id: product._id,
-                    nama: product.name,
-                    deskripsi: product.description,
-                    harga: product.offerPrice,
-                    kategori: product.category,
-                    kantin: product.kantin,
-                    porsi: product.portionSize,
-                    
-                    nutrisi: {
-                        kalori: product.calories,
-                        lemak: product.totalFat,
-                        kolesterol: product.cholesterol,
-                        sodium: product.sodium,
-                        karbohidrat: product.totalCarbohydrates,
-                        protein: product.protein,
-                        vitaminA: product.vitaminA,
-                        vitaminC: product.vitaminC,
-                        vitaminD: product.vitaminD,
-                        kalsium: product.calcium,
-                        zatBesi: product.iron,
-                        kalium: product.potassium
-                    },
-                    
-                    jejakKarbon: {
-                        total: totalCarbon,
-                        detail: [product.karbonMakanan, product.karbonPengolahan, product.karbonTransportasiLimbah]
-                    },
-                    
-                    kategoriRekomendasi: generateRecommendationCategories(product, totalCarbon)
-                }
-            })
-        }
-
-        // Sistem adaptif untuk mengelola ukuran response
-        let finalData = aiOptimizedData
-        let responseData = {
-            success: true,
-            totalProduk: finalData.length,
-            mode: compact ? 'compact' : 'full',
-            produk: finalData,
-            metadata: {
-                timestamp: new Date().toISOString(),
-                optimizedForAI: true,
-                tokenLimit: '8000',
-                maxProducts: limit,
-                filters: { category, kantin, maxCalories, maxCarbon }
-            }
-        }
-
-        // Cek ukuran response dan adaptasi otomatis
-        let responseString = JSON.stringify(responseData)
-        const estimatedTokens = Math.ceil(responseString.length / 4) // Estimasi 4 karakter per token
-        
-        if (estimatedTokens > 7500) { // Sisakan buffer 500 token
-            // Strategi pengurangan bertahap
-            let reductionFactor = 7500 / estimatedTokens
-            let targetCount = Math.floor(finalData.length * reductionFactor)
-            
-            // Prioritaskan produk populer dan beragam kantin
-            const kantinGroups = {}
-            finalData.forEach(product => {
-                if (!kantinGroups[product.kantin]) kantinGroups[product.kantin] = []
-                kantinGroups[product.kantin].push(product)
-            })
-            
-            // Ambil produk secara merata dari setiap kantin
-            const balancedProducts = []
-            const kantinNames = Object.keys(kantinGroups)
-            const perKantin = Math.ceil(targetCount / kantinNames.length)
-            
-            kantinNames.forEach(kantin => {
-                balancedProducts.push(...kantinGroups[kantin].slice(0, perKantin))
-            })
-            
-            finalData = balancedProducts.slice(0, targetCount)
-            
-            responseData.produk = finalData
-            responseData.totalProduk = finalData.length
-            responseData.metadata.truncated = true
-            responseData.metadata.originalCount = aiOptimizedData.length
-            responseData.metadata.reason = 'Token limit optimization - balanced selection'
-            responseData.metadata.estimatedTokens = estimatedTokens
-        }
-
-        return NextResponse.json(responseData)
-
-    } catch (error) {
-        return NextResponse.json({ 
-            success: false, 
-            message: error.message,
-            timestamp: new Date().toISOString()
-        })
+// Fungsi untuk mendapatkan statistik kantin
+async function getKantinStats() {
+  try {
+    await connectDB()
+    
+    // Daftar semua kantin
+    const kantinList = [
+      "Kantin Teknik", 
+      "Kantin Kodok", 
+      "Kantin Telkom", 
+      "Kantin Sipil", 
+      "Kantin Berkah", 
+      "Kantin Tata Niaga", 
+      "Tania Mart"
+    ]
+    
+    // Menghitung jumlah produk per kantin
+    const kantinStats = {}
+    
+    for (const kantin of kantinList) {
+      const count = await Product.countDocuments({ kantin })
+      kantinStats[kantin] = count
     }
+    
+    return kantinStats
+  } catch (error) {
+    console.error('Error getting kantin stats:', error)
+    return {}
+  }
 }
 
-// Fungsi helper untuk tag compact
-function generateCompactTags(product, totalCarbon) {
-    const tags = []
+// Fungsi untuk mendapatkan semua produk dengan filter
+async function getProducts(filter = {}) {
+  try {
+    await connectDB()
     
-    if (product.calories <= 300) tags.push('LC') // Low Calorie
-    if (product.protein >= 15) tags.push('HP') // High Protein
-    if (totalCarbon <= 2) tags.push('ECO') // Eco Friendly
-    if (product.totalFat <= 5) tags.push('LF') // Low Fat
+    const products = await Product.find(filter)
+      .select('name description price offerPrice image category kantin orderCount createdAt portionSize calories totalFat cholesterol sodium totalCarbohydrates protein vitaminD calcium iron potassium vitaminA vitaminC karbonMakanan karbonPengolahan karbonTransportasiLimbah')
+      .lean()
     
-    return tags
+    return products
+  } catch (error) {
+    console.error('Error getting products:', error)
+    return []
+  }
 }
 
-// Fungsi helper untuk kategori rekomendasi lengkap
-function generateRecommendationCategories(product, totalCarbon) {
-    const categories = []
+// Fungsi untuk menganalisis prompt dan merekomendasikan makanan
+async function analyzePromptAndRecommendFood(prompt, products) {
+  try {
+    // Membuat prompt untuk OpenAI
+    const systemPrompt = `
+Kamu adalah asisten AI yang ahli dalam nutrisi, makanan sehat, dan jejak karbon makanan. 
+Tugas kamu adalah menganalisis permintaan pengguna dan merekomendasikan makanan dari kantin kampus yang sesuai dengan kebutuhan mereka.
+
+Berikut adalah daftar makanan yang tersedia di kantin kampus dengan informasi nutrisi dan jejak karbon:
+${JSON.stringify(products, null, 2)}
+
+Berdasarkan permintaan pengguna, rekomendasikan 3-5 makanan yang paling sesuai. Pertimbangkan:
+1. Nilai gizi (kalori, protein, karbohidrat, lemak, dll)
+2. Jejak karbon (karbonMakanan, karbonPengolahan, karbonTransportasiLimbah)
+3. Kantin tempat makanan tersedia
+
+Berikan respons dalam format berikut:
+1. Penjelasan singkat mengapa makanan ini direkomendasikan (1-2 kalimat)
+2. Daftar makanan yang direkomendasikan dengan format:
+   - [Nama Makanan] dari [Nama Kantin] - [Kalori] kkal, [Protein]g protein, [Total Jejak Karbon]kg CO2e
+3. Tips singkat untuk pola makan sehat dan ramah lingkungan (opsional)
+
+Gunakan bahasa yang sama dengan yang digunakan pengguna dalam permintaannya (Indonesia atau Inggris).
+`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+    })
+
+    return completion.choices[0].message.content
+  } catch (error) {
+    console.error('OpenAI Error:', error)
+    return 'Maaf, terjadi kesalahan saat memproses rekomendasi makanan.'
+  }
+}
+
+// Endpoint GET untuk mendapatkan statistik kantin
+export async function GET() {
+  try {
+    const kantinStats = await getKantinStats()
+    const products = await getProducts()
     
-    // Rekomendasi berdasarkan kalori
-    if (product.calories <= 300) categories.push('rendah-kalori')
-    if (product.calories >= 500) categories.push('tinggi-kalori')
+    return NextResponse.json({ 
+      success: true, 
+      kantinStats,
+      totalProducts: products.length,
+      products
+    })
+  } catch (error) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 })
+  }
+}
+
+// Endpoint POST untuk rekomendasi makanan berdasarkan prompt
+export async function POST(req) {
+  try {
+    const { prompt } = await req.json()
     
-    // Rekomendasi berdasarkan protein
-    if (product.protein >= 15) categories.push('tinggi-protein')
-    if (product.protein >= 20) categories.push('diet-protein')
+    if (!prompt) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Prompt diperlukan untuk rekomendasi makanan' 
+      }, { status: 400 })
+    }
     
-    // Rekomendasi berdasarkan jejak karbon
-    if (totalCarbon <= 2) categories.push('ramah-lingkungan')
-    if (totalCarbon <= 1) categories.push('sangat-ramah-lingkungan')
-    if (totalCarbon >= 5) categories.push('tinggi-emisi')
+    // Mendapatkan statistik kantin
+    const kantinStats = await getKantinStats()
     
-    // Rekomendasi berdasarkan lemak
-    if (product.totalFat <= 5) categories.push('rendah-lemak')
-    if (product.totalFat >= 20) categories.push('tinggi-lemak')
+    // Mendapatkan semua produk
+    const products = await getProducts()
     
-    // Rekomendasi berdasarkan sodium
-    if (product.sodium <= 300) categories.push('rendah-garam')
-    if (product.sodium >= 1000) categories.push('tinggi-garam')
+    // Menganalisis prompt dan merekomendasikan makanan
+    const recommendation = await analyzePromptAndRecommendFood(prompt, products)
     
-    // Rekomendasi berdasarkan vitamin
-    if (product.vitaminC >= 10) categories.push('tinggi-vitamin-c')
-    if (product.vitaminA >= 100) categories.push('tinggi-vitamin-a')
-    
-    // Rekomendasi berdasarkan kategori makanan
-    if (product.category.toLowerCase().includes('sayur')) categories.push('vegetarian')
-    if (product.category.toLowerCase().includes('buah')) categories.push('buah-segar')
-    if (product.category.toLowerCase().includes('nasi')) categories.push('karbohidrat-utama')
-    
-    // Rekomendasi diet khusus
-    if (product.calories <= 400 && product.totalFat <= 10) categories.push('diet-sehat')
-    if (product.protein >= 15 && product.totalFat <= 8) categories.push('diet-fitness')
-    if (totalCarbon <= 2 && product.calories <= 350) categories.push('eco-diet')
-    
-    return categories
+    return NextResponse.json({ 
+      success: true, 
+      kantinStats,
+      totalProducts: products.length,
+      recommendation
+    })
+  } catch (error) {
+    console.error('Error:', error)
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Gagal memproses rekomendasi makanan' 
+    }, { status: 500 })
+  }
 }
