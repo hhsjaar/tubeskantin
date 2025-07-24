@@ -56,22 +56,36 @@ const Cart = () => {
                     {Object.keys(cartItems).map((itemId) => {
                       const product = products.find(product => product._id === itemId);
                       if (!product || cartItems[itemId] <= 0) return null;
+                      
+                      const isUnavailable = product.isAvailable === false;
 
                       return (
                         <tr key={itemId} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                           <td className="py-4 px-6">
                             <div className="flex items-center gap-4">
-                              <div className="rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 p-2 h-20 w-20 flex items-center justify-center">
+                              <div className={`relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 p-2 h-20 w-20 flex items-center justify-center ${isUnavailable ? 'opacity-50' : ''}`}>
                                 <Image
                                   src={product.image[0]}
                                   alt={product.name}
-                                  className="object-cover mix-blend-multiply dark:mix-blend-normal"
+                                  className={`object-cover mix-blend-multiply dark:mix-blend-normal ${isUnavailable ? 'grayscale' : ''}`}
                                   width={80}
                                   height={80}
                                 />
+                                {isUnavailable && (
+                                  <div className="absolute top-0 right-0 bg-red-500 text-white text-[8px] px-1 py-0.5 rounded-bl-md">
+                                    Tidak Tersedia
+                                  </div>
+                                )}
                               </div>
                               <div>
-                                <p className="text-gray-800 dark:text-gray-200 font-medium">{product.name}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-gray-800 dark:text-gray-200 font-medium">{product.name}</p>
+                                  {isUnavailable && (
+                                    <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-600 rounded-md">
+                                      Tidak Tersedia
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{product.kantin}</p>
                                 <button
                                   className="mt-1 text-sm text-[#479C25] hover:text-[#3a7d1f] flex items-center gap-1"
@@ -85,28 +99,40 @@ const Cart = () => {
                           </td>
                           <td className="py-4 px-6 text-gray-700 dark:text-gray-300 font-medium">Rp{product.offerPrice.toLocaleString()}</td>
                           <td className="py-4 px-6">
-                            <div className="flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-1 w-fit">
-                              <button 
-                                onClick={() => updateCartQuantity(product._id, cartItems[itemId] - 1)}
-                                className="w-7 h-7 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-[#479C25] transition-colors"
-                              >
-                                <FaMinus className="w-3 h-3" />
-                              </button>
-                              <input 
-                                onChange={e => updateCartQuantity(product._id, Number(e.target.value))} 
-                                type="number" 
-                                value={cartItems[itemId]} 
-                                className="w-10 text-center appearance-none outline-none bg-transparent dark:text-white"
-                              />
-                              <button 
-                                onClick={() => addToCart(product._id)}
-                                className="w-7 h-7 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-[#479C25] transition-colors"
-                              >
-                                <FaPlus className="w-3 h-3" />
-                              </button>
-                            </div>
+                            {isUnavailable ? (
+                              <div className="text-sm text-red-500">
+                                Produk tidak tersedia saat ini
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-1 w-fit">
+                                <button 
+                                  onClick={() => updateCartQuantity(product._id, cartItems[itemId] - 1)}
+                                  className="w-7 h-7 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-[#479C25] transition-colors"
+                                >
+                                  <FaMinus className="w-3 h-3" />
+                                </button>
+                                <input 
+                                  onChange={e => updateCartQuantity(product._id, Number(e.target.value))} 
+                                  type="number" 
+                                  value={cartItems[itemId]} 
+                                  className="w-10 text-center appearance-none outline-none bg-transparent dark:text-white"
+                                />
+                                <button 
+                                  onClick={() => addToCart(product._id)}
+                                  className="w-7 h-7 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-[#479C25] transition-colors"
+                                >
+                                  <FaPlus className="w-3 h-3" />
+                                </button>
+                              </div>
+                            )}
                           </td>
-                          <td className="py-4 px-6 text-gray-700 dark:text-gray-300 font-medium">Rp{(product.offerPrice * cartItems[itemId]).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td>
+                          <td className="py-4 px-6 text-gray-700 dark:text-gray-300 font-medium">
+                            {isUnavailable ? (
+                              <span className="text-red-500">Tidak dihitung</span>
+                            ) : (
+                              <>Rp{(product.offerPrice * cartItems[itemId]).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</>
+                            )}
+                          </td>
                         </tr>
                       );
                     })}

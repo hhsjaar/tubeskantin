@@ -112,6 +112,12 @@ export const AppContextProvider = (props) => {
       });
     }
 
+    // Cek apakah produk tersedia
+    const product = products.find(p => p._id === itemId);
+    if (product && product.isAvailable === false) {
+      return toast.error('Produk ini tidak tersedia saat ini');
+    }
+
     let cartData = structuredClone(cartItems);
     if (cartData[itemId]) {
       cartData[itemId] += 1;
@@ -131,12 +137,32 @@ export const AppContextProvider = (props) => {
   };
 
   const updateCartQuantity = async (itemId, quantity) => {
-    let cartData = structuredClone(cartItems);
+    // Jika kuantitas 0, hapus dari keranjang
     if (quantity === 0) {
+      let cartData = structuredClone(cartItems);
       delete cartData[itemId];
-    } else {
-      cartData[itemId] = quantity;
+      setCartItems(cartData);
+      if (user) {
+        try {
+          const token = await getToken();
+          await axios.post('/api/cart/update', { cartData }, { headers: { Authorization: `Bearer ${token}` } });
+          toast.success('Produk berhasil dihapus dari keranjang');
+        } catch (error) {
+          toast.error("Gagal memperbarui keranjang");
+        }
+      }
+      return;
     }
+
+    // Cek apakah produk tersedia jika menambah kuantitas
+    const product = products.find(p => p._id === itemId);
+    if (product && product.isAvailable === false) {
+      return toast.error('Produk ini tidak tersedia saat ini');
+    }
+
+    // Update kuantitas
+    let cartData = structuredClone(cartItems);
+    cartData[itemId] = quantity;
     setCartItems(cartData);
     if (user) {
       try {
@@ -152,7 +178,11 @@ export const AppContextProvider = (props) => {
   const getCartCount = () => {
     let totalCount = 0;
     for (const items in cartItems) {
-      if (cartItems[items] > 0) {
+      // Cek apakah produk tersedia
+      const itemInfo = products.find((product) => product._id === items);
+      
+      // Hanya hitung produk yang tersedia (isAvailable !== false) dan kuantitas > 0
+      if (cartItems[items] > 0 && itemInfo && itemInfo.isAvailable !== false) {
         totalCount += cartItems[items];
       }
     }
@@ -164,11 +194,13 @@ export const AppContextProvider = (props) => {
     for (const items in cartItems) {
       let itemInfo = products.find((product) => product._id === items);
 
-      if (itemInfo && itemInfo.offerPrice) {
+      // Hanya hitung produk yang tersedia (isAvailable !== false)
+      if (itemInfo && itemInfo.offerPrice && itemInfo.isAvailable !== false) {
         totalAmount += itemInfo.offerPrice * cartItems[items];
-      } else {
+      } else if (!itemInfo || !itemInfo.offerPrice) {
         console.warn(`Produk tidak ditemukan atau harga tidak tersedia untuk item: ${items}`);
       }
+      // Jika produk tidak tersedia, tidak dihitung dalam total
     }
     return Math.floor(totalAmount * 100) / 100;
   };

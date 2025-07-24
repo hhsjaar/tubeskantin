@@ -92,7 +92,8 @@ const OrderSummary = () => {
   const orderItems = Object.keys(cartItems)
     .map((id) => {
       const product = products.find((p) => p._id === id);
-      if (!product) return null;
+      // Jangan sertakan produk yang tidak ditemukan atau tidak tersedia
+      if (!product || product.isAvailable === false) return null;
       return {
         product: product._id,
         quantity: cartItems[id],
@@ -169,6 +170,15 @@ const OrderSummary = () => {
       .filter(Boolean);
 
     if (cartItemsArray.length === 0) return toast.error("Keranjang kosong");
+    
+    // Periksa apakah ada produk yang tidak tersedia
+    const unavailableProducts = cartItemsArray.filter(item => item.isAvailable === false);
+    if (unavailableProducts.length > 0) {
+      return toast.error(
+        `Terdapat ${unavailableProducts.length} produk yang tidak tersedia. Silakan hapus produk tersebut dari keranjang untuk melanjutkan.`,
+        { duration: 5000 }
+      );
+    }
 
     const firstKantin = cartItemsArray[0].kantin;
     const isSameKantin = cartItemsArray.every((item) => item.kantin === firstKantin);

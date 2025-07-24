@@ -24,7 +24,7 @@ export async function GET(request) {
 
         const products = await Product.find(query)
             .sort(sortOptions)
-            .select('name description price offerPrice image category kantin orderCount createdAt portionSize calories totalFat cholesterol sodium totalCarbohydrates protein vitaminD calcium iron potassium vitaminA vitaminC karbonMakanan karbonPengolahan karbonTransportasiLimbah') // Select specific fields
+            .select('name description price offerPrice image category kantin orderCount createdAt portionSize calories totalFat cholesterol sodium totalCarbohydrates protein vitaminD calcium iron potassium vitaminA vitaminC karbonMakanan karbonPengolahan karbonTransportasiLimbah isAvailable') // ✅ Tambahkan isAvailable
             .lean() // Convert to plain JavaScript objects
 
         return NextResponse.json({ success: true, products })

@@ -46,6 +46,9 @@ const productSchema = new mongoose.Schema({
   karbonMakanan: { type: Number, required: true },
   karbonPengolahan: { type: Number, required: true },
   karbonTransportasiLimbah: { type: Number, required: true },
+
+  // Status Ketersediaan
+  isAvailable: { type: Boolean, default: true },
   }, {
   timestamps: true // ✅ Tambahkan ini
 });

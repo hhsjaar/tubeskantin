@@ -11,6 +11,7 @@ import ngantindark from "./ngantindark.png";
 import ai from "./ai.svg";
 import banksampah from "./banksampah.png";
 import user_icon from "./user_icon.svg";
+import landingposter from "./landingposter.png";
 import cart_icon from "./cart_icon.svg";
 import add_icon from "./add_icon.svg";
 import order_icon from "./order_icon.svg";
@@ -104,6 +105,7 @@ export const assets = {
   cannon_camera_image,
   sony_airbuds_image,
   asus_laptop_image,
+  landingposter,
   projector_image,
   playstation_image,
   girl_with_headphone_image,

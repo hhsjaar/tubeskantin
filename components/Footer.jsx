@@ -54,16 +54,11 @@ const Footer = () => {
                   <span className="group-hover:translate-x-1 transition-transform duration-300">Kantin Kami</span>
                 </Link>
               </li>
+              
               <li>
-                <Link href="/menu" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
-                  <span className="transform group-hover:scale-110 transition-transform duration-300">🍽️</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">Menu</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/trashback" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
-                  <span className="transform group-hover:scale-110 transition-transform duration-300">♻️</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">Trashback</span>
+                <Link href="/#slogan" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
+                  <span className="transform group-hover:scale-110 transition-transform duration-300">🌿</span>
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">Tagline</span>
                 </Link>
               </li>
             </ul>
@@ -73,6 +68,12 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-6 text-white hover:text-green-200 transition-colors duration-300">Lainnya</h3>
             <ul className="space-y-3">
+              <li>
+                <Link href="/menu" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
+                  <span className="transform group-hover:scale-110 transition-transform duration-300">🍽️</span>
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">Menu</span>
+                </Link>
+              </li>
               <li>
                 <Link href="/my-orders" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
                   <span className="transform group-hover:scale-110 transition-transform duration-300">📦</span>
@@ -86,17 +87,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/notification" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
-                  <span className="transform group-hover:scale-110 transition-transform duration-300">🔔</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">Notifikasi</span>
+                <Link href="/trashback" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
+                  <span className="transform group-hover:scale-110 transition-transform duration-300">♻️</span>
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">Trashback</span>
                 </Link>
               </li>
-              <li>
-                <a href="#" className="text-white/80 hover:text-green-200 transition-all duration-300 flex items-center gap-2 group">
-                  <span className="transform group-hover:scale-110 transition-transform duration-300">📞</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">Bantuan</span>
-                </a>
-              </li>
+              
+              
             </ul>
           </div>
         </div>

@@ -63,6 +63,49 @@ export async function DELETE(request, { params }) {
   }
 }
 
+export async function PATCH(request, { params }) {
+  try {
+    const { userId } = getAuth(request);
+    
+    // Verifikasi apakah pengguna adalah dari salah satu kantin
+    const isKandok = await authKandok(userId);
+    const isKantek = await authKantek(userId);
+    const isKansip = await authKansip(userId);
+    const isKantel = await authKantel(userId);
+    const isBerkah = await authBerkah(userId);
+    const isKantintn = await authKantintn(userId);
+    const isTaniamart = await authTaniamart(userId);
+
+    if (!isKandok && !isKantek && !isKansip && !isKantel && !isBerkah && !isKantintn && !isTaniamart) {
+      return NextResponse.json({ success: false, message: 'Anda tidak memiliki akses' }, { status: 403 });
+    }
+
+    await connectDB();
+    
+    const data = await request.json();
+    const { isAvailable } = data;
+    
+    // Hanya memperbarui status ketersediaan produk
+    const updatedProduct = await Product.findByIdAndUpdate(
+      params.id, 
+      { isAvailable }, 
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return NextResponse.json({ success: false, message: 'Produk tidak ada' }, { status: 404 });
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Produk ${isAvailable ? 'tersedia' : 'tidak tersedia'}`, 
+      product: updatedProduct 
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: error.message });
+  }
+}
+
 export async function PUT(request, { params }) {
   try {
     const { userId } = getAuth(request);

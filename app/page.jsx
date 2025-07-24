@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import dynamic from 'next/dynamic';
-import { useTheme } from '@/context/ThemeContext'; // Tambahkan import ini
+import { useTheme } from '@/context/ThemeContext';
 
 const BubbleChat = dynamic(
   () => import('flowise-embed-react').then(mod => mod.BubbleChat),
@@ -55,12 +55,20 @@ const kantinList = [
 
 const Home = () => {
   const router = useRouter();
-  const { isDarkMode } = useTheme(); // Tambahkan hook tema
+  const { isDarkMode } = useTheme();
   const [products, setProducts] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
+  // Modal effect - muncul saat halaman dimuat
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowModal(true);
+    }, 1000); // Delay 1 detik setelah halaman dimuat
 
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -71,10 +79,12 @@ const Home = () => {
 
         // Fetch new products
         const { data: newData } = await axios.get('/api/product/list?sort=new');
+        // Tampilkan semua produk termasuk yang tidak tersedia
         setNewProducts(newData.products.slice(0, 6));
 
         // Fetch popular products
         const { data: popularData } = await axios.get('/api/product/list?sort=popular');
+        // Tampilkan semua produk termasuk yang tidak tersedia
         setPopularProducts(popularData.products.slice(0, 6));
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -89,7 +99,12 @@ const Home = () => {
   };
 
   const getMenuCountByKantin = (kantinId) => {
-    return products.filter(product => product.kantin === kantinId).length;
+    // Hanya menghitung produk yang tersedia (isAvailable !== false)
+    return products.filter(product => product.kantin === kantinId && product.isAvailable !== false).length;
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   // Gunakan useEffect untuk kode yang membutuhkan window
@@ -106,6 +121,56 @@ const Home = () => {
     <>
       <Navbar />
       
+      {/* Modal Iklan */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            {/* Tombol Close */}
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 z-10 bg-white dark:bg-gray-700 rounded-full p-2 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
+            >
+              <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            {/* Konten Modal */}
+            <div className="p-6">
+              <div className="text-center mb-4">
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                  🎉 Selamat Datang di Ngantin!
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  Platform jajan online terdepan untuk mahasiswa Polines
+                </p>
+              </div>
+              
+              {/* Gambar Landing Poster */}
+              <div className="relative w-full h-64 mb-4 rounded-xl overflow-hidden">
+                <Image
+                  src={assets.landingposter}
+                  alt="Ngantin Landing Poster"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              
+              {/* Call to Action */}
+              <div className="text-center">
+                <button
+                  onClick={closeModal}
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  Mulai Jajan Sekarang! 🛒
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* HeaderSlider */}
       <div className="px-6 md:px-16 lg:px-32 dark:bg-gray-900">
         <HeaderSlider />
@@ -123,17 +188,23 @@ const Home = () => {
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-            {popularProducts.map((product, index) => (
-              <div key={index} className="transform hover:scale-105 transition-transform duration-300">
-                <ProductCard product={product} />
+            {popularProducts.length > 0 ? (
+              popularProducts.map((product, index) => (
+                <div key={index} className="transform hover:scale-105 transition-transform duration-300">
+                  <ProductCard product={product} />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
 
       {/* Ngantin Slogan Section - tetap sama karena sudah menggunakan gradient */}
-      <div className="bg-gradient-to-r from-[#479C25] to-[#3a7d1f] py-16 px-6 md:px-16 lg:px-32 text-white relative overflow-hidden">
+      <div id="slogan" className="bg-gradient-to-r from-[#479C25] to-[#3a7d1f] py-16 px-6 md:px-16 lg:px-32 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 text-center max-w-6xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold mb-8">Ngantin</h1>
@@ -154,11 +225,17 @@ const Home = () => {
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-            {newProducts.map((product, index) => (
-              <div key={index} className="transform hover:scale-105 transition-transform duration-300">
-                <ProductCard product={product} />
+            {newProducts.length > 0 ? (
+              newProducts.map((product, index) => (
+                <div key={index} className="transform hover:scale-105 transition-transform duration-300">
+                  <ProductCard product={product} />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
@@ -293,7 +370,7 @@ const Home = () => {
             iconColor: 'white',
             customIconSrc: 'ai.svg',
             autoWindowOpen: {
-              autoOpen: true,
+              autoOpen: false,
               openDelay: 2,
               autoOpenOnMobile: false
             }

@@ -50,7 +50,7 @@ const MenuContent = () => {
 
     ];
 
-    // Filter produk berdasarkan kantin, kategori, dan pencarian
+    // Filter produk berdasarkan kantin, kategori, dan pencarian (tanpa filter ketersediaan)
     const filteredProducts = useMemo(() => {
         return products.filter(product => {
             // Filter berdasarkan kantin

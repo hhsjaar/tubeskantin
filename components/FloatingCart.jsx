@@ -54,15 +54,29 @@ const FloatingCart = () => {
                 if (!product) return null;
                 return (
                   <div key={itemId} className="flex items-center gap-3 border-b dark:border-gray-700 pb-3">
-                    <Image
-                      src={product.image[0]}
-                      alt={product.name}
-                      width={50}
-                      height={50}
-                      className="rounded-md object-cover mix-blend-multiply dark:mix-blend-normal"
-                    />
+                    <div className="relative">
+                      <Image
+                        src={product.image[0]}
+                        alt={product.name}
+                        width={50}
+                        height={50}
+                        className={`rounded-md object-cover mix-blend-multiply dark:mix-blend-normal ${product.isAvailable === false ? 'grayscale opacity-70' : ''}`}
+                      />
+                      {product.isAvailable === false && (
+                        <div className="absolute top-0 right-0 bg-red-500 text-white text-[8px] px-1 py-0.5 rounded-bl-md">
+                          Tidak Tersedia
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium dark:text-gray-200">{product.name}</p>
+                      <div className="flex items-center gap-1">
+                        <p className="text-sm font-medium dark:text-gray-200">{product.name}</p>
+                        {product.isAvailable === false && (
+                          <span className="text-[8px] px-1 py-0.5 bg-red-100 text-red-600 rounded-md">
+                            Tidak Tersedia
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Rp {product.offerPrice.toLocaleString('id-ID')}
                       </p>
@@ -74,12 +88,21 @@ const FloatingCart = () => {
                           <Image src={assets.decrease_arrow} alt="decrease" width={16} height={16} className="dark:invert" />
                         </button>
                         <span className="text-sm dark:text-gray-300">{cartItems[itemId]}</span>
-                        <button 
-                          onClick={() => addToCart(itemId)}
-                          className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                        >
-                          <Image src={assets.increase_arrow} alt="increase" width={16} height={16} className="dark:invert" />
-                        </button>
+                        {product.isAvailable === false ? (
+                          <button 
+                            disabled
+                            className="p-1 rounded-full bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-50"
+                          >
+                            <Image src={assets.increase_arrow} alt="increase" width={16} height={16} className="dark:invert opacity-50" />
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => addToCart(itemId)}
+                            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <Image src={assets.increase_arrow} alt="increase" width={16} height={16} className="dark:invert" />
+                          </button>
+                        )}
                         <button 
                           onClick={() => updateCartQuantity(itemId, 0)}
                           className="ml-2 text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
