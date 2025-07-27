@@ -1,5 +1,5 @@
 'use client'
-import Navbar from '@/components/kantel/Navbar'
+import Navbar from '@/components/kandok/Navbar'
 import Sidebar from '@/components/kantel/Sidebar'
 import React from 'react'
 

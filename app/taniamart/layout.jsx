@@ -1,5 +1,5 @@
 'use client'
-import Navbar from '@/components/taniamart/Navbar'
+import Navbar from '@/components/kandok/Navbar'
 import Sidebar from '@/components/taniamart/Sidebar'
 import React from 'react'
 

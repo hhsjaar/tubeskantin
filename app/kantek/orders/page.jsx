@@ -155,7 +155,7 @@ const Orders = () => {
         }) : [];
 
     return (
-        <div className="flex-1 min-h-screen flex flex-col bg-gray-50">
+        <div className="flex-1 min-h-screen flex flex-col dark:bg-gray-800 bg-gray-50">
             <div className="flex-grow p-6 md:p-8">
                 <div className="max-w-6xl mx-auto">
                     {/* Header dengan statistik */}
@@ -188,7 +188,7 @@ const Orders = () => {
                     </div>
 
                     {/* Tab untuk filter pesanan */}
-                    <div className="flex flex-wrap items-center justify-between mb-6 bg-white rounded-lg shadow p-3">
+                    <div className="flex flex-wrap items-center justify-between mb-6 dark:bg-gray-900 bg-white rounded-lg shadow p-3">
                         <button 
                             onClick={() => setActiveTab("all")}
                             className={`px-4 py-2 rounded-md font-medium text-sm flex-shrink-0 transition-all ${activeTab === "all" ? "bg-emerald-100 text-emerald-800" : "text-gray-600 hover:bg-gray-100"}`}
@@ -237,7 +237,7 @@ const Orders = () => {
                                 onChange={() => setGroupByDate(!groupByDate)}
                             />
                             <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                            <span className="ms-3 text-sm font-medium text-gray-700">Kelompokkan per Hari</span>
+                            <span className="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Kelompokkan per Hari</span>
                         </label>
                     </div>
 
@@ -246,9 +246,9 @@ const Orders = () => {
                             <Loading />
                         </div>
                     ) : filteredOrders.length === 0 ? (
-                        <div className="bg-white rounded-xl shadow-md p-8 text-center">
+                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-8 text-center">
                             <div className="text-5xl mb-4">📭</div>
-                            <h3 className="text-xl font-medium text-gray-700 mb-2">Tidak Ada Pesanan</h3>
+                            <h3 className="text-xl font-medium dark:text-white text-gray-700 mb-2">Tidak Ada Pesanan</h3>
                             <p className="text-gray-500">
                                 {activeTab === "all" 
                                     ? "Belum ada pesanan yang masuk" 
@@ -260,12 +260,12 @@ const Orders = () => {
                         <div className="space-y-8">
                             {sortedDates.map(dateKey => (
                                 <div key={dateKey} className="space-y-4">
-                                    <div className="sticky top-0 z-10 bg-gray-50 py-2">
-                                        <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-                                            <svg className="w-5 h-5 mr-2 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 py-2 transition-colors duration-300">
+                                        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center">
+                                            <svg className="w-5 h-5 mr-2 text-[#479c26]" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                                             </svg>
-                                            {dateKey} <span className="ml-2 text-sm font-normal text-gray-500">({groupedOrders[dateKey].length} pesanan)</span>
+                                            {dateKey} <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">({groupedOrders[dateKey].length} pesanan)</span>
                                         </h2>
                                     </div>
                                     
@@ -289,29 +289,25 @@ const Orders = () => {
                                         return (
                                             <div
                                                 key={index}
-                                                className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg"
+                                                className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-800/30 overflow-hidden transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-800/40 border border-gray-200 dark:border-gray-700"
                                             >
-                                                {/* Header pesanan dengan status */}
-                                                <div className={`px-6 py-3 flex justify-between items-center ${getStatusColor(order.status)}`}>
+                                                <div className={`px-6 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 ${getStatusColor(order.status)}`}>
                                                     <div className="flex items-center space-x-2">
                                                         <span className="text-lg">{getStatusIcon(order.status)}</span>
                                                         <span className="font-medium">{order.status || "Menunggu Konfirmasi"}</span>
                                                     </div>
-                                                    <div className="text-sm">
+                                                    <div className="text-sm opacity-80">
                                                         Order ID: {order.orderId || order._id.substring(0, 8)}
                                                     </div>
                                                 </div>
                                                 
-                                                {/* Konten pesanan */}
                                                 <div className="p-6">
                                                     <div className="flex flex-col md:flex-row gap-6">
-                                                        {/* Informasi produk */}
                                                         <div className="flex-1">
                                                             <div className="flex gap-4">
-                                                                {/* Mengganti tampilan gambar tunggal dengan tampilan multi gambar */}
                                                                 <div className="flex -space-x-2 relative">
                                                                     {order.items.slice(0, 2).map((item, idx) => (
-                                                                        <div key={idx} className="relative h-20 w-20 rounded-lg overflow-hidden border bg-gray-50 shadow-sm">
+                                                                        <div key={idx} className="relative h-20 w-20 rounded-lg overflow-hidden border bg-gray-50 dark:bg-gray-700 shadow-sm">
                                                                             <Image
                                                                                 src={item?.product?.image[0] || assets.box_icon}
                                                                                 alt={item?.product?.name || "Produk"}
@@ -321,168 +317,117 @@ const Orders = () => {
                                                                         </div>
                                                                     ))}
                                                                     {order.items.length > 2 && (
-                                                                        <div className="absolute -right-3 -bottom-3 h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-medium shadow-md">
+                                                                        <div className="absolute -right-3 -bottom-3 h-6 w-6 rounded-full bg-[#479c26] text-white flex items-center justify-center text-xs font-medium shadow-md">
                                                                             +{order.items.length - 2}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-1">
                                                                     <div className="flex justify-between items-center mb-2">
-                                                                        <h3 className="font-medium text-gray-900">
+                                                                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
                                                                             {order.items[0]?.product?.name || "Produk Tidak Dikenal"}
                                                                             {order.items.length > 1 && ` & ${order.items.length - 1} item lainnya`}
                                                                         </h3>
                                                                         <button 
                                                                             onClick={() => toggleOrderDetails(order._id)}
-                                                                            className="text-xs font-medium text-emerald-600 hover:text-emerald-800 flex items-center"
+                                                                            className="text-xs font-medium text-[#479c26] hover:text-[#479c26]/80 dark:text-[#479c26] dark:hover:text-[#479c26]/80 flex items-center transition-colors duration-200"
                                                                         >
                                                                             {expandedOrders[order._id] ? (
                                                                                 <>
                                                                                     <span>Sembunyikan Detail</span>
                                                                                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                                                                                     </svg>
                                                                                 </>
                                                                             ) : (
                                                                                 <>
                                                                                     <span>Lihat Detail</span>
                                                                                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                                                     </svg>
                                                                                 </>
                                                                             )}
                                                                         </button>
                                                                     </div>
                                                                     
-                                                                    {/* Detail pesanan yang dapat di-expand */}
-                                                                    {expandedOrders[order._id] ? (
-                                                                        <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100">
-                                                                            <h4 className="text-sm font-medium text-gray-700 mb-2">Detail Pesanan:</h4>
-                                                                            <div className="space-y-2">
-                                                                                {order.items.map((item, idx) => (
-                                                                                    <div key={idx} className="flex items-center justify-between text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0">
-                                                                                        <div className="flex items-center space-x-2">
-                                                                                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-medium">
-                                                                                                {item.quantity}
-                                                                                            </span>
-                                                                                            <div>
-                                                                                                <span className="text-gray-700">{item.product?.name || "Produk tidak ditemukan"}</span>
-                                                                                                {item.product?.description && (
-                                                                                                    <p className="text-xs text-gray-500 mt-0.5">{item.product.description.substring(0, 60)}{item.product.description.length > 60 ? '...' : ''}</p>
-                                                                                                )}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div className="text-right">
-                                                                                            <div className="text-gray-600">
-                                                                                                {currency}{((item.product?.offerPrice || item.product?.price) * item.quantity).toLocaleString()}
-                                                                                            </div>
-                                                                                            <div className="text-xs text-gray-500">
-                                                                                                {currency}{(item.product?.offerPrice || item.product?.price).toLocaleString()} x {item.quantity}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                            
-                                                                            {/* Menambahkan catatan pembeli */}
-                                                                            {order.note && (
-                                                                                <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                                                                                    <div className="flex items-center mb-2">
-                                                                                        <svg className="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                                                        </svg>
-                                                                                        <h4 className="text-sm font-medium text-yellow-800">Catatan Pembeli:</h4>
-                                                                                    </div>
-                                                                                    <p className="text-sm text-yellow-700">{order.note}</p>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className="space-y-2 mt-1 mb-3">
-                                                                            {order.items.slice(0, 2).map((item, idx) => (
-                                                                                <div key={idx} className="flex items-center justify-between text-sm">
-                                                                                    <div className="flex items-center space-x-2">
-                                                                                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-medium">
-                                                                                            {item.quantity}
-                                                                                        </span>
-                                                                                        <span className="text-gray-700">{item.product?.name || "Produk tidak ditemukan"}</span>
-                                                                                    </div>
-                                                                                    <span className="text-gray-600">
-                                                                                        {currency}{((item.product?.offerPrice || item.product?.price) * item.quantity).toLocaleString()}
-                                                                                    </span>
-                                                                                </div>
-                                                                            ))}
-                                                                            {order.items.length > 2 && (
-                                                                                <div className="text-xs text-gray-500 italic">
-                                                                                    + {order.items.length - 2} item lainnya...
-                                                                                </div>
-                                                                            )}
+                                                                    {order.note && (
+                                                                        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+                                                                            <p className="text-sm text-amber-800 dark:text-amber-200">
+                                                                                <span className="font-medium">Catatan: </span>{order.note}
+                                                                            </p>
                                                                         </div>
                                                                     )}
                                                                     
-                                                                    <div className="mt-3 pt-3 border-t border-gray-100">
-                                                                        <div className="flex justify-between items-center text-sm">
-                                                                            <span className="font-medium text-gray-700">Total Pesanan:</span>
-                                                                            <span className="font-bold text-emerald-600">
-                                                                                {currency}{orderTotal.toLocaleString()}
-                                                                            </span>
+                                                                    {expandedOrders[order._id] && (
+                                                                        <div className="mt-4 space-y-3 border-t border-gray-200 dark:border-gray-600 pt-4">
+                                                                            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Detail Pesanan:</h4>
+                                                                            {order.items.map((item, itemIndex) => (
+                                                                                <div key={itemIndex} className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+                                                                                    <div className="flex items-center space-x-3">
+                                                                                        <div className="relative h-12 w-12 rounded-md overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                                                                                            <Image
+                                                                                                src={item?.product?.image[0] || assets.box_icon}
+                                                                                                alt={item?.product?.name || "Produk"}
+                                                                                                fill
+                                                                                                className="object-cover"
+                                                                                            />
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <p className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                                                                                                {item?.product?.name || "Produk Tidak Dikenal"}
+                                                                                            </p>
+                                                                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                                                                Qty: {item.quantity}
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <p className="font-medium text-sm text-gray-900 dark:text-gray-100">
+    {`Rp ${new Intl.NumberFormat('id-ID').format((item.product?.offerPrice || item.product?.price || 0) * item.quantity)}`}
+</p>
+
+                                                                                </div>
+                                                                            ))}
                                                                         </div>
-                                                                    </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         
-                                                        {/* Informasi waktu dan aksi */}
-                                                        <div className="md:w-64 flex flex-col justify-between">
-                                                            <div className="text-sm text-gray-500 space-y-1">
-                                                                <div className="flex items-center">
-                                                                    <svg className="w-4 h-4 mr-1.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                                                                    </svg>
-                                                                    <span>{formattedDate}</span>
+                                                        <div className="md:w-64 space-y-4">
+                                                            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                                                                <div className="flex justify-between items-center mb-2">
+    <span className="text-sm text-gray-600 dark:text-gray-300">Total Pesanan:</span>
+    <span className="font-bold text-lg text-[#479c26] dark:text-[#479c26]">
+        {`Rp ${orderTotal.toLocaleString('id-ID')}`}
+    </span>
+</div>
+
+                                                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                                    <p>{formattedDate}</p>
+                                                                    <p>{formattedTime}</p>
                                                                 </div>
-                                                                <div className="flex items-center">
-                                                                    <svg className="w-4 h-4 mr-1.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                                        <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 100-12 6 6 0 000 12z" clipRule="evenodd" />
-                                                                        <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3.586l2.707 2.707a1 1 0 01-1.414 1.414l-3-3A1 1 0 019 10V6a1 1 0 011-1z" clipRule="evenodd" />
-                                                                    </svg>
-                                                                    <span>{formattedTime}</span>
-                                                                </div>
-                                                                {order.statusUpdatedAt && (
-                                                                    <div className="flex items-center">
-                                                                        <svg className="w-4 h-4 mr-1.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                                            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-                                                                        </svg>
-                                                                        <span>Diperbarui: {new Date(order.statusUpdatedAt).toLocaleTimeString('id-ID')}</span>
-                                                                    </div>
-                                                                )}
                                                             </div>
                                                             
-                                                            {/* Dropdown untuk mengubah status */}
-                                                            <div className="mt-4">
-                                                                <label className="block text-sm font-medium text-gray-700 mb-1">Update Status</label>
-                                                                <div className="relative">
-                                                                    <select 
-                                                                        className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md"
-                                                                        value={order.status || "Menunggu Konfirmasi"}
-                                                                        onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                                                                        disabled={updatingOrderId === order._id}
-                                                                    >
-                                                                        <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
-                                                                        <option value="Sedang Disiapkan">Sedang Disiapkan</option>
-                                                                        <option value="Sudah Siap">Sudah Siap</option>
-                                                                        <option value="Selesai">Selesai</option>
-                                                                        <option value="Dibatalkan">Dibatalkan</option>
-                                                                    </select>
-                                                                    {updatingOrderId === order._id && (
-                                                                        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded-md">
-                                                                            <svg className="animate-spin h-5 w-5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                            </svg>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
+                                                            <div className="space-y-2">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Update Status:</label>
+                                                                <select
+                                                                    value={order.status || "Menunggu Konfirmasi"}
+                                                                    onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                                                                    disabled={updatingOrderId === order._id}
+                                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#479c26] focus:border-[#479c26] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                                                >
+                                                                    <option value="Menunggu Konfirmasi" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Menunggu Konfirmasi</option>
+                                                                    <option value="Sedang Disiapkan" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Sedang Disiapkan</option>
+                                                                    <option value="Sudah Siap" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Sudah Siap</option>
+                                                                    <option value="Selesai" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Selesai</option>
+                                                                    <option value="Dibatalkan" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">Dibatalkan</option>
+                                                                </select>
+                                                                {updatingOrderId === order._id && (
+                                                                    <div className="flex items-center justify-center mt-2">
+                                                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#479c26]"></div>
+                                                                        <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">Memperbarui...</span>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -516,9 +461,8 @@ const Orders = () => {
                                 return (
                                     <div
                                         key={index}
-                                        className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg"
+                                        className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-800/30 overflow-hidden transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-800/40 border border-gray-200 dark:border-gray-700"
                                     >
-                                        {/* Header pesanan dengan status */}
                                         <div className={`px-6 py-3 flex justify-between items-center ${getStatusColor(order.status)}`}>
                                             <div className="flex items-center space-x-2">
                                                 <span className="text-lg">{getStatusIcon(order.status)}</span>
@@ -529,7 +473,6 @@ const Orders = () => {
                                             </div>
                                         </div>
                                         
-                                        {/* Konten pesanan */}
                                         <div className="p-6">
                                             <div className="flex flex-col md:flex-row gap-6">
                                                 {/* Informasi produk */}
@@ -638,8 +581,9 @@ const Orders = () => {
                                                                 <div className="flex justify-between items-center text-sm">
                                                                     <span className="font-medium text-gray-700">Total Pesanan:</span>
                                                                     <span className="font-bold text-emerald-600">
-                                                                        {currency}{orderTotal.toLocaleString()}
-                                                                    </span>
+    {`Rp ${orderTotal.toLocaleString('id-ID')}`}
+</span>
+
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -708,6 +652,7 @@ const Orders = () => {
                     )}
                 </div>
             </div>
+            <Footer />
         </div>
     );
 };

@@ -1,5 +1,5 @@
 'use client'
-import Navbar from '@/components/kansip/Navbar'
+import Navbar from '@/components/kandok/Navbar'
 import Sidebar from '@/components/kansip/Sidebar'
 import React from 'react'
 
