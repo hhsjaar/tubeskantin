@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-// Daftar kantin kampus
+// Daftar kantin yang tersedia
 const KANTIN_LIST = [
   "Kantin Teknik", 
   "Kantin Kodok", 
@@ -18,43 +18,43 @@ const KANTIN_LIST = [
   "Tania Mart"
 ]
 
-// Kategori prompt untuk segmentasi kebutuhan pengguna
+// Kategori prompt yang umum digunakan
 const PROMPT_CATEGORIES = {
   KESEHATAN: [
     'menu sehat', 'makanan sehat', 'makanan bergizi', 'makanan seimbang',
-    'rendah kalori', 'rendah gula', 'rendah garam', 'rendah karbon', 'vegetarian',
-    'makanan untuk lansia', 'makanan untuk penderita diabetes', 'menu diet', 'nutrisi lengkap'
+    'makanan diet', 'rendah kalori', 'rendah karbon', 'vegetarian'
   ],
   KECANTIKAN: [
-    'anti jerawat', 'jerawatan', 'kulit sehat', 'bikin glowing', 'glowing', 'kulit cerah'
+    'anti jerawat', 'bikin glowing', 'kulit sehat'
   ],
   ENERGI: [
-    'nambah energi', 'ngantuk', 'fokus belajar', 'anti stres', 'biar semangat',
-    'bikin melek', 'hilangin capek', 'mood booster'
+    'nambah energi', 'ngantuk', 'fokus belajar', 'anti stres', 'ngilangin pusing'
   ],
   EKONOMIS: [
-    'murah', 'hemat', 'terjangkau', 'low budget', 'dompet tipis', 'broke student'
+    'murah', 'hemat', 'terjangkau'
   ],
   PREFERENSI: [
-    'enak', 'cepet kenyang', 'ngenyangin', 'cemilan', 'sarapan', 'cepat saji', 'ringan',
-    'nambah berat badan', 'protein tinggi', 'kenyang lama', 'ga ribet', 'grab and go'
+    'enak', 'kenyang lama', 'cemilan', 'sarapan', 'cepat saji', 'ringan',
+    'nambah berat badan', 'protein tinggi'
   ]
 }
 
-// ========== [GET] Endpoint: Statistik Produk & Kantin ==========
+// Endpoint GET untuk mendapatkan statistik kantin dan produk
 export async function GET() {
   try {
     await connectDB()
-
+    
+    // Menghitung jumlah produk per kantin
     const kantinStats = {}
     for (const kantin of KANTIN_LIST) {
       kantinStats[kantin] = await Product.countDocuments({ kantin })
     }
-
+    
+    // Mendapatkan semua produk
     const products = await Product.find()
       .select('name description price image kantin calories protein totalCarbohydrates totalFat karbonMakanan karbonPengolahan karbonTransportasiLimbah')
       .lean()
-
+    
     return NextResponse.json({ 
       success: true, 
       kantinStats,
@@ -62,39 +62,39 @@ export async function GET() {
       products
     })
   } catch (error) {
-    return NextResponse.json({ 
-      success: false, 
-      message: error.message 
-    }, { status: 500 })
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 })
   }
 }
 
-// ========== [POST] Endpoint: Rekomendasi Makanan ==========
+// Endpoint POST untuk rekomendasi makanan berdasarkan prompt
 export async function POST(req) {
   try {
     const { prompt } = await req.json()
-
+    
     if (!prompt) {
       return NextResponse.json({ 
         success: false, 
         message: 'Prompt diperlukan untuk rekomendasi makanan' 
       }, { status: 400 })
     }
-
+    
     await connectDB()
-
+    
+    // Menghitung jumlah produk per kantin
     const kantinStats = {}
     for (const kantin of KANTIN_LIST) {
       kantinStats[kantin] = await Product.countDocuments({ kantin })
     }
-
+    
+    // Mendapatkan produk untuk rekomendasi
     const products = await Product.find()
       .select('name description price image kantin calories protein totalCarbohydrates totalFat karbonMakanan karbonPengolahan karbonTransportasiLimbah')
       .lean()
-
+    
+    // Mengidentifikasi kategori prompt untuk memberikan respons yang lebih relevan
     const promptLower = prompt.toLowerCase()
     const identifiedCategories = []
-
+    
     for (const [category, keywords] of Object.entries(PROMPT_CATEGORIES)) {
       for (const keyword of keywords) {
         if (promptLower.includes(keyword)) {
@@ -103,40 +103,36 @@ export async function POST(req) {
         }
       }
     }
-
-    // Ringkasan produk agar efisien token
-    const summarizedProducts = products.map(p => ({
-      name: p.name,
-      kantin: p.kantin,
-      calories: p.calories,
-      protein: p.protein,
-      totalFat: p.totalFat,
-      totalCarbohydrates: p.totalCarbohydrates,
-      karbon: {
-        makanan: p.karbonMakanan,
-        pengolahan: p.karbonPengolahan,
-        transportasi: p.karbonTransportasiLimbah
-      }
-    }))
-
+    
+    // Membuat prompt untuk OpenAI
     const systemPrompt = `
-Kamu adalah asisten AI gizi kampus yang memahami kebutuhan mahasiswa muda dan dosen/lansia.
+Kamu adalah asisten AI yang ahli dalam nutrisi, makanan sehat, dan rekomendasi makanan kantin kampus.
 
-Berikut adalah daftar makanan dari berbagai kantin kampus:
-${JSON.stringify(summarizedProducts)}
+Berikut adalah daftar makanan yang tersedia di kantin kampus dengan informasi nutrisi dan jejak karbon:
+${JSON.stringify(products, null, 2)}
 
-Permintaan pengguna: "${prompt}"
-${identifiedCategories.length > 0 ? `Topik terkait: ${identifiedCategories.join(', ')}` : ''}
+Pengguna menanyakan: "${prompt}"
 
-Tugasmu:
-1. Beri penjelasan singkat kenapa rekomendasi ini cocok (1-2 kalimat)
-2. Daftarkan 3–5 makanan yang direkomendasikan, dengan format:
-   - [Nama Makanan] dari [Kantin] – [Kalori] kkal, [Protein]g protein
-3. Tambahkan tips tambahan jika relevan (opsional)
+${identifiedCategories.length > 0 ? `Prompt ini terkait dengan kategori: ${identifiedCategories.join(', ')}` : ''}
 
-Gunakan gaya bahasa sesuai gaya pengguna. Jika kasual (mahasiswa), gunakan bahasa santai. Jika formal (dosen/orang tua), gunakan bahasa sopan dan informatif.
-    `.trim()
+Berdasarkan permintaan pengguna, berikan rekomendasi makanan yang paling sesuai. Pertimbangkan:
 
+1. Jika terkait KESEHATAN: fokus pada nilai gizi, kalori, dan jejak karbon
+2. Jika terkait KECANTIKAN: fokus pada makanan yang baik untuk kulit dan antioksidan
+3. Jika terkait ENERGI: fokus pada makanan yang memberikan energi dan meningkatkan fokus
+4. Jika terkait EKONOMIS: fokus pada makanan yang terjangkau namun tetap berkualitas
+5. Jika terkait PREFERENSI: fokus pada rasa dan kepuasan
+
+Berikan respons dalam format:
+1. Penjelasan singkat mengapa makanan ini direkomendasikan (1-2 kalimat)
+2. Daftar 3-5 makanan yang direkomendasikan dengan format:
+   - [Nama Makanan] dari [Nama Kantin] - [Kalori] kkal, [Protein]g protein
+3. Tips singkat yang relevan dengan permintaan pengguna (opsional)
+
+Gunakan bahasa yang sama dengan yang digunakan pengguna dalam permintaannya.
+`;
+
+    // Mendapatkan rekomendasi dari OpenAI
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
@@ -144,7 +140,7 @@ Gunakan gaya bahasa sesuai gaya pengguna. Jika kasual (mahasiswa), gunakan bahas
         { role: 'user', content: prompt }
       ],
       temperature: 0.7,
-      max_tokens: 700
+      max_tokens: 800,
     })
 
     return NextResponse.json({ 
