@@ -408,12 +408,10 @@ const Home = () => {
   '🌙 Menu sehat hari ini dengan jejak karbon rendah',
   '🥗 Pilihan makanan bergizi dan ramah lingkungan',
   '🌿 Makanan sehat dengan jejak karbon minimal',
-  '⚖️ Rekomendasi makanan seimbang dan bergizi',
 ] : [
   '☀️ Menu sehat dan ramah lingkungan hari ini',
   '🥗 Rekomendasi makanan bergizi dengan jejak karbon rendah',
   '🌱 Pilihan makanan dengan dampak lingkungan minimal',
-  '⚖️ Rekomendasi makanan seimbang dengan nilai gizi lengkap',
 ]
 ,
             starterPromptFontSize: 15,
