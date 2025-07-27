@@ -11,9 +11,31 @@ import FloatingCart from "@/components/FloatingCart";
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500"] });
 
 export const metadata = {
-  title: "Ngantin - Polines",
-  description: "Kantin Digital Polines",
+  title: "Ngantin – Kantin Digital Polines",
+  description: "Ngantin adalah aplikasi kantin digital berbasis AI dan kampanye lingkungan di Politeknik Negeri Semarang.",
+  keywords: [
+    "Ngantin",
+    "kantin digital",
+    "Polines",
+    "sampah makanan",
+    "kampus berkelanjutan",
+    "rekomendasi makanan AI",
+    "trashback",
+    "SDGs",
+    "kampus hijau"
+  ],
+  authors: [{ name: "Roy Arya" }],
+  creator: "Ngantin Team",
+  robots: "index, follow",
+  metadataBase: new URL("https://ngantin.in"),
+  alternates: {
+    canonical: "https://ngantin.in",
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
+
 
 export default function RootLayout({ children }) {
   return (
