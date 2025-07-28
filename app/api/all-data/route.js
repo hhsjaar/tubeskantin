@@ -55,11 +55,23 @@ export async function GET() {
       .select('name description offerPrice image kantin calories protein totalCarbohydrates totalFat karbonMakanan karbonPengolahan karbonTransportasiLimbah')
       .lean()
 
+    // Tambahkan satuan pada seluruh nilai gizi dan karbon
+    const productsWithUnits = products.map(p => ({
+      ...p,
+      calories: p.calories ? `${p.calories} kkal` : null,
+      protein: p.protein ? `${p.protein} g` : null,
+      totalFat: p.totalFat ? `${p.totalFat} g` : null,
+      totalCarbohydrates: p.totalCarbohydrates ? `${p.totalCarbohydrates} g` : null,
+      karbonMakanan: p.karbonMakanan ? `${p.karbonMakanan} kg CO₂e` : null,
+      karbonPengolahan: p.karbonPengolahan ? `${p.karbonPengolahan} kg CO₂e` : null,
+      karbonTransportasiLimbah: p.karbonTransportasiLimbah ? `${p.karbonTransportasiLimbah} kg CO₂e` : null
+    }))
+
     return NextResponse.json({ 
       success: true, 
       kantinStats,
-      totalProducts: products.length,
-      products
+      totalProducts: productsWithUnits.length,
+      products: productsWithUnits
     })
   } catch (error) {
     return NextResponse.json({ 
