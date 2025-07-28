@@ -108,14 +108,14 @@ export async function POST(req) {
     const summarizedProducts = products.map(p => ({
       name: p.name,
       kantin: p.kantin,
-      calories: p.calories,
-      protein: p.protein,
-      totalFat: p.totalFat,
-      totalCarbohydrates: p.totalCarbohydrates,
+      calories: p.calories ? `${p.calories} kkal` : null,
+      protein: p.protein ? `${p.protein} g` : null,
+      totalFat: p.totalFat ? `${p.totalFat} g` : null,
+      totalCarbohydrates: p.totalCarbohydrates ? `${p.totalCarbohydrates} g` : null,
       karbon: {
-        makanan: p.karbonMakanan,
-        pengolahan: p.karbonPengolahan,
-        transportasi: p.karbonTransportasiLimbah
+        makanan: p.karbonMakanan ? `${p.karbonMakanan} kg CO₂e` : null,
+        pengolahan: p.karbonPengolahan ? `${p.karbonPengolahan} kg CO₂e` : null,
+        transportasi: p.karbonTransportasiLimbah ? `${p.karbonTransportasiLimbah} kg CO₂e` : null
       }
     }))
 
@@ -131,7 +131,8 @@ ${identifiedCategories.length > 0 ? `Topik terkait: ${identifiedCategories.join(
 Tugasmu:
 1. Beri penjelasan singkat kenapa rekomendasi ini cocok (1-2 kalimat)
 2. Daftarkan 3–5 makanan yang direkomendasikan, dengan format:
-   - [Nama Makanan] dari [Kantin] – [Kalori] kkal, [Protein]g protein
+   - [Nama Makanan] dari [Kantin] – [Kalori] kkal, [Protein]g protein, [Lemak]g lemak, [Karbohidrat]g karbohidrat
+   - Emisi karbon: Makanan [X] kg CO₂e, Pengolahan [Y] kg CO₂e, Transportasi [Z] kg CO₂e
 3. Tambahkan tips tambahan jika relevan (opsional)
 
 Gunakan gaya bahasa sesuai gaya pengguna. Jika kasual (mahasiswa), gunakan bahasa santai. Jika formal (dosen/orang tua), gunakan bahasa sopan dan informatif.
