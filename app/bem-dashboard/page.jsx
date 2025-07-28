@@ -365,9 +365,73 @@ export default function BemDashboard() {
               alt="Foto Sampah" 
               className="w-full h-full object-contain"
             />
-            // ... existing image navigation code ...
+            
+            {/* Navigation Arrows - hanya tampil jika ada lebih dari 1 gambar */}
+            {imageGallery.length > 1 && (
+              <>
+                <button 
+                  onClick={() => navigateImage('prev')}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm"
+                >
+                  <FaArrowLeft className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => navigateImage('next')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm"
+                >
+                  <FaArrowLeft className="w-4 h-4 rotate-180" />
+                </button>
+                
+                {/* Image Counter */}
+                <div className="absolute bottom-2 right-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm">
+                  {currentImageIndex + 1} / {imageGallery.length}
+                </div>
+              </>
+            )}
           </div>
-          // ... existing thumbnail gallery code ...
+          
+          {/* Thumbnail Gallery - hanya tampil jika ada lebih dari 1 gambar */}
+          {imageGallery.length > 1 && (
+            <div className="mt-4">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                {imageGallery.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                      currentImageIndex === index 
+                        ? 'border-[#479C25] ring-2 ring-[#479C25]/30' 
+                        : 'border-gray-200 dark:border-gray-600 hover:border-[#479C25]/50'
+                    }`}
+                  >
+                    <img 
+                      src={image} 
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Mobile Swipe Indicator */}
+          {imageGallery.length > 1 && (
+            <div className="flex justify-center mt-3 sm:hidden">
+              <div className="flex gap-1">
+                {imageGallery.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                      currentImageIndex === index 
+                        ? 'bg-[#479C25]' 
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Detail Info dengan dark mode */}
@@ -460,7 +524,7 @@ export default function BemDashboard() {
                     <img
                       src={selectedTrashback.userId.imageUrl || "/default-user.png"}
                       alt={selectedTrashback.userId.name}
-                      className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                      className="w-8 h-8 rounded-full object-cover"
                     />
                     <span className="text-gray-900 dark:text-white">{selectedTrashback.userId.name}</span>
                   </div>
